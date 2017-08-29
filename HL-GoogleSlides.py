@@ -1,7 +1,7 @@
 from __future__ import print_function
 import __builtin__
 import httplib2
-import os
+import os,re
 
 from apiclient import discovery
 from oauth2client import client
@@ -11,23 +11,46 @@ from oauth2client.file import Storage
 import xml.etree.cElementTree as et
 
 #
-TEMPLATEKEYS = {'combat':'NPCStatBlock-Combat-',
-                'noncombat':'NPCStatBlock-NonCombat-'
+TEMPLATENAME = "StatBlock Template"
+TEMPLATEPAGES = ["NPC-Combat-Image","NPC-Noncombat-Image",
+                 "NPC-Combat-Noimage","NPC-Noncombat-Noimage"]
+TEMPLATEKEYS = {'npc':'NPC-',
+                'combat':'Combat-',
+                'noncombat':'Noncombat-'
                }
-TEMPLATEIDS = {'NPCStatBlock-Combat-Image Template':'',
-               'NPCStatBlock-Combat-NoImage Template':'',
-               'NPCStatBlock-NonCombat-Image Template':'',
-               'NPCStatBlock-NonCombat-NoImage Template':''
-              }
+REPLACEFLAGS = {
+'trained skills...': "trained_skills(character)"
+}
+
+def trained_skills(character):
+    text = ''
+    for skill in character.iter('skill'): 
+        if int(skill.attrib['ranks']) > 0 or int(skill.attrib['value']) > 4:
+          skillName = re.sub(r'[aeiou ]',r'',skill.attrib['name'])
+          skillName = re.search(r'\(.*\)',skillName) and skillName or skillName[0:4]
+          skillName = skillName == "Hl" and "Heal" or skillName
+          skillName = re.sub(r'Knwldg','Know',skillName)
+          skillName = re.sub(r'Prfrm','Prfm',skillName)
+          skillName = re.sub(r'Prfssn','Prof',skillName)
+          skillName = re.sub(r'lchmy','alchmy',skillName)
+          re.sub(r'Knwldg','Know',skillName)
+          text += skillName
+          text += int(skill.attrib['value'] >= 0) and " +" or " "
+          text += '%d, ' % int(skill.attrib['value'])
+    return(text[0:-2])      
 
 try:
     import argparse
     parser = argparse.ArgumentParser(parents=[tools.argparser])
-    parser.add_argument('--template', choices=TEMPLATEKEYS.keys(), default='noncombat')
+    parser.add_argument('--page', choices=TEMPLATEKEYS.keys(), 
+                        action='append', help="flages to identify pages to use")
+    parser.add_argument('--template', default=TEMPLATENAME, help="template presentation name")
     parser.add_argument('XMLfiles', metavar='xml-file', type=argparse.FileType('r'), nargs='+', help='HeroLab Protfolio XML output file')
     flags = parser.parse_args()
 except ImportError:
     flags = None
+    
+if not flags.page: flags.page = ['npc','noncombat']
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/slides.googleapis.com-python-quickstart.json
@@ -35,9 +58,7 @@ SCOPES = ('https://www.googleapis.com/auth/presentations',
           'https://www.googleapis.com/auth/drive')
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'HL-GoogleSlides'
-
-
-
+    
 def get_portfolio(xmlfile=None):
     """Returns an etree Element portfolio a HeroLab XML file"""
     if (isinstance(xmlfile,__builtin__.file)):
@@ -71,10 +92,10 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def get_templates(service):
-    """Returns Dictionary of template presentation IDs"""
+def copy_template(service,newname):
+    """Returns presentationId of newly copied template"""
+    newId = None
     page_token=None
-    templateIds = TEMPLATEIDS.copy()
     #print(templateIds.keys())
     while True:
         response = service.files().list(q="mimeType='application/vnd.google-apps.presentation'",
@@ -82,14 +103,16 @@ def get_templates(service):
                              fields='nextPageToken, files(id,name,mimeType)',
                              pageToken=page_token).execute()
         for presentation in response.get('files', []):
-            if presentation.get('name') in templateIds.keys():
-                templateIds[presentation.get('name')] = presentation.get('id')
-                print('%s: %s' % (presentation.get('name'),presentation.get('id')))
+            if presentation.get('name') == flags.template:
+                newresponse = service.files().copy(fileId=presentation.get('id'),
+                             body={ 'name': newname }).execute()                
+                newId = newresponse.get('id')
+                print('"%s" copied to "%s"' % (presentation.get('name'),newresponse.get('name')))
                 
         page_token = response.get('nextPageToken',None)
         if page_token is None:
             break
-    return templateIds
+    return newId
     
 def main():
     """Shows basic usage of the Slides API.
@@ -102,63 +125,90 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('slides', 'v1', http=http)
     drive_service = discovery.build('drive', 'v3', http=http)
-    
-    templateIds = get_templates(drive_service)
-    
-    #presentationId = '1EAYk18WDjIG-zp_0vLm3CsfQh_i8eXc67Jo2O9C6Vuc'
-    presentationId = '1p1HprHcAxek4oSIamLlhioB1BAs7-qkjxuyEjm5Y6u8'
-    #presentationId = '1unFqqmtBtljhg1_qJ0cr1o5ENZr_r1m6HK_yj1_x_0A'
-    presentation = service.presentations().get(
-        presentationId=presentationId).execute()
-    slides = presentation.get('slides')
-
-    print ('The presentation contains {} slides:'.format(len(slides)))
-    for i, slide in enumerate(slides):
-        print(slide.get('objectId'))
-        print(dir(slide))
-        #print(slide.items())
-        print('- Slide #{} contains {} elements.'.format(i + 1,
-            len(slide.get('pageElements'))))
-            
+                    
     for xmlfile in flags.XMLfiles:
         portfolio = get_portfolio(xmlfile)
+#        print(dir(portfolio))
+#        break
         presentationName = os.path.splitext(os.path.basename(xmlfile.name))[0]
         # start presentation
-        body = { 'title' : presentationName }
-        presentation = service.presentations().create(body=body).execute()
-        presentationId = presentation.get('presentationId')
+        presentationId = copy_template(drive_service,presentationName)
+        presentation = service.presentations().get(presentationId=presentationId).execute()
         print('Created:"%s" "%s"' % (presentationName,presentationId))
+        slides = presentation.get('slides')
+        slideIds = map(lambda x:x.get('objectId'),slides)
+        slideNames = []
+        #for s in slides:
+        #    slideNames.append(s['pageElements'][0]['shape']['text'])
+        for slideId in slideIds:
+            for findText in TEMPLATEPAGES:
+                body = { "requests":  [ {
+                  "replaceAllText": {
+                    "replaceText":  findText,
+                    "pageObjectIds": [slideId],
+                    "containsText": {
+                      "text": findText,
+                      "matchCase": True
+                    }
+                  }
+                } ] }
+                response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
+                topReply = response.get('replies')[0]['replaceAllText']
+                if "occurrencesChanged" in topReply.keys() and topReply["occurrencesChanged"] > 0:
+                    slideNames.append(findText)
+        print(slideIds)
+        print(slideNames)
+
         characterIndex = 0
         characterObjectId = []
         for character in portfolio.iter('character'):
+            slideName = reduce(lambda x,y: '%s%s' % (TEMPLATEKEYS[x],TEMPLATEKEYS[y]),flags.page)
             characterImages = character.findall('images')[0].getchildren()
-            templateName = TEMPLATEKEYS[flags.template]
-            templateName += (characterImages) and 'Image' or 'NoImage'
-            templateName += ' Template'
-            templateId = templateIds[templateName]
-            #print(templateId)
-            print(templateId,character.attrib['name'])            
-            # locate the template slide
-            templatePresentation = service.presentations().get(presentationId=templateId).execute()
-            templateSlide = templatePresentation.get('slides')[0]
-            # clear its objectId
-            newSlide = templateSlide.copy()
-            del(newSlide['objectId'])
-            # slide creation request
-            #### ERROR This does not work the copied object is not in the correct 
-            #### format to create a new one
-            requests = [ { 'createSlide' : newSlide }]
-            body = { 'requests': requests }
-            # execute request
+            slideName += (characterImages) and 'Image' or 'Noimage'
+            slideId = slideIds[slideNames.index(slideName)]
+            body = { "requests":  [ {
+              "duplicateObject": {
+                "objectId":  slideId
+              }
+            } ] }
             response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
-            create_slide_response = response.get('replies')[0].get('createSlide')    
-            characterObjectId[characterIndex] = create_slide_response.get('objectId')
+            #print(response.get('replies'))            
+            newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
+            body = { "requests":  [ {
+              "updateSlidesPosition": {
+                "slideObjectIds": [ newSlideId ],
+                "insertionIndex": characterIndex
+              }
+            },{
+              "replaceAllText": {
+                "replaceText":  character.attrib['name'],
+                "pageObjectIds": [newSlideId],
+                "containsText": {
+                  "text": '{{%s}}' % slideName,
+                  "matchCase": True
+                }
+              }
+            } ] }
+            for replaceKey in REPLACEFLAGS.keys():
+                body['requests'].append({
+                  "replaceAllText": {
+                    "replaceText":  eval(REPLACEFLAGS[replaceKey]),
+                    "pageObjectIds": [newSlideId],
+                    "containsText": {
+                      "text": '{{%s}}' % replaceKey,
+                      "matchCase": True
+                    }
+                  }
+                })
+            response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
+            #print(response.get('replies'))       
+            #print(slideName,slideId,newSlideId)
             characterIndex += 1
-        characterIndex = 0
-        for character in portfolio.iter('character'):
-            print(characterObjectId[characterIndex],character.attrib)
-            # replace content
-            characterIndex += 1
+        # delete original template pages
+        body = { "requests": [] }
+        for slideId in slideIds:
+            body["requests"].append({ "deleteObject": { "objectId":slideId }})
+        response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
         xmlfile.close()
         
     #body = { 'title' : "TestTemplate" }
