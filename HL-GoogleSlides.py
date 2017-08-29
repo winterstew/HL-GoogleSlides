@@ -18,22 +18,149 @@ TEMPLATEKEYS = {'npc':'NPC-',
                 'combat':'Combat-',
                 'noncombat':'Noncombat-'
                }
+JOIN = lambda x,y:'%s%s,' % (x,y)
+JOINVOWELLESS = lambda x,y:'%s%s,' % (x,re.sub(r'[aeiou ]','',y))
 REPLACEFLAGS = {
-'trained skills...': "trained_skills(character)"
+'align': "re.sub(r'[a-zT ]','',character.find('alignment').get('name'))",
+'race': "re.sub(r' ','',character.find('race').get('racetext'))",
+'size': "character.find('size').get('name')[0]",
+'space': "character.find('size').find('space').get('text')",
+'reach': "character.find('size').find('reach').get('text')",
+'deity': "character.find('deity').get('name')",
+'CR': "character.find('challengerating').get('text')",
+'XP': "'XP' + character.find('xpaward').get('value')",
+'classes summary': "character.find('classes').get('summaryabbr')",
+'types': "get_attrlist(character,'types','type','name',test=('active','==\\\'yes\\\''))",
+'subtypes': "get_attrlist(character,'subtypes','subtype','name')",
+'hero': "(character.find('heropoints').get('enabled') == 'yes') and character.find('heropoints').get('total') or '-'",
+'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",
+'auras': "get_attrlist(character,'auras','aura','name')",
+'favoredclasses': "get_attrlist(character,'favoredclasses','favoredclass','name',fmt=JOINVOWELLESS)",
+'HP': "character.find('health').get('hitpoints')",
+'HD': "character.find('health').get('hitdice')",
+'xp': "character.find('xp').get('total')",
+'money': "character.find('money').get('total')",
+'gender': "character.find('personal').get('gender').lower()",
+'age': "character.find('personal').get('age')",
+'hair': "character.find('personal').get('hair')",
+'eyes': "character.find('personal').get('eyes')",
+'skin': "character.find('personal').get('skin')",
+'height': "re.sub(r' ','',character.find('personal').find('charheight').get('text'))",
+'weight': "character.find('personal').find('charweight').get('text')",
+'personal description':"get_nested(character,'{{height}} {{(weight)}} {{age}} yr old w/ {{skin}} skin {{hair}} hair and {{eyes}} eyes.  ')",
+'languages': "get_attrlist(character,'languages','language','name')",
+'strength': "get_ability(character,'Strength')",
+'dexterity': "get_ability(character,'Dexterity')",
+'constitution': "get_ability(character,'Constitution')",
+'intelligence': "get_ability(character,'Intelligence')",
+'wisdom': "get_ability(character,'Wisdom')",
+'charisma': "get_ability(character,'Charisma')",
+'str': "get_ability_value(character,'Strength')",
+'dex': "get_ability_value(character,'Dexterity')",
+'con': "get_ability_value(character,'Constitution')",
+'int': "get_ability_value(character,'Intelligence')",
+'wis': "get_ability_value(character,'Wisdom')",
+'cha': "get_ability_value(character,'Charisma')",
+'STR': "get_ability_mod(character,'Strength')",
+'DEX': "get_ability_mod(character,'Dexterity')",
+'CON': "get_ability_mod(character,'Constitution')",
+'INT': "get_ability_mod(character,'Intelligence')",
+'WIS': "get_ability_mod(character,'Wisdom')",
+'CHA': "get_ability_mod(character,'Charisma')",
+'STRs': "get_ability_sit(character,'Strength')",
+'DEXs': "get_ability_sit(character,'Dexterity')",
+'CONs': "get_ability_sit(character,'Constitution')",
+'INTs': "get_ability_sit(character,'Intelligence')",
+'WISs': "get_ability_sit(character,'Wisdom')",
+'CHAs': "get_ability_sit(character,'Charisma')",
+'Fortitude Save': "get_save(character,'Fortitude Save')",
+'Fort': "get_save_mod(character,'Fortitude Save')",
+'Forts': "get_save_sit(character,'Fortitude Save')",
+'Reflex Save': "get_save(character,'Reflex Save')",
+'Ref': "get_save_mod(character,'Reflex Save')",
+'Refs': "get_save_sit(character,'Reflex Save')",
+'Will Save': "get_save(character,'Will Save')",
+'Will': "get_save_mod(character,'Will Save')",
+'Wills': "get_save_sit(character,'Will Save')",
+    
+'trained skills...': "get_trained_skills(character)"
 }
 
-def trained_skills(character):
+for k in REPLACEFLAGS.keys():
+    REPLACEFLAGS['('+k+')'] = "(%s) and '(%%s)' %% (%s) or ''" % (REPLACEFLAGS[k],REPLACEFLAGS[k])
+
+def get_nested(character,myString):
+    for rk in REPLACEFLAGS.keys():
+        rkSearch = re.sub('\)','\\)',re.sub('\(','\\(',rk))
+        if re.search("{{%s}}" % rkSearch,myString):
+            rs = eval(REPLACEFLAGS[rk])
+            #print(rk,rs,myString)
+            myString = re.sub("{{%s}}" % rk, rs, myString)
+    return myString
+        
+def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=(None,'')):
+    l = ''
+    testExpression = test[0] and "a.attrib[test[0]] %s" % test[1] or "a.attrib[attr]" 
+    for a in character.find(outer).findall(inner):
+        if eval(testExpression): l = fmt(l,a.attrib[attr])
+    return l[0:-1]
+
+def get_save(character,svName):
+    for sv in character.find('saves').iter('save'):
+        if sv.get('name') == svName:
+            rtn = sv.get('save')
+            rtn = '%s = %sb %sa %sr %sm' % (rtn,(sv.get('base') or '+0'),(sv.get('fromattr') or '+0'),(sv.get('fromresist') or '+0'),(sv.get('frommisc') or '+0'))
+            rtn = '%s <%s>' % (rtn,sv.find('situationalmodifiers').get('text'))
+            return re.sub(' <>','',rtn)
+            
+def get_save_mod(character,svName):
+    for sv in character.find('saves').iter('save'):
+        if sv.get('name') == svName:
+            return sv.get('save')
+
+def get_save_sit(character,svName):
+    for sv in character.find('saves').iter('save'):
+        if sv.get('name') == svName:
+            return sv.find('situationalmodifiers').get('text')            
+        
+def get_ability(character,abName):
+    for ab in character.find('attributes').iter('attribute'):
+        if ab.get('name') == abName:
+            rtn = ab.find('attrvalue').get('text')
+            rtn = '%s(%s) <%s>' % (rtn,ab.find('attrbonus').get('text'),ab.find('situationalmodifiers').get('text'))
+            return re.sub(' <>','',rtn)
+    
+def get_ability_value(character,abName):
+    for ab in character.find('attributes').iter('attribute'):
+        if ab.get('name') == abName:
+            return ab.find('attrvalue').get('text')
+            
+def get_ability_mod(character,abName):
+    for ab in character.find('attributes').iter('attribute'):
+        if ab.get('name') == abName:
+            return ab.find('attrbonus').get('text')
+
+def get_ability_sit(character,abName):
+    for ab in character.find('attributes').iter('attribute'):
+        if ab.get('name') == abName:
+            return ab.find('situationalmodifiers').get('text')
+        
+def get_trained_skills(character):
     text = ''
     for skill in character.iter('skill'): 
         if int(skill.attrib['ranks']) > 0 or int(skill.attrib['value']) > 4:
           skillName = re.sub(r'[aeiou ]',r'',skill.attrib['name'])
           skillName = re.search(r'\(.*\)',skillName) and skillName or skillName[0:4]
           skillName = skillName == "Hl" and "Heal" or skillName
+          skillName = skillName == "Rd" and "Ride" or skillName
           skillName = re.sub(r'Knwldg','Know',skillName)
           skillName = re.sub(r'Prfrm','Prfm',skillName)
           skillName = re.sub(r'Prfssn','Prof',skillName)
-          skillName = re.sub(r'lchmy','alchmy',skillName)
-          re.sub(r'Knwldg','Know',skillName)
+          skillName = re.sub(r'Crft(lchmy)','Crft(alchm)',skillName)
+          skillName = re.sub(r'Know(ngnrng)','Prof(eng)',skillName)
+          skillName = re.sub(r'Prof(nnkpr)','Prof(innkp)',skillName)
+          skillName = re.sub(r'Prof(ck)','Prof(cook)',skillName)
+          skillName = re.sub(r'nstrmnts','',skillName)
           text += skillName
           text += int(skill.attrib['value'] >= 0) and " +" or " "
           text += '%d, ' % int(skill.attrib['value'])
