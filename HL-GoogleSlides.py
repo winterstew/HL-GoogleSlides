@@ -105,9 +105,12 @@ REPLACEFLAGS = {
 'CMDothers': "get_varied_maneuvers(character,'cmd')",
 'ffCMD': "character.find('maneuvers').get('cmdflatfooted')",
 'init': "character.find('initiative').get('total')",
+'init situational': "character.find('initiative').find('situationalmodifiers').get('text')",
 'basespeed': "character.find('movement').find('basespeed').get('value')",
 'speed': "character.find('movement').find('speed').get('value')",
 'encum': "character.find('encumbrance').get('light') + '/' + character.find('encumbrance').get('medium') + '/' + character.find('encumbrance').get('heavy') + ' (' + character.find('encumbrance').get('carried') + ')' + character.find('encumbrance').get('level')[0:1]",
+'percep': "re.sub(r'\+-','-','+' + get_attr(character.find('skills').findall('skill'),('name','Perception'),(None,'value')))",
+'percep situational': "get_attr(character.find('skills').findall('skill'),('name','Perception'),('situationalmodifiers','text'))",
 'trained skills..': "get_trained_skills(character)",
 'feats..': "get_attrlist(character,'feats','feat','name',test=('profgroup','%s != \"yes\"'))",
 'traits..': "get_attrlist(character,'traits','trait','name')",
@@ -123,7 +126,7 @@ REPLACEFLAGS = {
 'defenses armor..': "get_attrlist(character,'defenses','armor','name')",
 'magic items..': "get_attrlist(character,'magicitems','item','name')",
 'gear items..': "get_attrlist(character,'gear','item','name')",
-'spelllike special': "get_attrlist(character,'spelllike','special','shortname')",
+'spelllike special..': "get_attrlist(character,'spelllike','special','shortname')",
 'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name')",
 'other special..': "get_attrlist(character,'otherspecials','special','shortname')",
 'spells known..': "get_sortedspells(character,'spellsknown')",
@@ -147,6 +150,16 @@ REPLACEFLAGS = {
 
 for k in REPLACEFLAGS.keys():
     REPLACEFLAGS['('+k+')'] = "(%s) and '(%%s)' %% (%s) or ''" % (REPLACEFLAGS[k],REPLACEFLAGS[k])
+
+def get_attr(eList,test,ra):
+    for e in eList:
+        if (e.attrib[test[0]] == test[1]):
+            if ( ra[0] == None ): 
+                #print(ra[1],e.get(ra[1]))
+                return e.get(ra[1])
+            else:
+                #print(ra[1],e.find(ra[0]),e.find(ra[0]).get(ra[1]))
+                return e.find(ra[0]).get(ra[1])
 
 def get_nested(character,myString):
     for rk in REPLACEFLAGS.keys():
@@ -182,10 +195,13 @@ def get_sortedspells(character,spName):
     spells = []
     for sp in character.find(spName).iter('spell'): 
         spells.append((sp.get('name'),sp.get('level')))
-    l = ''
+    (lv,l) = (-1,'')
     for spTup in sorted(spells,key=lambda x: x[1]):
-        l = '%s%s, ' % (l,spTup[0])
-    if l: return re.sub(r'(spells?)','\1 ',spName + l[0:-1])
+        if lv != int(spTup[1]): 
+            l = '%s (%d):' % (l,int(spTup[1]))
+            lv = int(spTup[1])
+        l = '%s%s,' % (l,spTup[0])
+    if l: return spName + l[0:-1]
         
 def get_weaponlist(character,wpType):
     l = ''
@@ -275,6 +291,7 @@ except ImportError:
     flags = None
     
 if not flags.page: flags.page = ['npc','noncombat']
+print(flags.page)
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/slides.googleapis.com-python-quickstart.json
