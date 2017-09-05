@@ -111,7 +111,8 @@ REPLACEFLAGS = {
 'encum': "character.find('encumbrance').get('light') + '/' + character.find('encumbrance').get('medium') + '/' + character.find('encumbrance').get('heavy') + ' (' + character.find('encumbrance').get('carried') + ')' + character.find('encumbrance').get('level')[0:1]",
 'percep': "re.sub(r'\+-','-','+' + get_attr(character.find('skills').findall('skill'),('name','Perception'),(None,'value')))",
 'percep situational': "get_attr(character.find('skills').findall('skill'),('name','Perception'),('situationalmodifiers','text'))",
-'trained skills..': "get_trained_skills(character)",
+'all skills..': "get_skills(character,minRank=0,minMod=-9999)",
+'trained skills..': "get_skills(character,minRank=1,minMod=4)",
 'feats..': "get_attrlist(character,'feats','feat','name',test=('profgroup','%s != \"yes\"'))",
 'traits..': "get_attrlist(character,'traits','trait','name')",
 'flaws..': "get_attrlist(character,'flaws','flaw','name')",
@@ -146,7 +147,8 @@ REPLACEFLAGS = {
 'npc ecology-organization': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Organization'))",
 'npc ecology-trerasure': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Treasure'))",
 'npc history-goals': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
-'npc personality-mannerisms': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Personality / Mannerisms'))"
+'npc personality-mannerisms': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Personality / Mannerisms'))",
+'npc pc-interactions': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))"
 }
 
 for k in REPLACEFLAGS.keys():
@@ -271,14 +273,18 @@ def get_ability_sit(character,abName):
         if ab.get('name') == abName:
             return ab.find('situationalmodifiers').get('text')
         
-def get_trained_skills(character):
+def get_skills(character,minRank=0,minMod=-9999):
     text = ''
     for skill in character.iter('skill'): 
-        if int(skill.attrib['ranks']) > 0 or int(skill.attrib['value']) > 4:
+        if int(skill.attrib['ranks']) >= minRank or int(skill.attrib['value']) > minMod:
           skillName = re.sub(r'[aeiou ]',r'',skill.attrib['name'])
           skillName = re.search(r'\(.*\)',skillName) and skillName or skillName[0:4]
           skillName = skillName == "Hl" and "Heal" or skillName
           skillName = skillName == "Rd" and "Ride" or skillName
+          skillName = skillName == "Dsgs" and "Disg" or skillName
+          skillName = skillName == "Lngs" and "Ling" or skillName
+          skillName = skillName == "Spll" and "Spel" or skillName
+          skillName = skillName == "Stlt" and "Slth" or skillName
           skillName = re.sub(r'Knwldg','Know',skillName)
           skillName = re.sub(r'Prfrm','Prfm',skillName)
           skillName = re.sub(r'Prfssn','Prof',skillName)
@@ -288,7 +294,7 @@ def get_trained_skills(character):
           skillName = re.sub(r'Prof(ck)','Prof(cook)',skillName)
           skillName = re.sub(r'nstrmnts','',skillName)
           text += skillName
-          text += int(skill.attrib['value'] >= 0) and " +" or " "
+          text += int(skill.attrib['value']) >= 0 and " +" or " "
           text += '%d, ' % int(skill.attrib['value'])
     return(text[0:-2])      
 
@@ -456,6 +462,7 @@ def main():
                 })
             # upload image
             imageElem = character.find('images').find('image')
+            file_id=''
             #print(imageElem)
             if ( imageElem != None ) :
                 imageFile = imageElem.get('filename')
@@ -482,7 +489,7 @@ def main():
             response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
             characterIndex += 1
             # Remove the temporary image file from Drive.
-            if imageElem: drive_service.files().delete(fileId=file_id).execute()            
+            if file_id != '': drive_service.files().delete(fileId=file_id).execute()            
         # delete original template pages
         body = { "requests": [] }
         for slideId in slideIds:
