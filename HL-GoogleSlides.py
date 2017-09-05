@@ -132,6 +132,7 @@ REPLACEFLAGS = {
 'spells known..': "get_sortedspells(character,'spellsknown')",
 'spells memorized..': "get_sortedspells(character,'spellsmemorized')",
 'spells book..': "get_sortedspells(character,'spellbook')",
+'spellclasses..': "get_spellclasses(character.find('spellclasses'))",
 'npc description': "get_textformatch(character.find('npc'),('description',''),('',''))", 
 'npc basics': "get_textformatch(character.find('npc'),('description',''),('',''))",
 'npc basics-goals': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Motivations & Goals'))",
@@ -191,6 +192,18 @@ def get_textformatch(npc,brchs,test):
         else: return b1.text
     return ''
             
+def get_spellclasses(spellClasses):
+    rtn = ''
+    for sc in spellClasses.iter('spellclass'):
+        hasLevels = False
+        rt = '%s:' % (sc.get('name'))
+        for s in sc.iter('spelllevel'):
+            hasLevels = True
+            rt = '%s%s/%s,' % (rt,s.get('level'),s.get('maxcasts'))
+        if hasLevels:
+            rtn = '%s%s;' % (rtn,rt[0:-1])
+    return rtn
+    
 def get_sortedspells(character,spName):
     spells = []
     for sp in character.find(spName).iter('spell'): 
