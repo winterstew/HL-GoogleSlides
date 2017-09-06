@@ -122,14 +122,16 @@ REPLACEFLAGS = {
 'meleeB': "character.find('attack').get('meleeattack')",
 'rangeB': "character.find('attack').get('rangedattack')",
 'attack special..': "get_attrlist(character,'attack','special','shortname')",
-'melee weapons..': "get_weaponlist(character,'melee')",
-'range weapons..': "get_weaponlist(character,'ranged')",
+'melee weapons..': "get_weaponlist(character,'melee',onlyEquipped=False)",
+'range weapons..': "get_weaponlist(character,'ranged',onlyEquipped=False)",
+'melee equipped weapons..': "get_weaponlist(character,'melee',onlyEquipped=True)",
+'range equipped weapons..': "get_weaponlist(character,'ranged',onlyEquipped=True)",
 'defenses armor..': "get_attrlist(character,'defenses','armor','name')",
 'magic items..': "get_attrlist(character,'magicitems','item','name')",
 'gear items..': "get_attrlist(character,'gear','item','name')",
-'spelllike special..': "get_attrlist(character,'spelllike','special','shortname')",
+'spelllike special..': "get_attrlist(character,'spelllike','special','name')",
 'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name')",
-'other special..': "get_attrlist(character,'otherspecials','special','shortname')",
+'other special..': "get_attrlist(character,'otherspecials','special','name')",
 'spells known..': "get_sortedspells(character,'spellsknown')",
 'spells memorized..': "get_sortedspells(character,'spellsmemorized')",
 'spells book..': "get_sortedspells(character,'spellbook')",
@@ -147,8 +149,11 @@ REPLACEFLAGS = {
 'npc ecology-organization': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Organization'))",
 'npc ecology-trerasure': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Treasure'))",
 'npc history-goals': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
+'npc history-goals-boons': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
 'npc personality-mannerisms': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Personality / Mannerisms'))",
-'npc pc-interactions': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))"
+'npc pc-interactions': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))",
+'npc pc-interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))",
+'npc interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))"
 }
 
 for k in REPLACEFLAGS.keys():
@@ -182,7 +187,11 @@ def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('','')):
             testExpression = test[1] % "a.attrib[test[0]]"
         else:
             testExpression = "a.attrib[attr]" 
-        if eval(testExpression): l = fmt(l,a.attrib[attr])
+        if eval(testExpression): 
+            # if the short name is generic use the long name
+            if attr == 'shortname' and a.attrib[attr] == 'Generic Ability':
+                attr = 'name'
+            l = fmt(l,a.attrib[attr])
     return l[0:-1]
 
 def get_textformatch(npc,brchs,test):
@@ -218,11 +227,18 @@ def get_sortedspells(character,spName):
         l = '%s%s,' % (l,spTup[0])
     if l: return spName + l[0:-1]
         
-def get_weaponlist(character,wpType):
+def get_weaponlist(character,wpType,onlyEquipped=True):
     l = ''
     for wp in character.find(wpType).iter('weapon'):
-        l = '%s(%s) %s (%s %s), ' % (re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('damage'),wp.get('crit'))
-    return l[0:-2]
+        if wp.get('equipped') != None:
+            l = '%s(%s) %s %s (%s  %s), %s' % (re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('equipped'),wp.get('damage'),wp.get('crit'),l)
+        elif not onlyEquipped:
+            l = '%s%s(%s) %s (%s  %s), ' % (l,re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('damage'),wp.get('crit'))
+    if len(l) > 2:
+        l = re.sub('Masterwork','mwk',l)
+        return l[0:-2]
+    else:
+        return l
     
 def get_varied_maneuvers(character,mType):
     mVal = character.find('maneuvers').get(mType)
@@ -274,8 +290,8 @@ def get_ability_sit(character,abName):
             return ab.find('situationalmodifiers').get('text')
         
 def get_skills(character,minRank=0,minMod=-9999):
-    text = ''
-    for skill in character.iter('skill'): 
+    l = ''
+    for skill in character.find('skills').iter('skill'): 
         if int(skill.attrib['ranks']) >= minRank or int(skill.attrib['value']) > minMod:
           skillName = re.sub(r'[aeiou ]',r'',skill.attrib['name'])
           skillName = re.search(r'\(.*\)',skillName) and skillName or skillName[0:4]
@@ -288,15 +304,15 @@ def get_skills(character,minRank=0,minMod=-9999):
           skillName = re.sub(r'Knwldg','Know',skillName)
           skillName = re.sub(r'Prfrm','Prfm',skillName)
           skillName = re.sub(r'Prfssn','Prof',skillName)
-          skillName = re.sub(r'Crft(lchmy)','Crft(alchm)',skillName)
-          skillName = re.sub(r'Know(ngnrng)','Prof(eng)',skillName)
-          skillName = re.sub(r'Prof(nnkpr)','Prof(innkp)',skillName)
-          skillName = re.sub(r'Prof(ck)','Prof(cook)',skillName)
+          skillName = re.sub(r'Crft\(lchmy\)','Crft(alchm)',skillName)
+          skillName = re.sub(r'Know\(ngnrng\)','Prof(eng)',skillName)
+          skillName = re.sub(r'Prof\(nnkpr\)','Prof(innkp)',skillName)
+          skillName = re.sub(r'Prof\(ck\)','Prof(cook)',skillName)
           skillName = re.sub(r'nstrmnts','',skillName)
-          text += skillName
-          text += int(skill.attrib['value']) >= 0 and " +" or " "
-          text += '%d, ' % int(skill.attrib['value'])
-    return(text[0:-2])      
+          l += skillName
+          l += int(skill.attrib['value']) >= 0 and " +" or " "
+          l += '%d, ' % int(skill.attrib['value'])
+    return(l[0:-2])      
 
 try:
     import argparse
