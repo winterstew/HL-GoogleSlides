@@ -35,7 +35,8 @@ REPLACEFLAGS = {
 'subtypes': "get_attrlist(character,'subtypes','subtype','name')",
 'hero': "(character.find('heropoints').get('enabled') == 'yes') and character.find('heropoints').get('total') or '-'",
 'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",
-'auras': "get_attrlist(character,'auras','aura','name')",
+'auras': "get_attrlist(character,'auras','special','name')",
+'auras head': "get_attrlisthead(character,'auras','special','\\nAuras: ')",
 'favoredclasses': "get_attrlist(character,'favoredclasses','favoredclass','name',fmt=JOINVOWELLESS)",
 'HP': "character.find('health').get('hitpoints')",
 'HD': "character.find('health').get('hitdice')",
@@ -126,11 +127,11 @@ REPLACEFLAGS = {
 'range weapons..': "get_weaponlist(character,'ranged',onlyEquipped=False)",
 'melee equipped weapons..': "get_weaponlist(character,'melee',onlyEquipped=True)",
 'range equipped weapons..': "get_weaponlist(character,'ranged',onlyEquipped=True)",
-'defenses armor..': "get_attrlist(character,'defenses','armor','name')",
-'magic items..': "get_attrlist(character,'magicitems','item','name')",
-'gear items..': "get_attrlist(character,'gear','item','name')",
-'spelllike special..': "get_attrlist(character,'spelllike','special','name')",
-'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name')",
+'defenses armor..': "get_attrlist(character,'defenses','armor','name',quant=True)",
+'magic items..': "get_attrlist(character,'magicitems','item','name',quant=True)",
+'gear items..': "get_attrlist(character,'gear','item','name',quant=True)",
+'spelllike special..': "get_attrlist(character,'spelllike','special','name',quant=True)",
+'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name',quant=True)",
 'other special..': "get_attrlist(character,'otherspecials','special','name')",
 'spells known..': "get_sortedspells(character,'spellsknown')",
 'spells memorized..': "get_sortedspells(character,'spellsmemorized')",
@@ -181,7 +182,7 @@ def get_nested(character,myString):
             myString = re.sub("{{%s}}" % rk, rs, myString)
     return myString
         
-def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('','')):
+def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('',''),quant=False):
     l = ''
     for a in character.find(outer).findall(inner):
         if test[0] and test[0] in a.keys():
@@ -192,8 +193,26 @@ def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('','')):
             # if the short name is generic use the long name
             if attr == 'shortname' and a.attrib[attr] == 'Generic Ability':
                 attr = 'name'
-            l = fmt(l,a.attrib[attr])
+            item = a.attrib[attr]
+            # if quant is True add a quantity if it exists and is > 1
+            if quant:
+                if inner == "trackedresource":
+                    #qattr = "[%s used]" % a.attrib["text"]
+                    qattr = "[%d]" % int(a.attrib["left"])
+                elif "quantity" in a.keys():
+                    qattr = (int(a.attrib["quantity"]) > 1) and "[%d]" % int(a.attrib["quantity"]) or ""
+                else:
+                    qattr = ""
+                item = "%s%s" % (item,qattr)
+            l = fmt(l,item)                    
     return l[0:-1]
+
+def get_attrlisthead(character,outer,inner,label):
+    """ Print the label if there are elements in the inner """
+    l = ''
+    if character.find(outer).findall(inner):
+        l = label     
+    return l
 
 def get_textformatch(npc,brchs,test):
     if npc:
@@ -232,12 +251,12 @@ def get_weaponlist(character,wpType,onlyEquipped=True):
     l = ''
     for wp in character.find(wpType).iter('weapon'):
         if wp.get('equipped') != None:
-            l = '%s(%s) %s %s (%s  %s), %s' % (re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('equipped'),wp.get('damage'),wp.get('crit'),l)
+            l = "%s(%s) %s %s (%s  %s), \n%s" % (re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('equipped'),wp.get('damage'),wp.get('crit'),l)
         elif not onlyEquipped:
-            l = '%s%s(%s) %s (%s  %s), ' % (l,re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('damage'),wp.get('crit'))
-    if len(l) > 2:
+            l = "%s%s(%s) %s (%s  %s), \n" % (l,re.sub(r' \(..*\)$','',wp.get('name')),wp.get('typetext'),wp.get('attack'),wp.get('damage'),wp.get('crit'))
+    if len(l) > 3:
         l = re.sub('Masterwork','mwk',l)
-        return l[0:-2]
+        return l[0:-3]
     else:
         return l
     
