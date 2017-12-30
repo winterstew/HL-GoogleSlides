@@ -90,7 +90,7 @@ REPLACEFLAGS = {
 'Wills': "get_save_sit(character,'Will Save')",
 'Saves': "get_save_sit(character,'All Save')",
 'defence special..': "get_attrlist(character,'defensive','special','shortname')",
-'dr special..': "re.sub(r'^(...)','DR \1',get_attrlist(character,'damagereduction','special','shortname'))",
+'dr special..': "re.sub(r'^','DR ',get_attrlist(character,'damagereduction','special','shortname'))",
 'immune special..': "get_attrlist(character,'immunities','special','shortname')",
 'resist special..': "get_attrlist(character,'resistances','special','shortname')",
 'weak special..': "get_attrlist(character,'weaknesses','special','shortname')",
@@ -137,9 +137,10 @@ REPLACEFLAGS = {
 'spells memorized..': "get_sortedspells(character,'spellsmemorized')",
 'spells book..': "get_sortedspells(character,'spellbook')",
 'spellclasses..': "get_spellclasses(character.find('spellclasses'))",
-'npc description': "get_textformatch(character.find('npc'),('description',''),('',''))", 
+'npc description': "get_textformatch(character.find('npc'),('description',''),('',''))",
 'npc basics': "get_textformatch(character.find('npc'),('description',''),('',''))",
 'npc basics-goals': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Motivations & Goals'))",
+'npc basics-motivation': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Motivations & Goals'))",
 'npc basics-plots': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Schemes, Plots & Adventure Hooks'))",
 'npc basics-hooks': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Schemes, Plots & Adventure Hooks'))",
 'npc basics-boons': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Boon'))",
@@ -150,12 +151,13 @@ REPLACEFLAGS = {
 'npc ecology-environment': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Environment'))",
 'npc ecology-organization': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Organization'))",
 'npc ecology-trerasure': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Treasure'))",
+'npc history': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History'))",
 'npc history-goals': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
-'npc history-goals-boons': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
+'npc history-goals-boons': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals / Boons'))",
 'npc personality-mannerisms': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Personality / Mannerisms'))",
 'npc pc-interactions': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))",
-'npc pc-interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))",
-'npc interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))"
+'npc pc-interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interaction'))",
+'npc interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Interaction'))"
 }
 
 for k in REPLACEFLAGS.keys():
@@ -164,7 +166,7 @@ for k in REPLACEFLAGS.keys():
 def get_attr(eList,test,ra):
     for e in eList:
         if (e.attrib[test[0]] == test[1]):
-            if ( ra[0] == None ): 
+            if ( ra[0] == None ):
                 #print(ra[1],e.get(ra[1]))
                 return e.get(ra[1])
             else:
@@ -181,15 +183,15 @@ def get_nested(character,myString):
             #print(myString)
             myString = re.sub("{{%s}}" % rk, rs, myString)
     return myString
-        
+
 def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('',''),quant=False):
     l = ''
     for a in character.find(outer).findall(inner):
         if test[0] and test[0] in a.keys():
             testExpression = test[1] % "a.attrib[test[0]]"
         else:
-            testExpression = "a.attrib[attr]" 
-        if eval(testExpression): 
+            testExpression = "a.attrib[attr]"
+        if eval(testExpression):
             # if the short name is generic use the long name
             if attr == 'shortname' and a.attrib[attr] == 'Generic Ability':
                 attr = 'name'
@@ -204,14 +206,14 @@ def get_attrlist(character,outer,inner,attr,fmt=JOIN,test=('',''),quant=False):
                 else:
                     qattr = ""
                 item = "%s%s" % (item,qattr)
-            l = fmt(l,item)                    
+            l = fmt(l,item)
     return l[0:-1]
 
 def get_attrlisthead(character,outer,inner,label):
     """ Print the label if there are elements in the inner """
     l = ''
     if character.find(outer).findall(inner):
-        l = label     
+        l = label
     return l
 
 def get_textformatch(npc,brchs,test):
@@ -222,7 +224,7 @@ def get_textformatch(npc,brchs,test):
                 if ni.get(test[0]) == test[1]: return ni.text
         else: return b1.text
     return ''
-            
+
 def get_spellclasses(spellClasses):
     rtn = ''
     for sc in spellClasses.iter('spellclass'):
@@ -234,19 +236,19 @@ def get_spellclasses(spellClasses):
         if hasLevels:
             rtn = '%s%s;' % (rtn,rt[0:-1])
     return rtn
-    
+
 def get_sortedspells(character,spName):
     spells = []
-    for sp in character.find(spName).iter('spell'): 
+    for sp in character.find(spName).iter('spell'):
         spells.append((sp.get('name'),sp.get('level')))
     (lv,l) = (-1,'')
     for spTup in sorted(spells,key=lambda x: x[1]):
-        if lv != int(spTup[1]): 
+        if lv != int(spTup[1]):
             l = '%s (%d):' % (l,int(spTup[1]))
             lv = int(spTup[1])
         l = '%s%s,' % (l,spTup[0])
     if l: return spName + l[0:-1]
-        
+
 def get_weaponlist(character,wpType,onlyEquipped=True):
     l = ''
     for wp in character.find(wpType).iter('weapon'):
@@ -259,7 +261,7 @@ def get_weaponlist(character,wpType,onlyEquipped=True):
         return l[0:-3]
     else:
         return l
-    
+
 def get_varied_maneuvers(character,mType):
     mVal = character.find('maneuvers').get(mType)
     l = ''
@@ -267,7 +269,7 @@ def get_varied_maneuvers(character,mType):
         #print(m)
         if m.get(mType) != mVal: l = '%s %s:%s,' % (l,m.get('name'),m.get(mType))
     return l[0:-1]
-    
+
 def get_save(character,svName):
     for sv in character.find('saves').iter('save'):
         if sv.get('name') == svName:
@@ -275,7 +277,7 @@ def get_save(character,svName):
             rtn = '%s = %sb %sa %sr %sm' % (rtn,(sv.get('base') or '+0'),(sv.get('fromattr') or '+0'),(sv.get('fromresist') or '+0'),(sv.get('frommisc') or '+0'))
             rtn = '%s <%s>' % (rtn,sv.find('situationalmodifiers').get('text'))
             return re.sub(' <>','',rtn)
-            
+
 def get_save_mod(character,svName):
     for sv in character.find('saves').iter('save'):
         if sv.get('name') == svName:
@@ -285,20 +287,20 @@ def get_save_sit(character,svName):
     svElement = (svName == "All Save") and 'allsaves' or 'save'
     for sv in character.find('saves').iter(svElement):
         if svElement == 'allsaves' or sv.get('name') == svName:
-            return sv.find('situationalmodifiers').get('text')            
-        
+            return sv.find('situationalmodifiers').get('text')
+
 def get_ability(character,abName):
     for ab in character.find('attributes').iter('attribute'):
         if ab.get('name') == abName:
             rtn = ab.find('attrvalue').get('text')
             rtn = '%s(%s) <%s>' % (rtn,ab.find('attrbonus').get('text'),ab.find('situationalmodifiers').get('text'))
             return re.sub(' <>','',rtn)
-    
+
 def get_ability_value(character,abName):
     for ab in character.find('attributes').iter('attribute'):
         if ab.get('name') == abName:
             return ab.find('attrvalue').get('text')
-            
+
 def get_ability_mod(character,abName):
     for ab in character.find('attributes').iter('attribute'):
         if ab.get('name') == abName:
@@ -308,10 +310,10 @@ def get_ability_sit(character,abName):
     for ab in character.find('attributes').iter('attribute'):
         if ab.get('name') == abName:
             return ab.find('situationalmodifiers').get('text')
-        
+
 def get_skills(character,minRank=0,minMod=-9999):
     l = ''
-    for skill in character.find('skills').iter('skill'): 
+    for skill in character.find('skills').iter('skill'):
         if int(skill.attrib['ranks']) >= minRank or int(skill.attrib['value']) > minMod:
           skillName = re.sub(r'[aeiou ]',r'',skill.attrib['name'])
           skillName = re.search(r'\(.*\)',skillName) and skillName or skillName[0:4]
@@ -332,19 +334,19 @@ def get_skills(character,minRank=0,minMod=-9999):
           l += skillName
           l += int(skill.attrib['value']) >= 0 and " +" or " "
           l += '%d, ' % int(skill.attrib['value'])
-    return(l[0:-2])      
+    return(l[0:-2])
 
 try:
     import argparse
     parser = argparse.ArgumentParser(parents=[tools.argparser])
-    parser.add_argument('--page', choices=TEMPLATEKEYS.keys(), 
+    parser.add_argument('--page', choices=TEMPLATEKEYS.keys(),
                         action='append', help="flages to identify pages to use")
     parser.add_argument('--template', default=TEMPLATENAME, help="template presentation name")
     parser.add_argument('XMLfiles', metavar='xml-file', type=argparse.FileType('r'), nargs='+', help='HeroLab Protfolio XML output file')
     flags = parser.parse_args()
 except ImportError:
     flags = None
-    
+
 if not flags.page: flags.page = ['npc','noncombat']
 print(flags.page)
 
@@ -354,12 +356,12 @@ SCOPES = ('https://www.googleapis.com/auth/presentations',
           'https://www.googleapis.com/auth/drive')
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'HL-GoogleSlides'
-    
+
 def get_portfolio(xmlfile=None):
     """Returns an etree Element portfolio a HeroLab XML file"""
     if (isinstance(xmlfile,__builtin__.file)):
         return et.fromstring(xmlfile.read())
-        
+
 def get_credentials():
     """Gets valid user credentials from storage.
 
@@ -401,15 +403,15 @@ def copy_template(service,newname):
         for presentation in response.get('files', []):
             if presentation.get('name') == flags.template:
                 newresponse = service.files().copy(fileId=presentation.get('id'),
-                             body={ 'name': newname }).execute()                
+                             body={ 'name': newname }).execute()
                 newId = newresponse.get('id')
                 print('"%s" copied to "%s"' % (presentation.get('name'),newresponse.get('name')))
-                
+
         page_token = response.get('nextPageToken',None)
         if page_token is None:
             break
     return newId
-    
+
 def main():
     """Shows basic usage of the Slides API.
 
@@ -421,7 +423,7 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('slides', 'v1', http=http)
     drive_service = discovery.build('drive', 'v3', http=http)
-                    
+
     for xmlfile in flags.XMLfiles:
         portfolio = get_portfolio(xmlfile)
 #        print(dir(portfolio))
@@ -468,7 +470,7 @@ def main():
               }
             } ] }
             response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
-            #print(response.get('replies'))            
+            #print(response.get('replies'))
             newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
             body = { "requests":  [ {
               "updateSlidesPosition": {
@@ -525,14 +527,14 @@ def main():
             response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
             characterIndex += 1
             # Remove the temporary image file from Drive.
-            if file_id != '': drive_service.files().delete(fileId=file_id).execute()            
+            if file_id != '': drive_service.files().delete(fileId=file_id).execute()
         # delete original template pages
         body = { "requests": [] }
         for slideId in slideIds:
             body["requests"].append({ "deleteObject": { "objectId":slideId }})
         response = service.presentations().batchUpdate(presentationId=presentationId,body=body).execute()
         xmlfile.close()
-        
+
     #body = { 'title' : "TestTemplate" }
     #presentation = service.presentations().create(body=body).execute()
     #print('Created presentation with ID: {0}'.format(presentation.get('presentationId')))
