@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document signature="Icon Index">
+  <icons>
+    <icon name="aberration" type="creature type" summary="Aberration - has bizarre anatomy, strange abilities, and/or an alien mindset" iconindex="1">
+      <images>
+        <image filename="aberration-icon.png" folder="images" resolution="high"/>
+        <image filename="aberration-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="animal" type="creature type" summary="Animal - living nonhuman creature, usually vertebrate, no magic, no language or culture" iconindex="2">
+      <images>
+        <image filename="animal-icon.png" folder="images" resolution="high"/>
+        <image filename="animal-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="construct" type="creature type" summary="Construct - animated object or artificial creature" iconindex="3">
+      <images>
+        <image filename="construct-icon.png" folder="images" resolution="high"/>
+        <image filename="construct-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="dragon" type="creature type" summary="Dragon - reptile like, usually winged, with magical or unusual abilities" iconindex="4">
+      <images>
+        <image filename="dragon-icon.png" folder="images" resolution="high"/>
+        <image filename="dragon-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="fey" type="creature type" summary="Fey - creature with supernatural abilities which has connection to nature or some force or place" iconindex="5">
+      <images>
+        <image filename="fey-icon.png" folder="images" resolution="high"/>
+        <image filename="fey-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="humanoid" type="creature type" summary="Humanoid - human-like body and appendages, few or no supernatural/extraordinary abilities" iconindex="6">
+      <images>
+        <image filename="humanoid-icon.png" folder="images" resolution="high"/>
+        <image filename="humanoid-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="magical beast" type="creature type" summary="Magical Beast - similar to animals but with intelligence > 2, usually has supernatural/extraordinary abilities" iconindex="7">
+      <images>
+        <image filename="magical beast-icon.png" folder="images" resolution="high"/>
+        <image filename="magical beast-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="monstrous humanoid" type="creature type" summary="Monstrous Humanoid - similar to humanoid but with monstrous/animalistic features " iconindex="8">
+      <images>
+        <image filename="monstrous humanoid-icon.png" folder="images" resolution="high"/>
+        <image filename="monstrous huminoid-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="ooze" type="creature type" summary="Ooze - amorphous or mutable creature, usually mindless" iconindex="9">
+      <images>
+        <image filename="ooze-icon.png" folder="images" resolution="high"/>
+        <image filename="ooze-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="outsider" type="creature type" summary="Outsider - partially composed of the essence of some plane other than the Material Plane" iconindex="10">
+      <images>
+        <image filename="outsider-icon.png" folder="images" resolution="high"/>
+        <image filename="outsider-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="plant" type="creature type" summary="Plant - vegetable creatures" iconindex="11">
+      <images>
+        <image filename="plant-icon.png" folder="images" resolution="high"/>
+        <image filename="plant-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="undead" type="creature type" summary="Undead - once-living creatures animated by spiritual or supernatural forces" iconindex="12">
+      <images>
+        <image filename="undead-icon.png" folder="images" resolution="high"/>
+        <image filename="undead-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="vermin" type="creature type" summary="Vermin - insects, arachnids, other arthropods, worms, and similar invertebrates" iconindex="13">
+      <images>
+        <image filename="vermin-icon.png" folder="images" resolution="high"/>
+        <image filename="vermin-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="desert" type="terrain" summary="Desert" iconindex="21">
+      <images>
+        <image filename="desert-icon.png" folder="images" resolution="high"/>
+        <image filename="desert-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="forest" type="terrain" summary="Forest" iconindex="22">
+      <images>
+        <image filename="forest-icon.png" folder="images" resolution="high"/>
+        <image filename="forest-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="hill" type="terrain" summary="Hill" iconindex="23">
+      <images>
+        <image filename="hill-icon.png" folder="images" resolution="high"/>
+        <image filename="hill-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="mountain" type="terrain" summary="Mountain" iconindex="24">
+      <images>
+        <image filename="mountain-icon.png" folder="images" resolution="high"/>
+        <image filename="mountain-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="plain" type="terrain" summary="Plain" iconindex="25">
+      <images>
+        <image filename="plain-icon.png" folder="images" resolution="high"/>
+        <image filename="plain-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="ruins" type="terrain" summary="Ruins" iconindex="26">
+      <images>
+        <image filename="ruins-icon.png" folder="images" resolution="high"/>
+        <image filename="ruins-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="sky" type="terrain" summary="Sky" iconindex="27">
+      <images>
+        <image filename="sky-icon.png" folder="images" resolution="high"/>
+        <image filename="sky-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="swamp" type="terrain" summary="Swamp" iconindex="28">
+      <images>
+        <image filename="swamp-icon.png" folder="images" resolution="high"/>
+        <image filename="swamp-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="underground" type="terrain" summary="Underground" iconindex="29">
+      <images>
+        <image filename="underground-icon.png" folder="images" resolution="high"/>
+        <image filename="underground-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="urban" type="terrain" summary="Urban" iconindex="30">
+      <images>
+        <image filename="urban-icon.png" folder="images" resolution="high"/>
+        <image filename="urban-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="water" type="terrain" summary="Water" iconindex="31">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="cold" type="climate" summary="Cold" iconindex="41">
+      <images>
+        <image filename="cold-icon.png" folder="images" resolution="high"/>
+        <image filename="cold-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="extraplaner" type="climate" summary="Extraplaner" iconindex="42">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="temperate" type="climate" summary="Temperate" iconindex="43">
+      <images>
+        <image filename="temperate-icon.png" folder="images" resolution="high"/>
+        <image filename="temperate-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="tropical" type="climate" summary="Tropical" iconindex="44">
+      <images>
+        <image filename="tropical-icon.png" folder="images" resolution="high"/>
+        <image filename="tropical-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    </icons>
+  </document>
