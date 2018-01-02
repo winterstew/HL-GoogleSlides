@@ -8,19 +8,20 @@ from __future__ import print_function
 import __builtin__
 import httplib2
 import zipfile,tempfile
-import os,re,urllib,shutil
+import os,re,urllib,shutil,string
 
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from HL_GoogleSlides_BaseClasses import *
 
 import xml.etree.cElementTree as et
 
 TEMPLATENAME = "StatBlock Template"
 PAGENAME = "NPC-Combat-"
 ICONFILE = "icons.zip"
-VERBOSITY = 2
+VERBOSITY = 4
 # higher levels of VERBOSITY include all those below
 # 0 = silent
 # 1 = minimal per portfolio messages
@@ -159,7 +160,7 @@ class Icons:
         """
         shutil.rmtree(self.tempDir)
 
-class Character:
+class Character(CharacterBase):
     """
     Class for a single character element from a portfolio
 
@@ -171,6 +172,7 @@ class Character:
       isMinion -> True if this character is a minion
       isMinionOf -> the chracter element from the minion's parent
     """
+
     def __init__(self,porFile,indexCharacterElement,*args,**kwargs):
         """
         porFile is the open ziped portfolio file
@@ -233,6 +235,33 @@ class Character:
         for image in self.indexXml.findall('./images/image'):
             self.images.append((image.get('filename'),
             porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)))
+
+    def getSkill(self,*args,**kwargs):
+        """
+        return a skill list for the character
+        """
+        skillList = []
+        for skill in self.statXml.iterfind("./skills/skill"):
+            # if a single skill is asked for only get that one
+            if len(args) > 0 and args[0] and skill.get('name') != args[0]: continue
+            # only list if the character has a rank in the skill
+            if 'withRank' in kwargs and kwargs['withRank'] and int(skill.get('ranks',"0")) == 0: continue
+            # only list if the character has at least a certain bonus
+            if 'atLeast' in kwargs and kwargs['atLeast'] and int(skill.get('value',"-999")) < kwargs['atLeast']: continue
+            if 'valueOnly' in kwargs and kwargs['valueOnly']:
+                skillList.append(skill.get('value'))
+            else:
+                skillList.append("%s %s" % (skill.get('name'),skill.get('value')))
+        joinWith = 'joinWith' in kwargs and kwargs['joinWith'] or ', '
+        listRtn = string.join(skillList,joinWith)
+        if VERBOSITY >= 4: print("    skill list before re.sub: %s" % listRtn)
+        for a in self.abbreviations: listRtn = re.sub(a[0],a[1],listRtn)
+        if VERBOSITY >= 4: print("    skill list after re.sub: %s" % listRtn)
+        return listRtn
+
+
+
+
 
 class Portfolio:
     """
@@ -320,7 +349,9 @@ def main():
     if (flags.verbose): VERBOSITY = flags.verbose
     portfolio = Portfolio(flags.PortfolioFile)
     icons = Icons(flags.icons)
-
+    #for c in portfolio.characters:
+    #    c.getSkill(withRank=True)
+    #portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10)
     portfolio.close()
     icons.close()
 

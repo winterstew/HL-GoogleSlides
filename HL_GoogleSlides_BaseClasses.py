@@ -1,0 +1,123 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jan 01 10:08:15 2018
+BaseClasses is meant to hold all the long lists of abbriviations and
+substitutions so that the main code looks cleaner
+
+@author: steve
+"""
+
+class CharacterBase:
+    """
+    This is a base definition for an individual Character
+    mainly to hold the long attribute definitions
+    """
+    # abbreviations is a list of tuples which has a regexp pattern as the first
+    # value in the tuple and the replacement text as the second value.
+    # such that re.sub(val[0],val[1],string)
+    #  would return the modified string
+    abbreviations = [
+      (r'(?i)Acrobatics', r'Acro'),
+      (r'(?i)Appraise', r'Appr'),
+      (r'(?i)Bluff', r'Bluf'),
+      (r'(?i)Climb', r'Clmb'),
+      (r'(?i)Craft\b(\s*\(\s*(\w*?)\s*\))', r'Crft(\2)'),
+      (r'(?i)Diplomacy', r'Dipl'),
+      (r'(?i)Disable Device', r'DsDv'),
+      (r'(?i)Disguise', r'Disg'),
+      (r'(?i)Escape Artist', r'Escp'),
+      (r'(?i)Fly', r'Fly'),
+      (r'(?i)Handle Animal', r'HdAn'),
+      (r'(?i)Heal', r'Heal'),
+      (r'(?i)Intimidate', r'Intm'),
+      (r'(?i)Knowledge\b(\s*\(\s*(\w*?)\s*\))', r'Know(\2)'),
+      (r'(?i)Linguistics', r'Ling'),
+      (r'(?i)Perception', r'Perc'),
+      (r'(?i)Perform\b(\s*\(\s*(\w*?)\s*\))', r'Prfm(\2)'),
+      (r'(?i)Profession\b(\s*\(\s*(\w*?)\s*\))', r'Prof(\2)'),
+      (r'(?i)Ride', r'Ride'),
+      (r'(?i)Sense Motive', r'SnsM'),
+      (r'(?i)Sleight of Hand', r'SHnd'),
+      (r'(?i)Spellcraft', r'Spel'),
+      (r'(?i)Stealth', r'Slth'),
+      (r'(?i)Survival', r'Surv'),
+      (r'(?i)Swim', r'Swim'),
+      (r'(?i)Use Magic Device', r'UMDv'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*alchemy\s*\)', r'Crft(alch)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*armor\s*\)', r'Crft(armr)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*baskets\s*\)', r'Crft(bskt)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*books\s*\)', r'Crft(book)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*bows\s*\)', r'Crft(bow)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*calligraphy\s*\)', r'Crft(cali)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*carpentry\s*\)', r'Crft(cpnt)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*cloth\s*\)', r'Crft(fbrc)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*fabric\s*\)', r'Crft(fbrc)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*clothing\s*\)', r'Crft(clos)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*glass\s*\)', r'Crft(glas)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*jewlery\s*\)', r'Crft(jelr)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*leather\s*\)', r'Crft(lthr)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*locks\s*\)', r'Crft(lcks)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*paintings\s*\)', r'Crft(pait)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*pottery\s*\)', r'Crft(potr)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*sculptures\s*\)', r'Crft(sclp)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*ships\s*\)', r'Crft(ship)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*shoes\s*\)', r'Crft(shoe)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*stonemasonry\s*\)', r'Crft(ston)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*traps\s*\)', r'Crft(trap)'),
+      (r'(?i)(Craft)|(Crft)\b\s*\(\s*weapons\s*\)', r'Crft(wpn)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*arcana\s*\)', r'Know(arca)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*dungeoneering\s*\)', r'Know(dugn)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*engineering\s*\)', r'Know(egnr)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*geography\s*\)', r'Know(geog)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*history\s*\)', r'Know(hist)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*local\s*\)', r'Know(locl)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*nature\s*\)', r'Know(natr)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*nobility\s*\)', r'Know(nobl)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*planes\s*\)', r'Know(plan)'),
+      (r'(?i)Know(ledge)?\b\s*\(\s*religion\s*\)', r'Know(relg)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*act\s*\)', r'Prfm(act)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*comedy\s*\)', r'Prfm(cmdy)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*dance\s*\)', r'Prfm(danc)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*keyboard(\s?instruments?)?\s*\)', r'Prfm(key)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*oratory\s*\)', r'Prfm(orat)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*percussion(\s?instruments?)?\s*\)', r'Prfm(prcs)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*string(\s?instruments?)?\s*\)', r'Prfm(strg)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*wind(\s?instruments?)?\s*\)', r'Prfm(wind)'),
+      (r'(?i)(Perform)|(Prfm)\b\s*\(\s*sing\s*\)', r'Prfm(sing)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*architect\s*\)', r'Prof(arct)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*baker\s*\)', r'Prof(bake)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*barrister\s*\)', r'Prof(brst)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*brewer\s*\)', r'Prof(brew)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*butcher\s*\)', r'Prof(butc)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*clerk\s*\)', r'Prof(clrk)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*cook\s*\)', r'Prof(cook)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*courtesan\s*\)', r'Prof(crts)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*driver\s*\)', r'Prof(driv)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*engineer\s*\)', r'Prof(egnr)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*farmer\s*\)', r'Prof(farm)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*fisherman\s*\)', r'Prof(fish)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*gambler\s*\)', r'Prof(gmbl)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*gardener\s*\)', r'Prof(grdn)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*herbalist\s*\)', r'Prof(herb)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*innkeeper\s*\)', r'Prof(innk)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*librarian\s*\)', r'Prof(libr)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*merchant\s*\)', r'Prof(mrch)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*mecenary\s*\)', r'Prof(merc)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*midwife\s*\)', r'Prof(midw)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*miller\s*\)', r'Prof(mill)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*miner\s*\)', r'Prof(mine)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*porter\s*\)', r'Prof(port)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*sailor\s*\)', r'Prof(sail)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*scribe\s*\)', r'Prof(scrb)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*shepherd\s*\)', r'Prof(shep)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*stable master\s*\)', r'Prof(stbl)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*soldier\s*\)', r'Prof(sldr)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*tanner\s*\)', r'Prof(tanr)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*trapper\s*\)', r'Prof(trap)'),
+      (r'(?i)Prof(ession)?\b\s*\(\s*woodcutter\s*\)', r'Prof(wood)'),
+      (r'(?i)(M)asterwork', r'\1wk'),
+      (r'(?i)(F)avored', r'\1vrd'),
+    ]
+
+"""
+"""
