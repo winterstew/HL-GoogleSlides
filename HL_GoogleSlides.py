@@ -21,7 +21,7 @@ import xml.etree.cElementTree as et
 TEMPLATENAME = "StatBlock Template"
 PAGENAME = "NPC-Combat-"
 ICONFILE = "icons.zip"
-VERBOSITY = 4
+VERBOSITY = 1
 # higher levels of VERBOSITY include all those below
 # 0 = silent
 # 1 = minimal per portfolio messages
@@ -81,6 +81,8 @@ class Icon:
         iconFile is an open zipfile of the icon data
         indexIconElement is the element from the index.xml refering to the current icon
         """
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
         self.indexXml = indexIconElement
         self.name = self.indexXml.get('name')
         self.type = self.indexXml.get('type')
@@ -111,7 +113,7 @@ class Icon:
                     print("WARNING: There is no low resolution icon %s/%s for %s (%s)" %
                         (image.get('folder'),image.get('filename'),self.name,self.type))
 
-class Icons:
+class Icons(IconsBase):
     """
     Class to contain icon image references for things like
     creature type, terrain, and climate.
@@ -121,32 +123,34 @@ class Icons:
         An icon file is a zip file similar to how a HeroLab portfilo works
         there is an index.xml which defines and points to all the icon images
         """
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
         if type(iconFile) is not zipfile.ZipFile:
             iconFile = zipfile.ZipFile(iconFile,'r')
-        if VERBOSITY >= 2: print("icons filename: %s" % iconFile.filename)
+        if self.verbosity >= 2: print("icons filename: %s" % iconFile.filename)
         self.iconFile = iconFile
         self.filename = iconFile.filename
         self.filepath = os.path.split(iconFile.filename)[0]
         self.filecore = os.path.splitext(os.path.basename(iconFile.filename))[0]
-        if VERBOSITY >= 2: print("icons filecore: %s" % self.filecore)
+        if self.verbosity >= 2: print("icons filecore: %s" % self.filecore)
         indexXml = iconFile.open('index.xml')
         indexTree = et.parse(indexXml)
         indexXml.close()
-        if VERBOSITY >= 6:
+        if self.verbosity >= 6:
             print("Dump of Index XML:")
             et.dump(indexTree)
         # create a temporary directory for icon images
         self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Icons-')
-        if VERBOSITY >= 2: print("Temp Icon Directory: %s" % self.tempDir)
+        if self.verbosity >= 2: print("Temp Icon Directory: %s" % self.tempDir)
         self.icons = []
         for i in indexTree.findall('./icons/icon'):
-            self.icons.append(Icon(self.iconFile,i,tempDir=self.tempDir))
+            self.icons.append(Icon(self.iconFile,i,*args,tempDir=self.tempDir,**kwargs))
 
         # debug printing
         for i in self.icons:
-            if VERBOSITY >= 3:
+            if self.verbosity >= 3:
                 print("icon #%d: %s (%s)" % (i.index,i.name,i.type))
-            if VERBOSITY >= 4:
+            if self.verbosity >= 4:
                 print("  images:")
                 if i.imageHigh: print("    high %s: %s" % i.imageHigh)
                 if i.imageLow: print("    low %s: %s" % i.imageLow)
@@ -182,6 +186,8 @@ class Character(CharacterBase):
          is a minion and its parent character index element is the value for
          this keyword
         """
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
         self.indexXml = indexCharacterElement
         self.statText = None
         self.statHtml = None
@@ -236,33 +242,6 @@ class Character(CharacterBase):
             self.images.append((image.get('filename'),
             porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)))
 
-    def getSkill(self,*args,**kwargs):
-        """
-        return a skill list for the character
-        """
-        skillList = []
-        for skill in self.statXml.iterfind("./skills/skill"):
-            # if a single skill is asked for only get that one
-            if len(args) > 0 and args[0] and skill.get('name') != args[0]: continue
-            # only list if the character has a rank in the skill
-            if 'withRank' in kwargs and kwargs['withRank'] and int(skill.get('ranks',"0")) == 0: continue
-            # only list if the character has at least a certain bonus
-            if 'atLeast' in kwargs and kwargs['atLeast'] and int(skill.get('value',"-999")) < kwargs['atLeast']: continue
-            if 'valueOnly' in kwargs and kwargs['valueOnly']:
-                skillList.append(skill.get('value'))
-            else:
-                skillList.append("%s %s" % (skill.get('name'),skill.get('value')))
-        joinWith = 'joinWith' in kwargs and kwargs['joinWith'] or ', '
-        listRtn = string.join(skillList,joinWith)
-        if VERBOSITY >= 4: print("    skill list before re.sub: %s" % listRtn)
-        for a in self.abbreviations: listRtn = re.sub(a[0],a[1],listRtn)
-        if VERBOSITY >= 4: print("    skill list after re.sub: %s" % listRtn)
-        return listRtn
-
-
-
-
-
 class Portfolio:
     """
     Class for and entire HeroLab portfolio
@@ -270,47 +249,49 @@ class Portfolio:
       portfolio file
     """
     def __init__(self, porFile,*args,**kwargs):
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
         if type(porFile) is not zipfile.ZipFile:
             porFile = zipfile.ZipFile(porFile,'r')
-        if VERBOSITY >= 2: print("filename: %s" % porFile.filename)
+        if self.verbosity >= 2: print("filename: %s" % porFile.filename)
         self.porFile = porFile
         self.filename = porFile.filename
         self.filepath = os.path.split(porFile.filename)[0]
         self.filecore = os.path.splitext(os.path.basename(porFile.filename))[0]
-        if VERBOSITY >= 2: print("filecore: %s" % self.filecore)
+        if self.verbosity >= 2: print("filecore: %s" % self.filecore)
         indexXml = porFile.open('index.xml')
         indexTree = et.parse(indexXml)
         indexXml.close()
-        if VERBOSITY >= 5:
+        if self.verbosity >= 5:
             print("Dump of Index XML:")
             et.dump(indexTree)
         # identifiy the game and version
         self.game = indexTree.find('./game[@name]').get('name')
         self.gameVersion = float(indexTree.find('./game/version').get('version'))
-        if VERBOSITY >= 5: print("game: %s version: %g" % (self.game,self.gameVersion))
+        if self.verbosity >= 5: print("game: %s version: %g" % (self.game,self.gameVersion))
         if self.game != "Pathfinder Roleplaying Game" or self.gameVersion < 14.1:
             print("WARNING: HL-GoogleSlides has only been tested to work with HeroLab's Pathfinder ruleset version 14.1")
         # create a temporary directory for Character images
         self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Porfolio-')
-        if VERBOSITY >= 2: print("Temp Image Directory: %s" % self.tempDir)
+        if self.verbosity >= 2: print("Temp Image Directory: %s" % self.tempDir)
         # build up the character list creating Character instances for each
         self.characters = []
         for c in indexTree.findall('./characters/character'):
-            self.characters.append(Character(self.porFile,c,tempDir=self.tempDir))
+            self.characters.append(Character(self.porFile,c,*args,tempDir=self.tempDir,**kwargs))
             for m in c.findall('./minions/character'):
-                self.characters.append(Character(self.porFile,m,parent=c,tempDir=self.tempDir))
+                self.characters.append(Character(self.porFile,m,*args,parent=c,tempDir=self.tempDir,**kwargs))
 
         # debug printing
         for c in self.characters:
-            if VERBOSITY >= 3:
+            if self.verbosity >= 3:
                 print("character #%d.%d: %s -> %s" % (c.myIndex,c.characterIndex,c.name,c.summary))
-            if VERBOSITY >= 6: print("  STAT BLOCK TEXT:\n%s" % c.statText)
-            if VERBOSITY >= 6: print("  STAT BLOCK HTML:\n%s" % c.statHtml)
-            if VERBOSITY >= 4: print("  XML name: %s" % c.statXml.get('name'))
-            if VERBOSITY >= 6:
+            if self.verbosity >= 6: print("  STAT BLOCK TEXT:\n%s" % c.statText)
+            if self.verbosity >= 6: print("  STAT BLOCK HTML:\n%s" % c.statHtml)
+            if self.verbosity >= 4: print("  XML name: %s" % c.statXml.get('name'))
+            if self.verbosity >= 6:
                 print("STAT BLOCK XML:")
                 et.dump(c.statXml)
-            if VERBOSITY >= 4:
+            if self.verbosity >= 4:
                 if c.images: print("  Images:")
                 for i in c.images:
                     print("    %s: %s" % i)
@@ -340,18 +321,75 @@ def main():
         parser.add_argument('--page', '-p', default=PAGENAME, help="key name identifying page to use")
         parser.add_argument('--verbose', '-v', action='count')
         parser.add_argument('--icons', '-i', default=ICONFILE, help="HL-GoogleSlides icon file")
-        parser.add_argument('PortfolioFile', type=lambda f:zipfile.ZipFile(f,'r'), help='HeroLab Protfolio file')
+        parser.add_argument('portfolioFile', type=lambda f:zipfile.ZipFile(f,'r'), help='HeroLab Protfolio file')
         #flags = parser.parse_args()
-        #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por'])
         flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip'])
+        #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip','-v','-v','-v','-v'])
     except ImportError:
         flags = None
     if (flags.verbose): VERBOSITY = flags.verbose
-    portfolio = Portfolio(flags.PortfolioFile)
-    icons = Icons(flags.icons)
-    #for c in portfolio.characters:
-    #    c.getSkill(withRank=True)
-    #portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10)
+    portfolio = Portfolio(flags.portfolioFile,verbosity=VERBOSITY)
+    #icons = Icons(flags.icons,verbosity=VERBOSITY)
+    icons = Icons(flags.icons,verbosity=0)
+    for c in portfolio.characters:
+        print(c.name)
+        #print(c.getAlignment(longForm=False))
+        #print(c.getRace(longForm=True,withEthnicity=True))
+        #print(c.getTemplates())
+        #print(c.getSize())
+        #print(c.getSizeSpace())
+        #print(c.getSizeReach())
+        #print(c.getDeity())
+        #print(c.getChallengeRating(asList=True)[0][1])
+        #print(c.getClasses(asList=False,longForm=False))
+        #print(c.getFactions())
+        #print(c.getFaction(1,longForm=True))
+        #print(c.getTypes(modWith=string.lower))
+        #print(c.getSubtypes(asList=False,longForm=False))
+        #print(icons.getIcon(c.getType(modWith=string.lower),'creature type','high'))
+        #print(c.getSenses(asList=True,longForm=True))
+        #print(c.getSenses(asList=False,longForm=False,modWith=string.lower))
+        #print(c.getAuras(asList=True,longForm=True))
+        #print(c.getAuras(asList=False,longForm=False,modWith=string.lower))
+        #print(c.getFavoredClasses(asList=False,longForm=False,modWith=string.lower))
+        #print(c.getHealth(asList=True,longForm=True))
+        #print("max %shp" % c.getTotalHP(asList=False))
+        #print("%sgp as %spp, %sgp, %ssp, %scp" % c.getMoney(asList=True)[0])
+        #print(c.getPersonal(asList=False))
+        #print(c.getPersonalBackground(asList=False))
+        #print(c.getGender(asList=False,longForm=False))
+        #print(c.getLanguages(asList=False,modWith=string.lower,joinWith=", "))
+        #print(c.getAttribute('intelligence',asList=True))
+        #print(c.getAttributes(asList=False,longForm=False))
+        #print(c.getSave('fort',asList=False))
+        #print(c.getSave('ref',asList=False))
+        #print(c.getSave('will',asList=True))
+        #print(c.getSave('all',asList=True))
+        #print(c.getSaves(asList=False,longForm=False))
+        #print(c.getSpecialDefensive(asList=False,longForm=False))
+        #print(c.getDR(asList=False,longForm=False))
+        #print("immune-> %s" % c.getImmunities(asList=False,longForm=False))
+        #print("resist-> %s"% c.getResistances(asList=False,longForm=False))
+        #print("weak-> %s" % c.getWeaknesses(asList=False,longForm=False))
+        #print(c.getAC(asList=False,longForm=False))
+        #print(c.getPenalties(asList=False,longForm=False))
+        #print(c.getACP(asList=False,longForm=False))
+        #print(c.getManeuvers(asList=False,longForm=False))
+        #print(c.getCMB(asList=False,longForm=False,modWith=string.lower))
+        #print(c.getCMD(asList=False,longForm=False,modWith=string.lower))
+        #print(c.getInitiative(asList=False,longForm=False))
+        #print(c.getMovement(asList=False,longForm=False,modWith=string.capitalize))
+        #print(c.getEncumbrance(asList=False,longForm=False))
+        #print(c.getSkill(withRank=True))
+        #print(c.getSkillAbilities(asList=False,longForm=False))
+        #print(c.getFeats(asList=False,longForm=True,noProf=True))
+        #print(c.getTraits(asList=False,longForm=True))
+        #print(c.getDrawbacks(asList=False,longForm=False))
+        #print(c.getAnimalTricks(asList=False,longForm=False))
+        print(c.getSpecialAttack(asList=True,longForm=True))
+        print('-'*10)
+    #print(portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10))
+    #print(portfolio.characters[1].getAlignment())
     portfolio.close()
     icons.close()
 
