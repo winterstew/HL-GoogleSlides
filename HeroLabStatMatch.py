@@ -4,12 +4,24 @@ Created on Mon Jan 15 15:41:38 2018
 
 @author: steve
 """
+# for IMAGEMATCH the result of evaluating the dictionary value
+# has to provide an object with a imageHigh and imageLow attribute
+# each of which holds a (filename,absFilename) tuple OR
+# the result of  evaluation the dictionary value has to provide the
+# tuple itself
+IMAGEMATCH = {
+'typeIcon': 'character.feature.types.typeList[0].typeIcon', # get icon (which has imageHigh and imageLow attributes) for filename tuple for icon matching  the creature type
+'image': 'characer.image', # get the filename tuple for the  first character image
+}
 
-MATCH = {
+# for TEXTMATCH the result of evaluating the dictionary value
+# should be the replacement text.  The parent Feature object of this
+# attribute should also have an abbreviate function if needed
+TEXTMATCH = {
 'role': 'character.role', # pc, npc, etc
 'align': 'character.feature.alignment.name', # alignment written out
 'name': 'character.name', # character name
-'summary': 'character.summary', # usually the creature's race, class, alignment abbrev, size, and creature type 
+'summary': 'character.summary', # usually the creature's race, class, alignment abbrev, size, and creature type
 'character type': 'character.type', # Hero, Arcane Familiar, Animal Commpanion, etc
 'player': 'character.playername',
 'racetext': 'character.feature.race.racetext', # race and ethnicity (if one)
@@ -21,10 +33,10 @@ MATCH = {
 'deity': 'character.feature.deity.name', # deity worshiped
 'CR': 'character.feature.challengerating.text' # challenge rating with CR prepended
 'XP': 'character.feature.xpaward.text',# XP awarded for creature (comma for thousands and XP appended)
-'classes summary': 'character.feature.classes.summary', # summary list of all classes 
-'types': '", ".join([item.name in character.feature.types.typeList])', # combine all the creature types
-'subtypes': '", ".join([item.name in character.feature.subtypes.subtypeList])', # combine all the creature subtypes
-'typeIcon': 'character.feature.types.type.name', # get filename for icon matching  the creature type
+'classes summary': 'character.feature.classes.summary', # summary list of all classes
+'type': 'character.feature.types.typeList[0].name', # get first (and likely only) type
+'types..': '", ".join([item.name in character.feature.types.typeList])', # combine all the creature types
+'subtypes..': '", ".join([item.name in character.feature.subtypes.subtypeList])', # combine all the creature subtypes
 
 'hero': "(character.find('heropoints').get('enabled') == 'yes') and character.find('heropoints').get('total') or '-'",
 'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",

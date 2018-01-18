@@ -157,34 +157,178 @@
         <image filename="any-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
-    <icon name="cold" group="climate" summary="Cold" iconindex="41">
+    <icon name="ocean" group="terrain" summary="Ocean" iconindex="34">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="coastline" group="terrain" summary="Coastline" iconindex="35">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="river" group="terrain" summary="River" iconindex="36">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="lake" group="terrain" summary="Lake" iconindex="37">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="sea" group="terrain" summary="Sea" iconindex="38">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="aquatic" group="terrain" summary="Aquatic" iconindex="39">
+      <images>
+        <image filename="water-icon.png" folder="images" resolution="high"/>
+        <image filename="water-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="marsh" group="terrain" summary="Marsh" iconindex="40">
+      <images>
+        <image filename="swamp-icon.png" folder="images" resolution="high"/>
+        <image filename="swamp-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="cold" group="climate" summary="Cold" iconindex="51">
       <images>
         <image filename="cold-icon.png" folder="images" resolution="high"/>
         <image filename="cold-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
-    <icon name="extraplaner" group="climate" summary="Extraplaner" iconindex="42">
+    <icon name="extraplaner" group="climate" summary="Extraplaner" iconindex="52">
       <images>
         <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
         <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
-    <icon name="temperate" group="climate" summary="Temperate" iconindex="43">
+    <icon name="temperate" group="climate" summary="Temperate" iconindex="53">
       <images>
         <image filename="temperate-icon.png" folder="images" resolution="high"/>
         <image filename="temperate-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
-    <icon name="tropical" group="climate" summary="Tropical" iconindex="44">
+    <icon name="tropical" group="climate" summary="Tropical" iconindex="54">
       <images>
         <image filename="tropical-icon.png" folder="images" resolution="high"/>
         <image filename="tropical-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
-    <icon name="hot" group="climate" summary="Hot" iconindex="45">
+    <icon name="hot" group="climate" summary="Hot" iconindex="55">
       <images>
         <image filename="tropical-icon.png" folder="images" resolution="high"/>
         <image filename="tropical-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="warm" group="climate" summary="Warm" iconindex="56">
+      <images>
+        <image filename="tropical-icon.png" folder="images" resolution="high"/>
+        <image filename="tropical-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="plane" group="climate" summary="Extraplaner" iconindex="57">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="world" group="climate" summary="The First World" iconindex="58">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="abaddon" group="climate" summary="Abaddon" iconindex="59">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="abyss" group="climate" summary="The Abyss" iconindex="60">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="axis" group="climate" summary="Axis" iconindex="61">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="boneyard" group="climate" summary="The Boneyard" iconindex="62">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="elysium" group="climate" summary="Elysium" iconindex="63">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="heaven" group="climate" summary="Heaven" iconindex="64">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="hell" group="climate" summary="Hell" iconindex="65">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="maelstrom" group="climate" summary="The Maelstrom" iconindex="66">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="nirvana" group="climate" summary="Nirvana" iconindex="67">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="vault" group="climate" summary="The Dead Vault" iconindex="68">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="dimension" group="climate" summary="Dimension" iconindex="69">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="ambulatory" group="climate" summary="The Immortal Ambulatory" iconindex="71">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="leng" group="climate" summary="Leng" iconindex="72">
+      <images>
+        <image filename="extraplaner-icon.png" folder="images" resolution="high"/>
+        <image filename="extraplaner-icon_sm.png" folder="images" resolution="low"/>
+        </images>
+      </icon>
+    <icon name="any" group="climate" summary="Any" iconindex="73">
+      <images>
+        <image filename="none-icon.png" folder="images" resolution="high"/>
+        <image filename="none-icon_sm.png" folder="images" resolution="low"/>
         </images>
       </icon>
     </icons>

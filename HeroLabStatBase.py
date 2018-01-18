@@ -20,7 +20,11 @@ def printFeatureList(myList,name='',**kwargs):
     myEncoding = 'encode' in kwargs and kwargs['encode'] or 'utf8'
     for idx,l in enumerate(myList):
         if type(l) != list and type(l) != Feature:
-            toPrint = "%s[%s] = %s" % (name,idx,l)
+            if type(l) == Icon:
+                toPrint =  "%s[%s].imageHigh = %s\n" % (name,idx,l.imageHigh)
+                toPrint += "%s[%s].imageLow = %s" % (name,idx,l.imageLow)
+            else:
+                toPrint = "%s[%s] = %s" % (name,idx,l)
             print(toPrint.encode(myEncoding),file=myFile)
         elif type(l) == Feature:
             printFeature(l,"%s[%s]" % (name,idx),**kwargs)
@@ -38,7 +42,11 @@ def printFeature(myFeature,name='',**kwargs):
         if fkey in PRINTOMIT: continue
         val = getattr(myFeature,fkey)
         if type(val) != list and type(val) != Feature:
-            toPrint = "%s.%s = %s" % (name,fkey,val)
+            if type(val) == Icon:
+                toPrint =  "%s.%s.imageHigh = %s\n" % (name,fkey,val.imageHigh)
+                toPrint += "%s.%s.imageLow = %s" % (name,fkey,val.imageLow)
+            else:
+                toPrint = "%s.%s = %s" % (name,fkey,val)
             print(toPrint.encode(myEncoding),file=myFile)
         elif type(val) == Feature:
             printFeature(val,"%s.%s" % (name,fkey),**kwargs)
@@ -242,13 +250,13 @@ def _addBetterNpcinfo(oldElement,*args):
             se.text = e.text
     return oldElement
 
-class Icon:
+class Icon(object):
     """
     Class to contain an individual icon reference which may point to one or more images
 
     attributes are
     name: short identifiing name
-    type: type of thing to which the icon applies
+    group: group of thing to which the icon applies
     summary: summary of the icon
     index: index number for icon
     imageHigh: (filename,fullpath) tupple for high resolution image
@@ -263,7 +271,7 @@ class Icon:
         self.verbosity = kwargs['verbosity']
         self.indexXml = indexIconElement
         self.name = self.indexXml.get('name')
-        self.type = self.indexXml.get('type')
+        self.group = self.indexXml.get('group')
         self.summary = self.indexXml.get('summary')
         self.index = int(self.indexXml.get('iconindex'))
         self.imageHigh = None
@@ -281,7 +289,7 @@ class Icon:
                         iconFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir))
                 except KeyError:
                     print("WARNING: There is no high resolution icon %s/%s for %s (%s)" %
-                        (image.get('folder'),image.get('filename'),self.name,self.type))
+                        (image.get('folder'),image.get('filename'),self.name,self.group))
             else:
                 try:
                     self.imageLow = (
@@ -289,9 +297,9 @@ class Icon:
                         iconFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir))
                 except KeyError:
                     print("WARNING: There is no low resolution icon %s/%s for %s (%s)" %
-                        (image.get('folder'),image.get('filename'),self.name,self.type))
+                        (image.get('folder'),image.get('filename'),self.name,self.group))
 
-class Icons:
+class Icons(object):
     """
     Class to contain icon image references for things like
     creature type, terrain, and climate.
@@ -324,10 +332,13 @@ class Icons:
         for i in indexTree.findall('./icons/icon'):
             self.icons.append(Icon(self.iconFile,i,*args,tempDir=self.tempDir,**kwargs))
 
-        # debug printing
+        # debug printing and create names attribute
+        self.names = {}
         for i in self.icons:
+            if i.group not in self.names: self.names[i.group] = []
+            self.names[i.group].append(i.name)
             if self.verbosity >= 3:
-                print("icon #%d: %s (%s)" % (i.index,i.name,i.type))
+                print("icon #%d: %s (%s)" % (i.index,i.name,i.group))
             if self.verbosity >= 4:
                 print("  images:")
                 if i.imageHigh: print("    high %s: %s" % i.imageHigh)
@@ -336,17 +347,34 @@ class Icons:
         # close the iconFile
         self.iconFile.close()
 
-    def getIcon(self,iconName,iconType="type",iconResolution="low",*args,**kwargs):
+    def getIcon(self,iconName,iconGroup="type",**kwargs):
         """
-        supply the name, type, and resolution to retieve the tuple of icon
-        filename and fullpath
+        supply the name and group to retrieve the Icon instance
         """
         for i in self.icons:
-            if i.type == iconType.lower() and i.name == iconName.lower():
-                if re.search(r'(?i)high',iconResolution):
-                    return i.imageHigh
-                else:
-                    return i.imageLow
+            if i.group == iconGroup.lower() and i.name == iconName.lower():
+                return i
+        return None
+
+    def getMatches(self,sourceText,iconGroup="type",**kwargs):
+        """
+        sourceText is split into words and a list of icon instances
+        of iconGroup are returned
+        """
+        rtnList = []
+        for word in re.split(r'\W+',sourceText):
+            if len(word) < 3: continue
+            for name in self.names[iconGroup]:
+                if re.search(name,word,re.I):
+                    myIcon = self.getIcon(name,iconGroup)
+                    if myIcon: rtnList.append(myIcon)
+        # the "any" icons are reserved to be used if nothing else fits
+        # this should work as long as there are not two "any" icons in a row
+        if len(rtnList) > 1:
+            for idx,icon in enumerate(rtnList):
+                if icon.name == "any":
+                    del rtnList[idx]
+        return rtnList
 
     def close(self):
         """
@@ -482,8 +510,8 @@ class Character(object):
        isMinion: (bool): is this character a minion of another character
        parent: (Character) instance of minion's parent Character
        tempDir: (str) absolute path of temporary directory for image extraction
-       imageList: (list) list of image filenames for character in order
-       images: (dict) filename keyed dict of absolute paths for extracted images
+       imageList: (list) list of (filename,absFilename) tuples for character in order
+       image: (tuple) first (filename,absFilename) tuple for extracted images
        feature: (Feature) top level charater feature drawn from the statblock
        portfolio: (Portfolio) reference to portfolio containing the character
     """
@@ -784,7 +812,7 @@ class Character(object):
         """
         if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
         self.verbosity = kwargs['verbosity']
-        if 'portfolito' in kwargs and type(kwargs['portfolio']) == Portfolio:
+        if 'portfolio' in kwargs and type(kwargs['portfolio']) == Portfolio:
             self.portfolio = kwargs['portfolio']
         self.indexXml = indexCharacterElement
         self.statText = None
@@ -837,11 +865,12 @@ class Character(object):
         else:
             self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Character-')
         self.imageList = []
-        self.images = {}
+        self.image = ()
         for image in self.indexXml.findall('./images/image'):
-            self.imageList.append(image.get('filename'))
-            self.images[image.get('filename')] = \
-            porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)
+            iFilename = image.get('filename')
+            iAbsFilename = porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)
+            self.imageList.append((iFilename,iAbsFilename))
+        if self.imageList: self.image = self.imageList[0]
         # set all the rest of the character attributes
         for item in self.statXml.items():
             if not hasattr(self,item[0]):
@@ -850,15 +879,24 @@ class Character(object):
         self.feature = Feature(self.statXml,self,**kwargs)
         # now that we have our feature tree, lets assign some icons
         if hasattr(self,'portfolio') and hasattr(self.portfolio,'icons'):
-            # TODO I have to think about how to do this
-            # perhaps I will attach a function which requires only the
-            # resolution and then calls getIcons with the values filled in
-            # Another problem is that creatures types can be easily found
-            # in feature.types.typeList[0].name, but both terrain and climate
-            # are in feature.ecology.environmentList[0].fText and there
-            # can be multiple terrains and/or multiple climates
-            # perhaps a typeIcon, terrainIcon, climateIcon
-            pass
+            if hasattr(self.feature,'types'):
+                if hasattr(self.feature.types,'typeList'):
+                    matchType = self.feature.types.typeList[0].name
+                    matchIcon = self.portfolio.icons.getIcon(matchType,'type')
+                    if matchIcon:
+                        setattr(self.feature.types.typeList[0],'typeIcon',matchIcon)
+            if hasattr(self.feature,'npc'):
+                if hasattr(self.feature.npc,'ecology'):
+                    if hasattr(self.feature.npc.ecology,'environment'):
+                        matchText = self.feature.npc.ecology.environment.fText
+                        for matchType in ['terrain','climate']:
+                            matchIcons = self.portfolio.icons.getMatches(matchText,matchType)
+                            if matchIcons:
+                                setattr(self.feature.npc.ecology.environment,"%sIcon" % matchType,matchIcons[0])
+                                setattr(self.feature.npc.ecology.environment,"%sIconList" % matchType,matchIcons)
+                            else:
+                                setattr(self.feature.npc.ecology.environment,"%sIcon" % matchType,self.portfolio.icons.getIcon('any',matchType))
+
 
 
 class Portfolio(object):
@@ -900,7 +938,7 @@ class Portfolio(object):
         self.filecore = os.path.splitext(os.path.basename(porFile.filename))[0]
         if self.verbosity >= 2: print("filecore: %s" % self.filecore)
         if 'icons' in kwargs and type(kwargs['icons']) == Icons:
-            self.icons = icons
+            self.icons = kwargs['icons']
         indexXml = porFile.open('index.xml')
         indexTree = et.parse(indexXml)
         indexXml.close()
@@ -935,9 +973,9 @@ class Portfolio(object):
                 print("STAT BLOCK XML:")
                 et.dump(c.statXml)
             if self.verbosity >= 4:
-                if c.images: print("  Images:")
-                for i in c.images:
-                    print("     %s" % i)
+                if c.imageList: print("  Images:")
+                for i in c.imageList:
+                    print("     %s" % i[0])
 
         # close the protfolio
         self.porFile.close()

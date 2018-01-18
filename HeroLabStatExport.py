@@ -101,6 +101,16 @@ def main():
         printFeature(c,'c',file=charFile)
         #printFeature(c,'c')
         charFile.close()
+        #print(c.portfolio.icons.names)
+        print(c.feature.types.type.typeIcon.name)
+        if hasattr(c.feature,'npc'):
+            if hasattr(c.feature.npc,'ecology'):
+                if hasattr(c.feature.npc.ecology,'environment'):
+                    print(c.feature.npc.ecology.environment.fText)
+                    if hasattr(c.feature.npc.ecology.environment,'terrainIcon'):
+                        print(c.feature.npc.ecology.environment.terrainIcon.name)
+                    if hasattr(c.feature.npc.ecology.environment,'climateIcon'):
+                        print(c.feature.npc.ecology.environment.climateIcon.name)
         #print(c.feature.fAttr)
         #print(c.feature.skills.fAttr)
         #print(c.feature.skills.skillList[3].abbreviate('name',))
