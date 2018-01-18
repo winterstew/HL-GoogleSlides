@@ -864,13 +864,20 @@ class Character(object):
             self.tempDir = kwargs['tempDir']
         else:
             self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Character-')
-        self.imageList = []
-        self.image = ()
-        for image in self.indexXml.findall('./images/image'):
-            iFilename = image.get('filename')
-            iAbsFilename = porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)
-            self.imageList.append((iFilename,iAbsFilename))
-        if self.imageList: self.image = self.imageList[0]
+        #self.imageList = []
+        #self.image = ()
+        #for image in self.indexXml.findall('./images/image'):
+        #    iFilename = image.get('filename')
+        #    iAbsFilename = porFile.extract("%s/%s" % (image.get('folder'),image.get('filename')),self.tempDir)
+        #    self.imageList.append((iFilename,iAbsFilename))
+        #if self.imageList: self.image = self.imageList[0]
+        self.images = None
+        self.images = Feature(self.indexXml.find('./images'),self)
+        if hasattr(self.images,'imageList'):
+            for i in self.images.imageList:
+                iAbsFilename = porFile.extract("%s/%s" % (i.folder,i.filename),self.tempDir)
+                i.imageHigh = (i.filename,iAbsFilename)
+                i.imageLow = (i.filename,iAbsFilename)
         # set all the rest of the character attributes
         for item in self.statXml.items():
             if not hasattr(self,item[0]):
@@ -973,9 +980,10 @@ class Portfolio(object):
                 print("STAT BLOCK XML:")
                 et.dump(c.statXml)
             if self.verbosity >= 4:
-                if c.imageList: print("  Images:")
-                for i in c.imageList:
-                    print("     %s" % i[0])
+                if hasattr(c.images,'imageList'):
+                    print("  Images:")
+                    for i in c.images.imageList:
+                        print("     %s" % i.filename)
 
         # close the protfolio
         self.porFile.close()

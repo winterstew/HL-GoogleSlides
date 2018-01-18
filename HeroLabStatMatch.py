@@ -4,19 +4,97 @@ Created on Mon Jan 15 15:41:38 2018
 
 @author: steve
 """
-# for IMAGEMATCH the result of evaluating the dictionary value
-# has to provide an object with a imageHigh and imageLow attribute
-# each of which holds a (filename,absFilename) tuple OR
-# the result of  evaluation the dictionary value has to provide the
-# tuple itself
+
+"""
+********
+Matching
+********
+The matching method uses keywords surrounded by double wavy brackets and
+modified with prefix and suffix elements.
+
+IMAGEMATCH
+==========
+The image match dictionary is for replacing shape placeholders named with the
+keyword or just just the keyword as the placeholder.  Examples of using the
+format in a template document are as follows::
+
+{{keyword}}
+{{head:h_keyword..}}
+{{head:l_keyword..}}
+
+  ``keyword``
+    must have a match in the dictionary to give a value which will be evaluated
+
+  ``head:``
+    This is replaced with the *head* text if the value evaluation results
+    in something.
+
+  ``h_ or l_``
+    This is used to indicate the resolution for the image.  The value has to
+    evaluate to an object with imageHigh and/or imageLow attribute.
+
+  ``..``
+    This is used to indicate a possible list.  The value should evaluate to
+    an attribute from the first element in the list.  The list should be
+    one element up from the attribute.  The result will be the same attribute
+    from all the elements in the list.  Any text following the ``..`` will
+    be used as separators between the images.
+
+The value for each item in the image match dictionary should evaluate to an
+object with an imageHigh and/or imageLow attriburte (default imageHigh).  The
+value of this attribute is a tuple containing the filename afor the image
+nd the absolute path filename for the image.  If the value is the first in
+a list and the `..`` modifier is used, imageHigh and/or imageLow is evaluated
+for each item in the list.
+"""
 IMAGEMATCH = {
-'typeIcon': 'character.feature.types.typeList[0].typeIcon', # get icon (which has imageHigh and imageLow attributes) for filename tuple for icon matching  the creature type
-'image': 'characer.image', # get the filename tuple for the  first character image
+'typeIcon': 'character.feature.types.typeList[0].typeIcon', # creatrue type icon
+'image': 'character.images.imageList[0]', # character image
+'terrainIcon':'character.feature.npc.ecology.environment.terrainIconList[0]', #terrain icon
+'climateIcon': 'character.feature.npc.ecology.environment.climateIconList[0]', #climate icon
 }
 
-# for TEXTMATCH the result of evaluating the dictionary value
-# should be the replacement text.  The parent Feature object of this
-# attribute should also have an abbreviate function if needed
+"""
+TEXTMATCH
+==========
+The text match dictionary is for replacing keyworded and bracketed text with
+the result of evaluation of the value for each item.  Examples of using the
+format in a template document are as follows::
+
+{{keyword}}}
+{{(keyword)}}
+{{head:_keyword}}
+{{(head:_keyword)}}
+{{head:_keyword..}}
+{{(head:_keyword..)}}
+
+  ``keyword``
+    must have a match in the dictionary to give a value which will be evaluated
+
+  ``()``
+    must be the outer most element, but inside the double brackets.  If
+    the value evaluation results in something parenthesis are placed around it
+
+  ``head:``
+    This is replaced with the *head* text if the value evaluation results
+    in something.
+
+  ``_``
+    This is used to indicate that instead of the evaluated value the parent
+    Feature's abbreviate method should ne called with the final attribute
+    as the argument.  If the method does not exist, just the value is returned
+
+  ``..``
+    This is used to indicate a possible list.  The value should evaluate to
+    an attribute from the first element in the list.  The list should be
+    one element up from the attribute.  The result will be the same attribute
+    from all the elements in the list.  Any text following the ``..`` will
+    be used as separators between the images.
+
+The value for each item in the text match dictionary should evaluate to the
+text which will replace the keyword in the template document, or as mentioned
+above the text for the first attribute in a list.
+"""
 TEXTMATCH = {
 'role': 'character.role', # pc, npc, etc
 'align': 'character.feature.alignment.name', # alignment written out
@@ -31,13 +109,14 @@ TEXTMATCH = {
 'space': 'character.feature.size.space.text', # space a creature  takes up with units
 'reach': 'character.feature.size.reach.text', # space a creature threatens beyond its own square
 'deity': 'character.feature.deity.name', # deity worshiped
-'CR': 'character.feature.challengerating.text' # challenge rating with CR prepended
-'XP': 'character.feature.xpaward.text',# XP awarded for creature (comma for thousands and XP appended)
+'CR': 'character.feature.challengerating.text', # challenge rating with CR prepended
+'XP': 'character.feature.xpaward.text', # XP awarded for creature (comma for thousands and XP appended)
 'classes summary': 'character.feature.classes.summary', # summary list of all classes
-'type': 'character.feature.types.typeList[0].name', # get first (and likely only) type
-'types..': '", ".join([item.name in character.feature.types.typeList])', # combine all the creature types
-'subtypes..': '", ".join([item.name in character.feature.subtypes.subtypeList])', # combine all the creature subtypes
+'type': 'character.feature.types.typeList[0].name', # get name of creature type
+'subtype': 'character.feature.subtypes.subtypeList[0].name)', # get name of creatrue subtype
+}
 
+"""
 'hero': "(character.find('heropoints').get('enabled') == 'yes') and character.find('heropoints').get('total') or '-'",
 'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",
 'auras': "get_attrlist(character,'auras','special','name')",
@@ -55,10 +134,10 @@ TEXTMATCH = {
 'height': "re.sub(r' ','',character.find('personal').find('charheight').get('text'))",
 'weight': "character.find('personal').find('charweight').get('text')",
 'personal': "character.find('personal').find('description').text",
-'personal description':"""re.sub(r'w/  skin  hair and  eyes.  ','',
+'personal description':'''re.sub(r'w/  skin  hair and  eyes.  ','',
   re.sub(r'^0[^1-9][^1-9]* yr old ','',
     get_nested(character,'{{height}} {{(weight)}} {{age}} yr old w/ {{skin}} skin {{hair}} hair and {{eyes}} eyes.  {{personal}}')
-  ))""",
+  ))''',
 'languages': "get_attrlist(character,'languages','language','name')",
 'strength': "get_ability(character,'Strength')",
 'dexterity': "get_ability(character,'Dexterity')",
@@ -164,3 +243,4 @@ TEXTMATCH = {
 'npc pc-interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interaction'))",
 'npc interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Interaction'))"
 }
+"""

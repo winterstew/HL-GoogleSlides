@@ -15,6 +15,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 from HeroLabStatBase import *
+from HeroLabStatMatch import *
 
 import xml.etree.cElementTree as et
 
@@ -98,7 +99,7 @@ def main():
     for c in portfolio.characters:
         print(c.name)
         charFile = open("%s.txt"%c.name,'w')
-        printFeature(c,'c',file=charFile)
+        printFeature(c,'character',file=charFile)
         #printFeature(c,'c')
         charFile.close()
         #print(c.portfolio.icons.names)
