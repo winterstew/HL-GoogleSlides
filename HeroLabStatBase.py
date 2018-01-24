@@ -15,8 +15,10 @@ PRINTOMIT = ['fTag','fParent','fCharacter','fPortfolio','fText','statText','stat
 
 def printFeatureList(myList,name='',**kwargs):
     """recursive function to print out feature list"""
+    global PRINTOMIT
+    printOmit = 'printOmit' in kwargs and kwargs['printOmit'] or PRINTOMIT
     myList.sort()
-    myFile = 'file' in kwargs and type(kwargs['file']) == file and kwargs['file'] or sys.stdout
+    myFile = 'toFile' in kwargs and type(kwargs['toFile']) == file and kwargs['toFile'] or sys.stdout
     myEncoding = 'encode' in kwargs and kwargs['encode'] or 'utf8'
     for idx,l in enumerate(myList):
         if type(l) != list and type(l) != Feature:
@@ -34,12 +36,13 @@ def printFeatureList(myList,name='',**kwargs):
 def printFeature(myFeature,name='',**kwargs):
     """recursive function to print out the feature tree"""
     global PRINTOMIT
+    printOmit = 'printOmit' in kwargs and kwargs['printOmit'] or PRINTOMIT
     myKeys = myFeature.__dict__.keys()
     myKeys.sort()
-    myFile = 'file' in kwargs and type(kwargs['file']) == file and kwargs['file'] or sys.stdout
+    myFile = 'toFile' in kwargs and type(kwargs['toFile']) == file and kwargs['toFile'] or sys.stdout
     myEncoding = 'encode' in kwargs and kwargs['encode'] or 'utf8'
     for fkey in myKeys:
-        if fkey in PRINTOMIT: continue
+        if fkey in printOmit: continue
         val = getattr(myFeature,fkey)
         if type(val) != list and type(val) != Feature:
             if type(val) == Icon:
@@ -53,7 +56,7 @@ def printFeature(myFeature,name='',**kwargs):
         elif type(val) == list:
             printFeatureList(val,"%s.%s" % (name,fkey),**kwargs)
 
-def _setOtherSpeeds(oldElement,speedsText,*args):
+def _setOtherSpeeds(oldElement,speedsText,*args,**kwargs):
     """set non-land speeds based on values from the HTML"""
     moveAttr = {}
     for speed in speedsText.split(","):
@@ -103,17 +106,17 @@ def _modSubelements(elem,*args,**kwargs):
         et.SubElement(elem,tag,attrs)
     return elem
 
-def _setTrueTypes(oldElement,typesText,*args):
+def _setTrueTypes(oldElement,typesText,*args,**kwargs):
     """ return element with the true types as determined from HTML typesText"""
     mySubs = [('type',{'name':item}) for item in _getTypesSubtypes(typesText)[0]]
     return _modSubelements(oldElement,*mySubs)
 
-def _setTrueSubtypes(oldElement,typesText,*args):
+def _setTrueSubtypes(oldElement,typesText,*args,**kwargs):
     """ return element with the true subtypes as determined from HTML typesText"""
     mySubs = [('subtype',{'name':item}) for item in _getTypesSubtypes(typesText)[1]]
     return _modSubelements(oldElement,*mySubs)
 
-def _setTrueSpellclass(oldElement,spellText,*args):
+def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
     """ return element the correct spells per level set. """
     spellclasses = [] # list of tuples of tag, attrs, and levels
     # split between alternate casting classes
@@ -210,7 +213,7 @@ def _setTrueSpellclass(oldElement,spellText,*args):
             et.SubElement(elem,spLevel[0],spLevel[1])
     return oldElement
 
-def _addBetterNpcinfo(oldElement,*args):
+def _addBetterNpcInfo(oldElement,*args,**kwargs):
     """append elements for better arragement of npc features"""
     tagMatch = {"basics":[('Motivations & Goals',"goal"),
                           ('Schemes, Plots & Adventure Hooks',"hook"),
@@ -248,6 +251,47 @@ def _addBetterNpcinfo(oldElement,*args):
                 if e.get("name") == m[0]: newtag = m[1]
             se = et.SubElement(elem,newtag,name=e.get("name"))
             se.text = e.text
+    return oldElement
+
+def _addBetterSkillsElements(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        nameList = re.split(r'[\s().;,:]',elem.get('name'))
+        # first add elements with tags besed on specific subname
+        newTag = nameList[0].lower() + "".join([i.capitalize() for i in nameList[1:]])
+        newDict = dict(elem.items())
+        newDict['subname'] = " ".join([i.capitalize() for i in nameList[1:]])
+        newDict['text'] = "%+d" % int(newDict['value'])
+        if 'armorcheck' in newDict and {'Yes':'yes','yes':'yes'}[newDict['armorcheck']] == "yes":
+            if 'fullXml' in kwargs:
+                acp = int(kwargs['fullXml'].find("penalties/penalty[@name='Armor Check Penalty']").get('value'))
+                newDict['valuenoacp'] = str(int(newDict['value']) - acp)
+                if acp < 0:
+                    newDict['text'] = "%+d/%+d" % (int(newDict['value']),int(newDict['valuenoacp']))
+        if 'trainedonly' in newDict and newDict['trainedonly'] == 'yes':
+            if int(newDict['ranks']) <= 0:
+                del newDict['value']
+                del newDict['text']
+        newText = elem.text
+        se = et.SubElement(oldElement,newTag,newDict)
+        se.text = newText
+        if nameList[0] in ['Craft','Knowledge','Perform','Profession']:
+            # now do the same but with just the main name as the tag
+            newTag = nameList[0].lower()
+            se = et.SubElement(oldElement,newTag,newDict)
+            se.text = newText
+    return oldElement
+
+def _addBetterNamedElements(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        nameList = re.split(r'[\s().;,:]',elem.get('name'))
+        # first add elements with tags besed on specific subname
+        newTag = nameList[0].lower() + "".join([i.capitalize() for i in nameList[1:]])
+        newDict = dict(elem.items())
+        newText = elem.text
+        se = et.SubElement(oldElement,newTag,newDict)
+        se.text = newText
     return oldElement
 
 class Icon(object):
@@ -438,7 +482,7 @@ class Feature(object):
             #print(myPattern,self.fCharacter.name)
             #assert myMatch, "No match in HTML for %s attribute" % element.tag
             # use et.fromstring and the swapOut's function to replace the element
-            if myMatch: element = myFunction(element,*myMatch.groups())
+            if myMatch: element = myFunction(element,*myMatch.groups(),fullXml=self.fCharacter.statXml)
         self.fTag = element.tag
         self.fText = element.text
         self.fAttr = element.keys()
@@ -775,7 +819,9 @@ class Character(object):
      'types': (r'(?m)<br/>\s*[LCN][ENG]?\s+[CGHLMSTDF]\w*\s+([^<]+)<br/>',_setTrueTypes),
      'subtypes': (r'(?m)<br/>\s*[LCN][ENG]?\s+[CGHLMSTDF]\w*\s+([^<]+)<br/>',_setTrueSubtypes),
      'spellclasses': (r'(?ms)<br/>\n<b>([^<]+ (Spells|Extracts) (Known|Prepared)\s*</b>\s*\(CL.*)<br/>\n<hr/><b>Statistics',_setTrueSpellclass),
-     'npc': (r'(?m)^(.*)$',_addBetterNpcinfo),
+     'npc': (r'(?m)^(.*)$',_addBetterNpcInfo),
+     'skills': (r'(?m)^(.*)$',_addBetterSkillsElements),
+     'penalties': (r'(?m)^(.*)$',_addBetterNamedElements),
     }
     #htmlTypeSearch = r'(?m)<br/>\s*%s %s ([A-Za-z ]+)\b\s+(\(.*\))?<br/>' # % (align,size)
     #htmlSubtypeSearch = r'(?m)<br/>\s*%s %s [A-Za-z ]+\b\s+\((.*)\)<br/>' # % (align,size)
