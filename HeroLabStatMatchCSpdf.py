@@ -6,7 +6,7 @@ Created on Mon Jan 15 15:41:38 2018
 """
 from HeroLabStatMatch import Matcher
 
-class CSfdfMatcher(Matcher):
+class CSpdfMatcher(Matcher):
 
     """
     ********

@@ -9,32 +9,12 @@ from HeroLabStatRender import Renderer
 import pypdftk
 
 
-class CSfdfRenderer(Renderer):
+class CSpdfRenderer(Renderer):
     """
-    A Renderer takes a Portfolio and the Character and creates the output
-    document from either a template and the Matcher or just based on the
-    Matcher keywords alone.
-
-    Methods:
-      startPortfolio: issued after creating a Portfolio object to start rendering
-      eachCharacter
-      endPortfolio
-
-    Attributes:
-
+    CSpdf uses a fillable character sheet PDF file
+    and fills in the values based on the keys in the matcher.  Outputing an
+    fillable PDF for each character with the values filled in.
     """
-    def __init__(self,portfolio,matcherClass,*args,**kwargs):
-        self.portfolio = portfolio
-        self.matcherClass = matcherClass
-
-    def render(self,*args,**kwargs):
-        self.startPortfolio()
-        for c in self.portfolio.characters:
-            self.eachCharacter(c)
-        self.endPortfolio()
-
-    def startPortfolio(self,*args,**kwargs):
-        pass
 
     def eachCharacter(self,character,*args,**kwargs):
         fieldDict = {}
@@ -46,7 +26,3 @@ class CSfdfRenderer(Renderer):
         outFile="\"%s.pdf\""%character.name
         #print(pypdftk.gen_xfdf(fieldDict))
         generatedPdf = pypdftk.fill_form(pdf_path='"C:\Users\steve\Projects\HL-GoogleSlides\Character Sheet fillable.pdf"',datas=fieldDict,out_file=outFile,flatten=False)
-
-
-    def endPortfolio(self,*args,**kwargs):
-        pass

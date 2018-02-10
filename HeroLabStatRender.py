@@ -9,19 +9,27 @@ from HeroLabStatBase import *
 class Renderer(object):
     """
     A Renderer takes a Portfolio and the Character and creates the output
-    document from either a template and the Matcher or just based on the
-    Matcher keywords alone.
+    document by calling render.  This can use just the Renderer, the
+    same with a matcher created from the matcherClass, or both with an
+    additional template file.
 
     Methods:
-      startPortfolio: issued after creating a Portfolio object to start rendering
-      eachCharacter
-      endPortfolio
+      render: render the portfolio and all its characters
+      startPortfolio: run once as start of render for the portfolio
+      eachCharacter: run for each character in the portfolio
+      endPortfolio: run once at end of render for the portfolio
 
     Attributes:
+      portfolio (Portfolio): portfolio to render
+      matcherClass (Class): class to use when creating matcher
 
     """
-    def __init__(self,portfolio,matcherClass,*args,**kwargs):
+    def __init__(self,portfolio,flags,matcherClass,*args,**kwargs):
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
+        self.flags = flags
         self.portfolio = portfolio
+        self.options = hasattr(flags,'renderer_options') and flags.renderer_options and flags.renderer_options.split(",") or []
         self.matcherClass = matcherClass
 
     def render(self,*args,**kwargs):
