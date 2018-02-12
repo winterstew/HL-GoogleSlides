@@ -15,8 +15,6 @@ PRINTOMIT = ['fTag','fParent','fCharacter','fPortfolio','fText','statText','stat
 
 def printFeatureList(myList,name='',**kwargs):
     """recursive function to print out feature list"""
-    global PRINTOMIT
-    printOmit = 'printOmit' in kwargs and kwargs['printOmit'] or PRINTOMIT
     myList.sort()
     myFile = 'toFile' in kwargs and type(kwargs['toFile']) == file and kwargs['toFile'] or sys.stdout
     myEncoding = 'encode' in kwargs and kwargs['encode'] or 'utf8'
@@ -830,7 +828,7 @@ class Character(object):
     # featureIcons is used for matching icons to features
     # the key is the icon group, and the value is a two member tuple
     # where the first member is another two member tuple.  The first
-    # member of this tuple is the fTag to match, the second is a dictionary
+    # member of this tuple is the flag to match, the second is a dictionary
     # of any attributes to narrow the fTag match.
     # The second member of the value tuple is the attribute to match
     # with the name of the icon.  This match is case in-sensitve
@@ -949,6 +947,7 @@ class Character(object):
                                 setattr(self.feature.npc.ecology.environment,"%sIconList" % matchType,matchIcons)
                             else:
                                 setattr(self.feature.npc.ecology.environment,"%sIcon" % matchType,self.portfolio.icons.getIcon('any',matchType))
+                                setattr(self.feature.npc.ecology.environment,"%sIconList" % matchType,[self.portfolio.icons.getIcon('any',matchType)])
 
 
 

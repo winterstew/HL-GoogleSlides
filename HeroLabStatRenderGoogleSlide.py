@@ -4,9 +4,10 @@ Created on Sat Jan 20 05:23:12 2018
 
 @author: steve
 """
-from HeroLabStatBase import *
+from HeroLabStatBase import VERBOSITY
 from HeroLabStatRender import Renderer
 import httplib2,mimetypes,re,os
+from PIL import Image
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
@@ -182,43 +183,52 @@ class GoogleSlideRenderer(Renderer):
             })
         # run through all the flags with an image matcher and
         # upload images keeping a keyed list on URLs
-        # I am also going to have to figure out mimeTypes for the images
-        #
-        # then run through all the tags again this time
+        imageDict = {}
+        for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
+            images = imageMatcher.getMatch(replaceKey)
+            # with GoogleSheets images need to have their keyword text within a shape,
+            # and are replaced with a batchUpdate request of replaceAllShapesWithImage
+            # this means that inserting a list of images will not work
+            imageFile = type(images) == list and images[0] or images
+            if imageFile and type(imageFile) == tuple:
+                # create an empth image if none exists
+                if not imageFile[1] or not os.path.exists(imageFile[1]):
+                    imageFile = ('empty.png',os.path.join(character.tempDir,'empty.png'))
+                    if not os.path.exists(imageFile[1]):
+                        emptyImage = Image.new('RGBA',(50,50),color=(255,255,255,0))
+                        emptyImage.save(imageFile[1])
+                        emptyImage.close()
+                # upload the image
+                upload = self.drive_service.files().create(
+                    body={'name': imageFile[0],
+                          'mimeType': mimetypes.guess_type(imageFile[1])[0]},
+                    media_body=imageFile[1]).execute()
+                # get its ID
+                file_id = upload.get('id')
+                # get its URL
+                image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
+                imageDict[replaceKey] = (file_id,image_url)
+        # run through all the tags again this time
         # appending to the requests to replace with images
-        #
-        # finally execute the request
-        # then clean up the images whish were uploaded
-        #imageElem = character.find('images').find('image')
-        #File_id=''
-        #print(imageElem)
-        #if ( imageElem != None ) :
-        #    imageFile = imageElem.get('filename')
-        #    #print(imageFile)
-        #    upload = drive_service.files().create(
-        #        body={'name': imageFile, 'mimeType': 'image/jpeg'},
-        #        media_body=os.path.join(os.path.abspath(os.path.curdir),imageFile)).execute()
-        #    file_id = upload.get('id')
-
-        #    # Obtain a URL for the image.
-        #    image_url = '%s&access_token=%s' % (drive_service.files().get_media(fileId=file_id).uri, credentials.access_token)
-
-        #    body['requests'].append({
-        #      'replaceAllShapesWithImage': {
-        #        'imageUrl': image_url,
-        #        'replaceMethod': 'CENTER_INSIDE',
-        #        "pageObjectIds": [newSlideId],
-        #        'containsText': {
-        #          'text': '{{image}}',
-        #          'matchCase': True
-        #        }
-        #      }
-        #    })
+        for replaceKey in imageDict.keys():
+            image_url = imageDict[replaceKey][1]
+            body['requests'].append({
+              'replaceAllShapesWithImage': {
+                'imageUrl': image_url,
+                'replaceMethod': 'CENTER_INSIDE',
+                "pageObjectIds": [newSlideId],
+                'containsText': {
+                  'text': replaceKey,
+                  'matchCase': True
+                }
+              }
+            })
+        # Finally execute the big request
         response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
         self.characterIndex += 1
         # Remove the temporary image file from Drive.
-        #if file_id != '': drive_service.files().delete(fileId=file_id).execute()
-
+        for file_id in [image[0] for image in imageDict.values()]:
+            if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
 
     def endPortfolio(self,*args,**kwargs):
         body = { "requests": [] }

@@ -53,7 +53,8 @@ class Matcher(object):
 
       ``head:``
         This is replaced with the *head* text if the value evaluation results
-        in something.
+        in something.  The *head* text may only have one ``:`` (colon) as part
+        of it as the last character.
 
       ``_``
         This is used to indicate that instead of the evaluated value the parent
@@ -82,8 +83,8 @@ class Matcher(object):
     """
     IMAGEMATCH
     ==========
-    The image match dictionary is for replacing shape placeholders named with the
-    keyword or just just the keyword as the placeholder.  Examples of using the
+    The image match dictionary is for replacing shape placeholders containing
+    just the keyword as the placeholder.  Examples of using the
     format in a template document are as follows::
 
     {{keyword}}
@@ -105,9 +106,9 @@ class Matcher(object):
         from all the elements in the list.
 
     The value for each item in the image match dictionary should evaluate to an
-    object with an imageHigh and/or imageLow attriburte (default imageHigh).  The
-    value of this attribute is a tuple containing the filename afor the image
-    nd the absolute path filename for the image.  If the value is the first in
+    object with an imageHigh and/or imageLow attribute (default imageHigh).  The
+    value of this attribute is a tuple containing the filename for the image
+    and the absolute path filename for the image.  If the value is the first in
     a list and the `..`` modifier is used, imageHigh and/or imageLow is evaluated
     for each item in the list and returned as a list of tuples
     """
@@ -223,7 +224,7 @@ class Matcher(object):
         if pMatch: (myKey,pStart,pEnd) = (pMatch.group(1),'(',')')
         # identify any header and strip it off the myKey
         headText = ''
-        hMatch = re.search(r'^([^:]+):([^:].*)$',myKey)
+        hMatch = re.search(r'^([^:]+:?):([^:].*)$',myKey)
         if hMatch: (headText,myKey) = hMatch.groups()
         # identify any repeating characters and strip it off the myKey
         repeatText = ''
@@ -242,18 +243,30 @@ class Matcher(object):
         # some matchers use the striped key, some use the full key
         keyWord = myKey in self.matcherDictionary and myKey or keyText
         if keyWord not in self.matcherDictionary:
-            #print("Warning: %s is not in Matcher, empty text returned" % keyWord)
+            print("Warning: %s is not in Matcher, empty text returned" % keyWord)
             #if self.type == 'boolean': return False
             #return ''
-            print("Warning: key is not in Matcher, %s returned" % keyWord)
+            #print("Warning: key is not in Matcher, %s returned" % keyWord)
             return keyWord
         rtnList = []
-        for myValue in re.split("\0",self.matcherDictionary[keyWord]):
+        # a special type of text match where two values are separated by a group separator
+        # in this case the first is evaluated as a boolean which determins if the second is
+        # displayed.
+        conditional = re.search(r'\x1d',self.matcherDictionary[keyWord]) and True or False
+        for (valCount,myValue) in enumerate(re.split("[\x1d\x1e]",self.matcherDictionary[keyWord])):
+            # if this is the first part of a conditional value pull off the value from the start
+            if conditional and valCount == 0:
+                conditionalList = re.split(r' ',myValue)
+                myValue = conditionalList[0]
             if not self._exists(myValue):
                 print("Warning: %s is not in Character %s, empty text returned" % (keyWord,self.name))
                 #if self.type == 'boolean': return False
-                if self.type == 'boolean': rtnList.append('false')
-                rtnList.append('')
+                if self.type == 'boolean':
+                    rtnList.append('false')
+                elif self.type == 'image':
+                    rtnList.append(('',''))
+                else:
+                    rtnList.append('')
                 continue
             # if this is not an image matcher lets get the final attribute name
             #print(myValue)
@@ -261,6 +274,14 @@ class Matcher(object):
                 (myValue,finalAttr) = re.search('^(.*\.)?([^.]+)$',myValue).groups()
                 #print(myValue,finalAttr)
                 myValue = myValue and re.sub(r'\.$','',myValue) or myValue
+            # if this is the first part of a conditional evaluate to see if we go on
+            if conditional and valCount == 0:
+                conditionalList[0] = myValue and "getattr(self._character.%s,'%s')" % (myValue,finalAttr)
+                print(conditionalList)
+                if eval(" ".join(conditionalList)):
+                    continue
+                else:
+                    break
             if listMatch:
                 myValue = myValue and re.sub(r'(\[[^\[\]]+\])$','',myValue) or myValue
                 #print(myValue,finalAttr)

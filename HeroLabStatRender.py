@@ -4,7 +4,7 @@ Created on Sat Jan 20 05:23:12 2018
 
 @author: steve
 """
-from HeroLabStatBase import *
+from HeroLabStatBase import VERBOSITY,PRINTOMIT,printFeature
 
 class Renderer(object):
     """

@@ -5,20 +5,12 @@ Created on Fri Dec 29 17:36:15 2017
 @author: steve
 """
 from __future__ import print_function
-import __builtin__
-import httplib2
-import zipfile,tempfile
-import os,re,urllib,shutil,string
+import zipfile
 
-from apiclient import discovery
-from oauth2client import client
-from oauth2client import tools
-from oauth2client.file import Storage
 from HeroLabStatBase import *
 from HeroLabStatRender import Renderer
 from HeroLabStatMatch import Matcher
 
-import xml.etree.cElementTree as et
 
 TEMPLATENAME = "StatBlock Template"
 PAGENAME = "NPC-Combat-"
@@ -39,15 +31,11 @@ def main():
     global VERBOSITY
     try:
         import argparse
-        parser = argparse.ArgumentParser(parents=[tools.argparser],description="""
-        This Program takes a HeroLab protfolio file as an argument.
-        It finds a Google Slide document named "%s" or the one provided by the --template flag
-        and selects the slide based on matching the key '%s' or the --page flag.  For each character in turn
-        which is part of the protfolio, it copies the Google Slide page to a the new presentation
-        (named from the portfolito name) and replaces all the template keys within the page
-        with approriate values from the character""" % (TEMPLATENAME,PAGENAME))
-        parser.add_argument('--template', '-t', default=TEMPLATENAME, help="template presentation name")
-        parser.add_argument('--page', '-p', default=PAGENAME, help="key name identifying page to use")
+        #parser = argparse.ArgumentParser(parents=[tools.argparser],description="""
+        parser = argparse.ArgumentParser(description="""
+        This Program takes a HeroLab portfolio file as an argument.
+        It then renders each character in the portfolio using the renderer
+        and matcher requested.""")
         parser.add_argument('--matcher', '-M', default=None, help="matcher to use")
         parser.add_argument('--matcher-options', '-m', default=None, help="comma separated list of matcher options")
         parser.add_argument('--renderer', '-R', default=None, help="renderer to use")
@@ -55,11 +43,11 @@ def main():
         parser.add_argument('--verbose', '-v', action='count')
         parser.add_argument('--icons', '-i', default=ICONFILE, help="HL-GoogleSlides icon file")
         parser.add_argument('portfolioFiles', action='append', type=lambda f:zipfile.ZipFile(f,'r'), help='HeroLab Protfolio file')
-        #flags = parser.parse_args()
+        flags = parser.parse_args()
         #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip'])
         #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip','-v','-v','-v','-v'])
         #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip','--renderer','CSpdf','--matcher','CSpdf'])
-        flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip','--renderer','GoogleSlide','--renderer-options','StatBlock Template,NPC-Noncombat-Image','--matcher','GoogleSlide'])
+        #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip','--renderer','GoogleSlide','--renderer-options','StatBlock Template,NPC-Noncombat-Image','--matcher','GoogleSlide'])
     except ImportError:
         flags = None
     if (flags.verbose): VERBOSITY = flags.verbose

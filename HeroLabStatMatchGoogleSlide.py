@@ -100,10 +100,10 @@ class GoogleSlideMatcher(Matcher):
     'classes summary': 'feature.classes.summary', # summary list of all classes
     'type': 'feature.types.typeList[0].name', # get name of creature type
     'subtype': 'feature.subtypes.subtypeList[0].name)', # get name of creatrue subtype
+    'hero': "feature.heropoints.enabled == 'yes'\x1dfeature.heropoints.total",
     }
 
     """
-    'hero': "(character.find('heropoints').get('enabled') == 'yes') and character.find('heropoints').get('total') or '-'",
     'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",
     'auras': "get_attrlist(character,'auras','special','name')",
     'auras head': "get_attrlisthead(character,'auras','special','\\nAuras: ')",
