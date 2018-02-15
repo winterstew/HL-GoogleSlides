@@ -11,7 +11,7 @@ from collections import Counter
 import xml.etree.cElementTree as et
 
 VERBOSITY = 0
-PRINTOMIT = ['fTag','fParent','fCharacter','fPortfolio','fText','statText','statHtml','statXml','fAttr','fSub','_fAbbreviate','minions','minionsList']
+PRINTOMIT = ['fTag','fParent','fCharacter','fPortfolio','statText','statHtml','statXml','fAttr','fSub','_fAbbreviate','minions','minionsList']
 
 def printFeatureList(myList,name='',**kwargs):
     """recursive function to print out feature list"""
@@ -89,7 +89,7 @@ def _modSubelements(elem,*args,**kwargs):
 
     Args:
        elem: (Element) parent element
-       one or more tuple pairs or tag, attrDict sets for subelements
+       one or more tuple pairs of tag, attrDict sets for subelements
 
     Kwargs:
        append: (boolean) delete existing subelements if False
@@ -283,13 +283,15 @@ def _addBetterSkillsElements(oldElement,*args,**kwargs):
 def _addBetterNamedElements(oldElement,*args,**kwargs):
     # find and append elements
     for elem in list(oldElement):
-        nameList = re.split(r'[\s().;,:]',elem.get('name'))
-        # first add elements with tags besed on specific subname
-        newTag = nameList[0].lower() + "".join([i.capitalize() for i in nameList[1:]])
-        newDict = dict(elem.items())
-        newText = elem.text
-        se = et.SubElement(oldElement,newTag,newDict)
-        se.text = newText
+        if (elem.get('name')):
+            nameList = re.split(r'[\s().;,:]',elem.get('name'))
+            # first add elements with tags besed on specific subname
+            newTag = nameList[0].lower() + "".join([i.capitalize() for i in nameList[1:]])
+            newDict = dict(elem.items())
+            newText = elem.text
+            se = et.SubElement(oldElement,newTag,newDict)
+            se.text = newText
+            se.extend(list(elem))
     return oldElement
 
 class Icon(object):
@@ -820,6 +822,9 @@ class Character(object):
      'npc': (r'(?m)^(.*)$',_addBetterNpcInfo),
      'skills': (r'(?m)^(.*)$',_addBetterSkillsElements),
      'penalties': (r'(?m)^(.*)$',_addBetterNamedElements),
+     'attributes': (r'(?m)^(.*)$',_addBetterNamedElements),
+     'saves': (r'(?m)^(.*)$',_addBetterNamedElements),
+     'maneuvers': (r'(?m)^(.*)$',_addBetterNamedElements),
     }
     #htmlTypeSearch = r'(?m)<br/>\s*%s %s ([A-Za-z ]+)\b\s+(\(.*\))?<br/>' # % (align,size)
     #htmlSubtypeSearch = r'(?m)<br/>\s*%s %s [A-Za-z ]+\b\s+\((.*)\)<br/>' # % (align,size)

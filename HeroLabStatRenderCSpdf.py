@@ -4,10 +4,10 @@ Created on Sat Jan 20 05:23:12 2018
 
 @author: steve
 """
-from HeroLabStatBase import *
 from HeroLabStatRender import Renderer
 import pypdftk
 
+DEFAULTMATCHER = 'CSpdf'
 
 class CSpdfRenderer(Renderer):
     """

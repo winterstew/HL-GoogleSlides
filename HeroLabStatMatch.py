@@ -224,8 +224,10 @@ class Matcher(object):
         if pMatch: (myKey,pStart,pEnd) = (pMatch.group(1),'(',')')
         # identify any header and strip it off the myKey
         headText = ''
-        hMatch = re.search(r'^([^:]+:?):([^:].*)$',myKey)
+        hMatch = re.search(r'^([^:]+:?):(\??[^:].*)$',myKey)
         if hMatch: (headText,myKey) = hMatch.groups()
+        hOnlyMatch = re.search(r'^\?',myKey)
+        if hOnlyMatch: myKey = re.sub(r'^\?','',myKey)
         # identify any repeating characters and strip it off the myKey
         repeatText = ''
         rMatch = re.search(r'^\.(.)\.(.+)$',myKey)
@@ -258,6 +260,14 @@ class Matcher(object):
             if conditional and valCount == 0:
                 conditionalList = re.split(r' ',myValue)
                 myValue = conditionalList[0]
+                # to allow for features on the right of the conditional
+                # and other than just a string
+                finalValue = len(conditionalList) == 3 and conditionalList[2]
+                if self._exists(finalValue):
+                    # turn the right side of the conditional into something we can eval
+                    (finalValue,finalFinalAttr) = re.search('^(.*\.)?([^.]+)$',finalValue).groups()
+                    finalValue = finalValue and re.sub(r'\.$','',finalValue) or finalValue
+                    conditionalList[2] = finalValue and "getattr(self._character.%s,'%s')" % (finalValue,finalFinalAttr)
             if not self._exists(myValue):
                 print("Warning: %s is not in Character %s, empty text returned" % (keyWord,self.name))
                 #if self.type == 'boolean': return False
@@ -276,7 +286,10 @@ class Matcher(object):
                 myValue = myValue and re.sub(r'\.$','',myValue) or myValue
             # if this is the first part of a conditional evaluate to see if we go on
             if conditional and valCount == 0:
+                # turn the left side of the conditional into something we can eval
                 conditionalList[0] = myValue and "getattr(self._character.%s,'%s')" % (myValue,finalAttr)
+                # if the vinal attribbute is 'value' then evaluate as an integer
+                conditionalList[0] = finalAttr == 'value' and "int(%s)" % conditionalList[0] or conditionalList[0]
                 print(conditionalList)
                 if eval(" ".join(conditionalList)):
                     continue
@@ -316,6 +329,7 @@ class Matcher(object):
             if len(rtnList) == 1:
                 return rtnList[0]
             return rtnList
+        if hOnlyMatch: rtnList = []
         joiner = ''
         if listMatch:
             joiner = listMatch.group(1)

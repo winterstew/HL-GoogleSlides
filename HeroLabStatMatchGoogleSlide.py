@@ -100,79 +100,67 @@ class GoogleSlideMatcher(Matcher):
     'classes summary': 'feature.classes.summary', # summary list of all classes
     'type': 'feature.types.typeList[0].name', # get name of creature type
     'subtype': 'feature.subtypes.subtypeList[0].name)', # get name of creatrue subtype
-    'hero': "feature.heropoints.enabled == 'yes'\x1dfeature.heropoints.total",
-    }
+    'hero': "feature.heropoints.enabled == 'yes'\x1dfeature.heropoints.total", # get hero points
+    'senses': "feature.senses.specialList[0].shortname", # Scent, Low-light, etc
+    'auras': "feature.auras.specialList[0].name", # Good, Evil, Fear, etc
+    'favoredclasses': "feature.favoredclasses.favoredclassList[0].name", # favored classes for level bonus
+    'HP': "feature.health.hitpoints", # total hit points
+    'HD': "feature.health.hitdice", # number and type of hit dice
+    'xp': "feature.xp.total", # total experience points earned
+    'money': "feature.money.total", # total gold piece worth
+    'gender': "feature.personal.gender", # Male, Female, etc
+    'age': "feature.personal.age != '0'\x1dfeature.personal.age", # years since birth
+    'hair': "feature.personal.hair", # hair color, description, name
+    'eyes': "feature.personal.eyes", # eye color, number, etc
+    'skin': "feature.personal.skin", # skin color, thickness, etc
+    'height': "feature.personal.charheight.value > 0\x1dfeature.personal.charheight.text", # how far till your feet reach the floor
+    'weight': "feature.personal.charweight.value > 0\x1dfeature.personal.charweight.text", # arbitrary measure of increasing isotropy
+    'personal': "feature.personal.description.fText", # background detail from personal tab
+    'languages': "feature.languages.languageList[0].name", # list of known languages
+    'str': "feature.attributes.strength.attrvalue.text", # actual value of the attribute
+    'dex': "feature.attributes.dexterity.attrvalue.text", # actual value of the attribute
+    'con': "feature.attributes.constitution.attrvalue.text", # actual value of the attribute
+    'int': "feature.attributes.intelligence.attrvalue.text", # actual value of the attribute
+    'wis': "feature.attributes.wisdom.attrvalue.text", # actual value of the attribute
+    'cha': "feature.attributes.charisma.attrvalue.text", # actual value of the attribute
+    'STR': "feature.attributes.strength.attrbonus.text", # roll modifier for the attribute
+    'DEX': "feature.attributes.dexterity.attrbonus.text", # roll modifier for the attribute
+    'CON': "feature.attributes.constitution.attrbonus.text", # roll modifier for the attribute
+    'INT': "feature.attributes.intelligence.attrbonus.text", # roll modifier for the attribute
+    'WIS': "feature.attributes.wisdom.attrbonus.text", # roll modifier for the attribute
+    'CHA': "feature.attributes.charisma.attrbonus.text", # roll modifier for the attribute
+    'STRs': "feature.attributes.strength.situationalmodifiers.text", # situational modifier for the attribute
+    'DEXs': "feature.attributes.dexterity.situationalmodifiers.text", # situational modifier for the attribute
+    'CONs': "feature.attributes.constitution.situationalmodifiers.text", # situational modifier for the attribute
+    'INTs': "feature.attributes.intelligence.situationalmodifiers.text", # situational modifier for the attribute
+    'WISs': "feature.attributes.wisdom.situationalmodifiers.text", # situational modifier for the attribute
+    'CHAs': "feature.attributes.charisma.situationalmodifiers.text", # situational modifier for the attribute
+    'Save': "feature.saves.allsaves.save", # roll modifier for all saving throws
+    'Saves': "feature.saves.allsaves.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for all saving throws
+    'Fort': "feature.saves.fortitudeSave.save", # roll modifier for fortitude saving throw
+    'Forts': "feature.saves.fortitudeSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for fortitude saving throw
+    'Refl': "feature.saves.reflexSave.save", # roll modifier for reflex saving throw
+    'Refls': "feature.saves.reflexSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for reflex saving throw
+    'Will': "feature.saves.willSave.save", # roll modifier for will saving throw
+    'Wills': "feature.saves.willSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for will saving throw
 
+    'defence special': "feature.defensive.special.name", # special defensive abilities (name includes type, shortname does not)
+    'DR': "feature.damagereduction.special.shortname", # DR 
+    'immune special': "feature.immunities.special.shortname", # special immunities
+    'resist special': "feature.resistances.special.shortname", # special resistances
+    'weak special': "feature.weaknesses.special.shortname", # special vulnerabilities
+    'AC': "feature.armorclass.ac", # 
+    'tAC': "feature.armorclass.touch", # 
+    'ffAC': "feature.armorclass.flatfooted", #
+    'ACs': "feature.armorclass.situationalmodifiers.text",
+    'ACP': "feature.penalties.armorCheckPenalty.text",
+    'MaxDex': "feature.penalties.maxDexBonus.value < 99\x1dfeature.penalties.maxDexBonus.text",
+    'CMB': "feature.maneuvers.cmb",
+    'CMD': "feature.maneuvers.cmd",
+    'CMBblow': "feature.maneuvers.cmb != feature.maneuvers.awesomeBlow.cmb\x1dfeature.maneuvers.awesomeBlow.cmb",
+    'CMBrush': "feature.maneuvers.cmb != feature.maneuvers.bullRush.cmb\x1dfeature.maneuvers.bullRush.cmb",
+    }
     """
-    'senses': "get_attrlist(character,'senses','special','shortname',fmt=JOINVOWELLESS)",
-    'auras': "get_attrlist(character,'auras','special','name')",
-    'auras head': "get_attrlisthead(character,'auras','special','\\nAuras: ')",
-    'favoredclasses': "get_attrlist(character,'favoredclasses','favoredclass','name',fmt=JOINVOWELLESS)",
-    'HP': "character.find('health').get('hitpoints')",
-    'HD': "character.find('health').get('hitdice')",
-    'xp': "character.find('xp').get('total')",
-    'money': "character.find('money').get('total')+'gp'",
-    'gender': "character.find('personal').get('gender').lower()",
-    'age': "character.find('personal').get('age')",
-    'hair': "character.find('personal').get('hair')",
-    'eyes': "character.find('personal').get('eyes')",
-    'skin': "character.find('personal').get('skin')",
-    'height': "re.sub(r' ','',character.find('personal').find('charheight').get('text'))",
-    'weight': "character.find('personal').find('charweight').get('text')",
-    'personal': "character.find('personal').find('description').text",
-    'personal description':'''re.sub(r'w/  skin  hair and  eyes.  ','',
-      re.sub(r'^0[^1-9][^1-9]* yr old ','',
-        get_nested(character,'{{height}} {{(weight)}} {{age}} yr old w/ {{skin}} skin {{hair}} hair and {{eyes}} eyes.  {{personal}}')
-      ))''',
-    'languages': "get_attrlist(character,'languages','language','name')",
-    'strength': "get_ability(character,'Strength')",
-    'dexterity': "get_ability(character,'Dexterity')",
-    'constitution': "get_ability(character,'Constitution')",
-    'intelligence': "get_ability(character,'Intelligence')",
-    'wisdom': "get_ability(character,'Wisdom')",
-    'charisma': "get_ability(character,'Charisma')",
-    'str': "get_ability_value(character,'Strength')",
-    'dex': "get_ability_value(character,'Dexterity')",
-    'con': "get_ability_value(character,'Constitution')",
-    'int': "get_ability_value(character,'Intelligence')",
-    'wis': "get_ability_value(character,'Wisdom')",
-    'cha': "get_ability_value(character,'Charisma')",
-    'STR': "get_ability_mod(character,'Strength')",
-    'DEX': "get_ability_mod(character,'Dexterity')",
-    'CON': "get_ability_mod(character,'Constitution')",
-    'INT': "get_ability_mod(character,'Intelligence')",
-    'WIS': "get_ability_mod(character,'Wisdom')",
-    'CHA': "get_ability_mod(character,'Charisma')",
-    'STRs': "get_ability_sit(character,'Strength')",
-    'DEXs': "get_ability_sit(character,'Dexterity')",
-    'CONs': "get_ability_sit(character,'Constitution')",
-    'INTs': "get_ability_sit(character,'Intelligence')",
-    'WISs': "get_ability_sit(character,'Wisdom')",
-    'CHAs': "get_ability_sit(character,'Charisma')",
-    'Fortitude Save': "get_save(character,'Fortitude Save')",
-    'Fort': "get_save_mod(character,'Fortitude Save')",
-    'Forts': "get_save_sit(character,'Fortitude Save')",
-    'Reflex Save': "get_save(character,'Reflex Save')",
-    'Ref': "get_save_mod(character,'Reflex Save')",
-    'Refs': "get_save_sit(character,'Reflex Save')",
-    'Will Save': "get_save(character,'Will Save')",
-    'Will': "get_save_mod(character,'Will Save')",
-    'Wills': "get_save_sit(character,'Will Save')",
-    'Saves': "get_save_sit(character,'All Save')",
-    'defence special..': "get_attrlist(character,'defensive','special','shortname')",
-    'dr special..': "re.sub(r'^','DR ',get_attrlist(character,'damagereduction','special','shortname'))",
-    'immune special..': "get_attrlist(character,'immunities','special','shortname')",
-    'resist special..': "get_attrlist(character,'resistances','special','shortname')",
-    'weak special..': "get_attrlist(character,'weaknesses','special','shortname')",
-    'AC': "character.find('armorclass').get('ac')",
-    'tAC': "character.find('armorclass').get('touch')",
-    'ffAC': "character.find('armorclass').get('flatfooted')",
-    'ACs': "character.find('armorclass').find('situationalmodifiers').get('text')",
-    'ACP': "get_attrlist(character,'penalties','penalty','text',test=('name','%s == \"Armor Check Penalty\"'))",
-    'MaxDex': "get_attrlist(character,'penalties','penalty','text',test=('name','%s == \"Max Dex Bonus\"'))",
-    'CMB': "character.find('maneuvers').get('cmb')",
-    'CMBothers': "get_varied_maneuvers(character,'cmb')",
-    'CMD': "character.find('maneuvers').get('cmd')",
     'CMDothers': "get_varied_maneuvers(character,'cmd')",
     'ffCMD': "character.find('maneuvers').get('cmdflatfooted')",
     'init': "character.find('initiative').get('total')",

@@ -13,6 +13,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+DEFAULTMATCHER = 'GoogleSlide'
 TEMPLATENAME = "StatBlock Template"
 PAGENAME = "NPC-Combat-Image"
 # If modifying these scopes, delete your previously saved credentials

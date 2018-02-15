@@ -53,9 +53,11 @@ def main():
     if (flags.verbose): VERBOSITY = flags.verbose
 
     if (flags.renderer):
-        rendererModule = "from HeroLabStatRender%s import %sRenderer as Renderer" % (flags.renderer,flags.renderer)
+        rendererModule = "from HeroLabStatRender%s import %sRenderer as Renderer\nfrom HeroLabStatRender%s import DEFAULTMATCHER" % (flags.renderer,flags.renderer,flags.renderer)
         try:
             exec rendererModule in globals(),locals()
+            if hasattr(flags,'matcher') and not flags.matcher and DEFAULTMATCHER:
+                flags.matcher = DEFAULTMATCHER
         except ImportError:
             print("WARNING: Module HerLabStatRender%s or class %sRenderer not found, using default" % (flags.renderer,flags.renderer))
     if (flags.matcher):
