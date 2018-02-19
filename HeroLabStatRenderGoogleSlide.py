@@ -152,7 +152,7 @@ class GoogleSlideRenderer(Renderer):
         if hasattr(character,"images") and hasattr(character.images,"imageList") and len(character.images.imageList) > 0:
             slideId = self.imageSlideId
         # create image matcher instance
-        imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image')
+        imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image',verbosity=self.verbosity)
         # duplicate slide
         body = { "requests":  [ {
           "duplicateObject": {
@@ -163,7 +163,7 @@ class GoogleSlideRenderer(Renderer):
         newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
         newSlide = self.service.presentations().pages().get(presentationId=self.presentationId,pageObjectId=newSlideId).execute()
         # create text matcher instance
-        textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text')
+        textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
         body = { "requests": [ {
                    "updateSlidesPosition": {
                      "slideObjectIds": [ newSlideId ],

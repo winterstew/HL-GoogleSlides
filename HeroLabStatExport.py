@@ -168,7 +168,7 @@ def main():
             print('-'*10)
         #print(portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10))
         #print(portfolio.characters[1].getAlignment())
-        renderer = Renderer(portfolio,flags,matcherClass=Matcher)
+        renderer = Renderer(portfolio,flags,matcherClass=Matcher,verbosity=VERBOSITY)
         renderer.render()
         portfolio.close()
     icons.close()

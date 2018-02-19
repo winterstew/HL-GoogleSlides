@@ -5,7 +5,9 @@ Created on Mon Jan 15 15:41:38 2018
 @author: steve
 """
 import re
-from HeroLabStatBase import Character
+from HeroLabStatBase import VERBOSITY,Character
+
+OPERATORS = ["<",">","==",">=","<=","<>","!=","is","not","in","and","or"]
 
 class Matcher(object):
     """
@@ -55,6 +57,10 @@ class Matcher(object):
         This is replaced with the *head* text if the value evaluation results
         in something.  The *head* text may only have one ``:`` (colon) as part
         of it as the last character.
+
+      ``head:?``
+        This is replaced with the *head* text if the value evaluation results
+        in something, however only the head test is returned.
 
       ``_``
         This is used to indicate that instead of the evaluated value the parent
@@ -164,6 +170,8 @@ class Matcher(object):
               type matchers
            matchType: (string) either 'text' or 'image' or 'boolean'
         """
+        if 'verbosity' not in kwargs: kwargs['verbosity'] = VERBOSITY
+        self.verbosity = kwargs['verbosity']
         assert type(character) == Character, "First argument must be a Character instance: %s" % character
         assert type(matcherDictionary) == dict, "Second argument must be dictionary: %s" % matcherDictionary
         assert matcherType == 'text' or matcherType == 'image' or matcherType == 'boolean',"matcherType must be either 'text', 'image', or 'boolean': %s"% matcherType
@@ -173,11 +181,25 @@ class Matcher(object):
         self.matcherDictionary = matcherDictionary
 
     def _exists(self,toTest,*args,**kwargs):
-        """check if the attribute exists within the character attribute tree"""
-        testList = toTest.split(".")
+        """check if the attribute exists within the character attribute tree
+
+        Returns: a siz member tuple
+          isAttr: (boolean) this attribute exists
+          testObj: value returned from final test object's attribute
+          lastTestObj: (Feature) final test object
+          testAttr: (string) final attribute of the feature being tested
+          testList: (Feature list) if lastTestObj is a member
+          testAttrIdx (int or str)
+        """
+        toTestList = toTest.split(".")
         testObj = self._character
+        lastTestObj = testObj
+        testList = []
+        attrCount = 0
         isAttr = True
-        for myAttr in testList:
+        testAttr = ''
+        for (attrCount,myAttr) in enumerate(toTestList):
+            lastTestObj = testObj
             attrMatch = re.match(r'([^\[\]]+)(\[(.+?)\])?',myAttr)
             if attrMatch:
                 testAttr = attrMatch.group(1)
@@ -187,13 +209,14 @@ class Matcher(object):
                 isAttr = hasattr(testObj,testAttr)
                 if not isAttr: break
                 if testAttrIdx != None:
-                    if type(getattr(testObj,testAttr)) == list:
-                        if int(testAttrIdx) >= len(getattr(testObj,testAttr)):
+                    testList = getattr(testObj,testAttr)
+                    if type(testList) == list:
+                        if int(testAttrIdx) >= len(testList):
                             isAttr = False
                             break
-                        testObj = getattr(testObj,testAttr)[int(testAttrIdx)]
-                    elif type(getattr(testObj,testAttr)) == dict:
-                        testObj = getattr(testObj,testAttr)[testAttrIdx]
+                        testObj = testList[int(testAttrIdx)]
+                    elif type(testList) == dict:
+                        testObj = testList[testAttrIdx]
                     else:
                         isAttr = False
                         break
@@ -201,9 +224,16 @@ class Matcher(object):
                     testObj = getattr(testObj,testAttr)
             else:
                 isAttr = False
-        if self.type == 'image':
-            isAttr = hasattr(testObj,'imageHigh') or hasattr(testObj,'imageLow')
-        return isAttr
+        #if self.type == 'image':
+        #    for testAttr in ['imageLow','imageHigh']:
+        #        isAttr = hasattr(testObj,testAttr)
+        #        if isAttr:
+        #            lastTestObj = testObj
+        #            testObj = getattr(testObj,testAttr)
+        #            break
+        if lastTestObj not in testList: testList = []
+        if not isAttr: testObj = toTest
+        return (isAttr,testObj,lastTestObj,testAttr,testList,testAttrIdx)
 
     def getMatch(self,keyText,*args,**kwargs):
         """Return the match from the included character based on keyText
@@ -211,6 +241,11 @@ class Matcher(object):
         Args:
            keyText: (str) keyword from matcherDictionary possibly with modifiers
              for head, parenthesis, lists, image resolution, and/or abbreviation
+
+        \x1c
+        \x1d separate conditional from replacement
+        \x1e serarate replacement values when using multiple (which will be joined with a apace)
+        \x1f separate keyswords in replacement when nesting keywords
         """
         # just in case the keyText is passed with the brackets
         myKey = re.sub('^\{\{(.*)\}\}$',r'\1',keyText)
@@ -224,20 +259,23 @@ class Matcher(object):
         if pMatch: (myKey,pStart,pEnd) = (pMatch.group(1),'(',')')
         # identify any header and strip it off the myKey
         headText = ''
-        hMatch = re.search(r'^([^:]+:?):(\??[^:].*)$',myKey)
+        hMatch = re.search(r'^([^:]+[:]?):([?]?[^:].*)$',myKey)
         if hMatch: (headText,myKey) = hMatch.groups()
-        hOnlyMatch = re.search(r'^\?',myKey)
+        hOnlyMatch = re.search(r'^[?]',myKey)
         if hOnlyMatch: myKey = re.sub(r'^\?','',myKey)
         # identify any repeating characters and strip it off the myKey
         repeatText = ''
         rMatch = re.search(r'^\.(.)\.(.+)$',myKey)
         if rMatch: (repeatText,myKey) = rMatch.groups()
-        # assign image attribute based on possible flag
-        finalAttr = 'imageLow'
-        if re.match(r'^h_',myKey) and self.type == 'image': finalAttr = 'imageHigh'
         # assign flag for abbreviation
         abbreviate = False
         if re.match(r'^_',myKey) and self.type != 'image': abbreviate = True
+        # addign image resultion
+        imageRes = ''
+        if self.type == 'image':
+            imageRes = 'imageLow'
+            if re.match(r'^h_',myKey):
+                imageRes = 'imageHigh'
         # match for the list  option and separator based on flag
         listMatch = re.search(r'\.\.(.*)$',myKey)
         # strip off all rest of the flags down to the key
@@ -245,85 +283,139 @@ class Matcher(object):
         # some matchers use the striped key, some use the full key
         keyWord = myKey in self.matcherDictionary and myKey or keyText
         if keyWord not in self.matcherDictionary:
-            print("Warning: %s is not in Matcher, empty text returned" % keyWord)
-            #if self.type == 'boolean': return False
-            #return ''
-            #print("Warning: key is not in Matcher, %s returned" % keyWord)
+            if self.verbosity >= 2: print("Warning: key is not in Matcher, %s returned" % keyWord)
             return keyWord
         rtnList = []
-        # a special type of text match where two values are separated by a group separator
-        # in this case the first is evaluated as a boolean which determins if the second is
-        # displayed.
-        conditional = re.search(r'\x1d',self.matcherDictionary[keyWord]) and True or False
-        for (valCount,myValue) in enumerate(re.split("[\x1d\x1e]",self.matcherDictionary[keyWord])):
-            # if this is the first part of a conditional value pull off the value from the start
-            if conditional and valCount == 0:
-                conditionalList = re.split(r' ',myValue)
-                myValue = conditionalList[0]
-                # to allow for features on the right of the conditional
-                # and other than just a string
-                finalValue = len(conditionalList) == 3 and conditionalList[2]
-                if self._exists(finalValue):
-                    # turn the right side of the conditional into something we can eval
-                    (finalValue,finalFinalAttr) = re.search('^(.*\.)?([^.]+)$',finalValue).groups()
-                    finalValue = finalValue and re.sub(r'\.$','',finalValue) or finalValue
-                    conditionalList[2] = finalValue and "getattr(self._character.%s,'%s')" % (finalValue,finalFinalAttr)
-            if not self._exists(myValue):
-                print("Warning: %s is not in Character %s, empty text returned" % (keyWord,self.name))
-                #if self.type == 'boolean': return False
-                if self.type == 'boolean':
-                    rtnList.append('false')
-                elif self.type == 'image':
-                    rtnList.append(('',''))
-                else:
-                    rtnList.append('')
-                continue
-            # if this is not an image matcher lets get the final attribute name
-            #print(myValue)
-            if self.type != 'image':
-                (myValue,finalAttr) = re.search('^(.*\.)?([^.]+)$',myValue).groups()
-                #print(myValue,finalAttr)
-                myValue = myValue and re.sub(r'\.$','',myValue) or myValue
-            # if this is the first part of a conditional evaluate to see if we go on
-            if conditional and valCount == 0:
-                # turn the left side of the conditional into something we can eval
-                conditionalList[0] = myValue and "getattr(self._character.%s,'%s')" % (myValue,finalAttr)
-                # if the vinal attribbute is 'value' then evaluate as an integer
-                conditionalList[0] = finalAttr == 'value' and "int(%s)" % conditionalList[0] or conditionalList[0]
-                print(conditionalList)
-                if eval(" ".join(conditionalList)):
+        myValue = self.matcherDictionary[keyWord]
+        testedValue = (False,None,None,str(),list(),None)
+        # if the value is also keys split them up and get the values
+        if re.search("\x1f",myValue):
+            for kw in re.split("\x1f",myValue):
+                rtnList.append(self.getMatch(kw))
+        else:
+            # a special type of text match where two values are separated by a group separator
+            # in this case the first is evaluated as a boolean which determins if the second is
+            # displayed.
+            conditional = False
+            conditionalResult = []
+            itemCount = 1
+            if re.search("\x1d",self.matcherDictionary[keyWord]):
+                conditional = True
+                (myConditional,myValue) = re.split("\x1d",myValue)
+                conditionalList = re.split(r' ',myConditional)
+                # evaluate each part of the conditional which is a feature to its attribute
+                # each part of the conditional is also then expanded to a list
+                for (condIdx,condItem) in enumerate(conditionalList):
+                    testedItem = self._exists(condItem)
+                    # if the keyword asks for a list, the attribute exists, and the attribute comes from a list member
+                    if listMatch and testedItem[0] and testedItem[4]:
+                        # go through each feature in the list and get the relavant attribute
+                        conditionalList[condIdx] = [hasattr(lf,testedItem[3]) and getattr(lf,testedItem[3]) for lf in testedItem[4]]
+                        itemCount = len(conditionalList[condIdx]) > itemCount and len(conditionalList[condIdx]) or itemCount
+                    else:
+                        conditionalList[condIdx] = [testedItem[1]]
+                # duplicate the last element in the conditional list part until all are the same length
+                for (condIdx,condItem) in enumerate(conditionalList):
+                    while len(condItem) < itemCount:
+                        condItem.append(condItem[len(condItem)-1])
+                    conditionalList[condIdx] = condItem
+                # evaluate set of conditionals for each possible list item
+                for itemIdx in range(itemCount):
+                    tempConditionalList = []
+                    for condIdx in range(len(conditionalList)):
+                        # all numbers are evaluated as floats
+                        try:
+                            float(conditionalList[condIdx][itemIdx])
+                            tempConditionalList.append("float(%s)" % conditionalList[condIdx][itemIdx])
+                        except(ValueError):
+                            if conditionalList[condIdx][itemIdx] not in OPERATORS:
+                                tempConditionalList.append('"'+conditionalList[condIdx][itemIdx]+'"')
+                            else:
+                                tempConditionalList.append(conditionalList[condIdx][itemIdx])
+                    try:
+                        conditionalResult.append(eval(" ".join(tempConditionalList)))
+                    except:
+                        print(tempConditionalList)
+                        raise
+                # I now have a list of boolean stored in conditionalResult, one for each
+                # attribute in the list, or a list of one for non-list attributes
+            # Now lets go through all the values.
+            valueList = []
+            maxCount = 0
+            # loop through each of the \x1e separated values
+            # these will be enterleaved as space separated
+            # values for each one in a list (if it is a list)
+            for (valCount,myValue) in enumerate(re.split("\x1e",myValue)):
+                valueList.append(list())
+                # append imageRes for images or '' for all else
+                if self.type == 'image':
+                    myValue = re.sub(r'.image(High|Low)','',myValue)
+                    myValue += "." + imageRes
+                testedValue = self._exists(myValue)
+                # it is does not exist append empty result to the list
+                if not testedValue[0]:
+                    if self.verbosity >= 1: print("Warning: key:%s -> %s is not in Character %s, empty text returned" % (keyWord,myValue,self.name))
+                    #if self.type == 'boolean': return False
+                    #if self.type == 'boolean':
+                    #    valueList[valCount].append('false')
+                    #elif self.type == 'image':
+                    #    valueList[valCount].append(('',''))
+                    #else:
+                    #    valueList[valCount].append('')
+                    valueList[valCount].append(None)
                     continue
+                # if we have the value add it/them to the list
+                feature = testedValue[2]
+                attr = testedValue[3]
+                if listMatch and testedValue[4]:
+                    featureList = testedValue[4]
+                    if abbreviate:
+                        valueList[valCount] += [hasattr(f,attr) and f.abbreviate(attr) for f in featureList]
+                    else:
+                        valueList[valCount] += [hasattr(f,attr) and getattr(f,attr) for f in featureList]
                 else:
-                    break
-            if listMatch:
-                myValue = myValue and re.sub(r'(\[[^\[\]]+\])$','',myValue) or myValue
-                #print(myValue,finalAttr)
-            evalList = myValue and eval("self._character.%s" % myValue) or self._character
-            # make everything a list
-            if not type(evalList) == list:
-                evalList = [evalList]
-            #print(evalList)
-            # get the return list
-            if abbreviate:
-                rtnList += [i.abbreviate(finalAttr) for i in evalList]
-            else:
-                rtnList += [getattr(i,finalAttr) for i in evalList]
+                    if abbreviate:
+                        valueList[valCount] += [feature.abbreviate(attr)]
+                    else:
+                        valueList[valCount] += [getattr(feature,attr)]
+                # keep track of max values per valCount
+                maxCount = len(valueList[valCount]) > maxCount and len(valueList[valCount]) or maxCount
+            for cntr in range(maxCount):
+                if conditional:
+                    # use the cntr to find the relavant conditional or if they are mismatched
+                    # just use the last conditional
+                    idx = cntr < len(conditionalResult) and cntr or len(conditionalResult) -1
+                    if not conditionalResult[idx]:
+                        continue
+
+                toJoinList = []
+                for vIdx in range(len(valueList)):
+                    if cntr < len(valueList[vIdx]):
+                        if (valueList[vIdx][cntr]): toJoinList.append(valueList[vIdx][cntr])
+                if self.type == 'text':
+                    rtnList.append(" ".join(toJoinList))
+                # multiple value separated by \x1e are ignored for boolean and images
+                else:
+                    rtnList.append(valueList[0][cntr])
+        # Now we have a return list of strings or tuples
         if rMatch:
             newList = []
             for i in rtnList:
                 try:
                     newList.append(repeatText * int(i))
                 except ValueError:
-                    print("Warning: %s.%s was not an integer for Character %s, 1 used" % (myValue,finalAttr,self.name))
+                    if self.verbosity >= 1: print("Warning: key:%s -> %s attribute %s was not an integer for Character %s, 1 repeat used" % (keyWord,testedValue[2],testedValue[3],self.name))
                     newList.append(repeatText)
             rtnList = newList[:]
-        # if this is a boolean, change the list to boolean
+        # if this is a boolean, change the list to boolean list
         if self.type == 'boolean':
             rtnList = [self._booleanDict[b.lower()] for b in rtnList]
         # return the result(s)
-        if len(filter(lambda i:i,rtnList)) == 0:
-            print("Warning: nothing stored in %s.%s for Character %s, empty text returned" % (myValue,finalAttr,self.name))
+        rtnList = filter(lambda i:i,rtnList)
+        if len(rtnList) == 0:
+            if self.verbosity >= 1: print("Warning: key:%s -> nothing stored in %s attribute %s for Character %s, empty text returned" % (keyWord,testedValue[2],testedValue[3],self.name))
             if self.type == 'boolean': return False
+            if self.type == 'image': return ('','')
             return ''
         if self.type != 'text':
             if len(rtnList) == 1:

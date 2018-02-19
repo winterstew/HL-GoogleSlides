@@ -143,51 +143,101 @@ class GoogleSlideMatcher(Matcher):
     'Refls': "feature.saves.reflexSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for reflex saving throw
     'Will': "feature.saves.willSave.save", # roll modifier for will saving throw
     'Wills': "feature.saves.willSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for will saving throw
-
     'defence special': "feature.defensive.special.name", # special defensive abilities (name includes type, shortname does not)
-    'DR': "feature.damagereduction.special.shortname", # DR 
+    'DR': "feature.damagereduction.special.shortname", # DR
     'immune special': "feature.immunities.special.shortname", # special immunities
     'resist special': "feature.resistances.special.shortname", # special resistances
     'weak special': "feature.weaknesses.special.shortname", # special vulnerabilities
-    'AC': "feature.armorclass.ac", # 
-    'tAC': "feature.armorclass.touch", # 
+    'AC': "feature.armorclass.ac", #
+    'tAC': "feature.armorclass.touch", #
     'ffAC': "feature.armorclass.flatfooted", #
     'ACs': "feature.armorclass.situationalmodifiers.text",
     'ACP': "feature.penalties.armorCheckPenalty.text",
     'MaxDex': "feature.penalties.maxDexBonus.value < 99\x1dfeature.penalties.maxDexBonus.text",
     'CMB': "feature.maneuvers.cmb",
     'CMD': "feature.maneuvers.cmd",
+    'ffCMD': "feature.maneuvers.cmdflatfooted",
+    'CMBothers': " blow::CMBblow\x1f rush::CMBrush\x1f trick::CMBtrick\x1f dsarm::CMBdisarm\x1f drag::CMBdrag\x1f feint::CMBfeint\x1f grpl::CMBgrapple\x1f over::CMBoverrun\x1f pull::CMBpull\x1f push::CMBpush\x1f repo::CMBreposition\x1f steal::CMBsteal\x1f sndr::CMBsunder\x1f trip::CMBtrip",
     'CMBblow': "feature.maneuvers.cmb != feature.maneuvers.awesomeBlow.cmb\x1dfeature.maneuvers.awesomeBlow.cmb",
     'CMBrush': "feature.maneuvers.cmb != feature.maneuvers.bullRush.cmb\x1dfeature.maneuvers.bullRush.cmb",
+    'CMBtrick': "feature.maneuvers.cmb != feature.maneuvers.dirtyTrick.cmb\x1dfeature.maneuvers.dirtyTrick.cmb",
+    'CMBdisarm': "feature.maneuvers.cmb != feature.maneuvers.disarm.cmb\x1dfeature.maneuvers.disarm.cmb",
+    'CMBdrag': "feature.maneuvers.cmb != feature.maneuvers.drag.cmb\x1dfeature.maneuvers.drag.cmb",
+    'CMBfeint': "feature.maneuvers.cmb != feature.maneuvers.feint.cmb\x1dfeature.maneuvers.feint.cmb",
+    'CMBgrapple': "feature.maneuvers.cmb != feature.maneuvers.grapple.cmb\x1dfeature.maneuvers.grapple.cmb",
+    'CMBoverrun': "feature.maneuvers.cmb != feature.maneuvers.overrun.cmb\x1dfeature.maneuvers.overrun.cmb",
+    'CMBpull': "feature.maneuvers.cmb != feature.maneuvers.pull.cmb\x1dfeature.maneuvers.pull.cmb",
+    'CMBpush': "feature.maneuvers.cmb != feature.maneuvers.push.cmb\x1dfeature.maneuvers.push.cmb",
+    'CMBreposition': "feature.maneuvers.cmb != feature.maneuvers.reposition.cmb\x1dfeature.maneuvers.reposition.cmb",
+    'CMBsteal': "feature.maneuvers.cmb != feature.maneuvers.steal.cmb\x1dfeature.maneuvers.steal.cmb",
+    'CMBsunder': "feature.maneuvers.cmb != feature.maneuvers.sunder.cmb\x1dfeature.maneuvers.sunder.cmb",
+    'CMBtrip': "feature.maneuvers.cmb != feature.maneuvers.trip.cmb\x1dfeature.maneuvers.trip.cmb",
+    'CMDothers': " blow::CMDblow\x1f rush::CMDrush\x1f trick::CMDtrick\x1f dsarm::CMDdisarm\x1f drag::CMDdrag\x1f feint::CMDfeint\x1f grpl::CMDgrapple\x1f over::CMDoverrun\x1f pull::CMDpull\x1f push::CMDpush\x1f repo::CMDreposition\x1f steal::CMDsteal\x1f sndr::CMDsunder\x1f trip::CMDtrip",
+    'CMDblow': "feature.maneuvers.cmd != feature.maneuvers.awesomeBlow.cmd\x1dfeature.maneuvers.awesomeBlow.cmd",
+    'CMDrush': "feature.maneuvers.cmd != feature.maneuvers.bullRush.cmd\x1dfeature.maneuvers.bullRush.cmd",
+    'CMDtrick': "feature.maneuvers.cmd != feature.maneuvers.dirtyTrick.cmd\x1dfeature.maneuvers.dirtyTrick.cmd",
+    'CMDdisarm': "feature.maneuvers.cmd != feature.maneuvers.disarm.cmd\x1dfeature.maneuvers.disarm.cmd",
+    'CMDdrag': "feature.maneuvers.cmd != feature.maneuvers.drag.cmd\x1dfeature.maneuvers.drag.cmd",
+    'CMDfeint': "feature.maneuvers.cmd != feature.maneuvers.feint.cmd\x1dfeature.maneuvers.feint.cmd",
+    'CMDgrapple': "feature.maneuvers.cmd != feature.maneuvers.grapple.cmd\x1dfeature.maneuvers.grapple.cmd",
+    'CMDoverrun': "feature.maneuvers.cmd != feature.maneuvers.overrun.cmd\x1dfeature.maneuvers.overrun.cmd",
+    'CMDpull': "feature.maneuvers.cmd != feature.maneuvers.pull.cmd\x1dfeature.maneuvers.pull.cmd",
+    'CMDpush': "feature.maneuvers.cmd != feature.maneuvers.push.cmd\x1dfeature.maneuvers.push.cmd",
+    'CMDreposition': "feature.maneuvers.cmd != feature.maneuvers.reposition.cmd\x1dfeature.maneuvers.reposition.cmd",
+    'CMDsteal': "feature.maneuvers.cmd != feature.maneuvers.steal.cmd\x1dfeature.maneuvers.steal.cmd",
+    'CMDsunder': "feature.maneuvers.cmd != feature.maneuvers.sunder.cmd\x1dfeature.maneuvers.sunder.cmd",
+    'CMDtrip': "feature.maneuvers.cmd != feature.maneuvers.trip.cmd\x1dfeature.maneuvers.trip.cmd",
+    'init': "feature.initiative.total",
+    'init situational': "feature.initiative.situationalmodifiers.text",
+    'basespeed': "feature.movement.basespeed.text",
+    'speed': "feature.movement.speed.text",
+    'climbspeed': "feature.movement.climb.text",
+    'fly':"{{fly::flyspeed}}\x1f{{(_flymaneuver)}}",
+    'flyspeed': "feature.movement.fly.text",
+    'flymaneuver': 'feature.movement.fly.maneuverability',
+    'swimspeed': "feature.movement.swim.text",
+    'burrowspeed': "feature.movement.burrow.text",
+    'jetspeed': "feature.movement.jet.text",
+    'surgespeed': "feature.movement.surge.text",
+    'leap': "feature.movement.leap.name",
+    'icewalking': "feature.movement.icewalking.name",
+    'earthglide': "feature.movement.earthGlide.name",
+    'airwalk': "feature.movement.airWalk.name",
+    'waterwalk': "feature.movement.waterWalk.name",
+    'cloudwalking': "feature.movement.cloudwalking.name",
+    'swiftflight': "feature.movement.swiftFlight.name",
+    'sidewaysscuttle': "feature.movement.sidewaysScuttle.name",
+    'gracefulflight': "feature.movement.gracefulFlight.name",
+    'otherspeed': "{{fly::fly.. }}\x1f{{climb::climbspeed}}\x1f{{swim::swimspeed}}\x1f{{burrow::burrowspeed}}\x1f{{jet::jetspeed}}\x1f{{surge::surgespeed}}\x1f{{leap}}\x1f{{icewalking}}\x1f{{earthglide}}\x1f{{airwalk}}\x1f{{waterwalk}}\x1f{{cloudwalking}}\x1f{{cloudwalking}}\x1f{{swiftflight}}\x1f{{sidewaysscuttle}}\x1f{{gracefulflight}}",
+    'encumlight': "feature.encumbrance.light",
+    'encummedium': "feature.encumbrance.medium",
+    'encumheavy': "feature.encumbrance.heavy",
+    'encum': "{{encumlight}}\x1f{{encummedium}}\x1f{{encumheavy}}",
+    'carry': "feature.encumbrance.carried",
+    'load': "feature.encumbrance.level",
+    'percep': "feature.skills.perception.text",
+    'percep situational': "feature.skills.perception.situationalmodifiers.text",
+    'all skills': "feature.skills.skillList[0].name\x1efeature.skills.skillList[0].text",
+    'trained skills': "feature.skills.skillList[0].ranks > 0 and feature.skills.skillList[0].value > 4\x1dfeature.skills.skillList[0].name\x1efeature.skills.skillList[0].text",
+    'feats': "feature.feats.featList[0].name",
+    'nonproffeats': "feature.feats.featList[0].profgroup != 'yes'\x1dfeature.feats.featList[0].name",
+    'traits': "feature.traits.traitList[0].name",
+    'flaws': "feature.flaws.flawList[0].name",
+    'skilltricks': "feature.skilltricks.skilltrickList[0].name",
+    'animaltricks': "feature.animaltricks.animaltrickList[0].name",
+    'BAB': "feature.attack.baseattack",
+    'meleeB': "feature.attack.meleeattack",
+    'rangeB': "feature.attack.rangedattack",
+    'attack special': "feature.attack.specialList[0].name",
+    'melee weapons': "feature.melee.weaponList[0].summary",
+    'range weapons': "feature.ranged.weaponList[0].summary",
+    'melee equipped weapons': "feature.melee.weaponList[0].equipped\x1dfeature.melee.weaponList[0].summary",
+    'range equipped weapons': "feature.ranged.weaponList[0].equipped\x1dfeature.ranged.weaponList[0].summary",
+    'defenses armor': "feature.defenses.armorList[0].equipped == 'yes'\x1dfeature.defenses.armorList[0].namequant",
+    'magic items': "feature.magicitems.itemList[0].quantity > 0\x1dfeature.magicitems.itemList[0].namequant",
+    'gear items': "feature.gear.itemList[0].quantity > 0\x1dfeature.gear.itemList[0].namequant",
     }
     """
-    'CMDothers': "get_varied_maneuvers(character,'cmd')",
-    'ffCMD': "character.find('maneuvers').get('cmdflatfooted')",
-    'init': "character.find('initiative').get('total')",
-    'init situational': "character.find('initiative').find('situationalmodifiers').get('text')",
-    'basespeed': "character.find('movement').find('basespeed').get('value')",
-    'speed': "character.find('movement').find('speed').get('value')",
-    'encum': "character.find('encumbrance').get('light') + '/' + character.find('encumbrance').get('medium') + '/' + character.find('encumbrance').get('heavy') + ' (' + character.find('encumbrance').get('carried') + ')' + character.find('encumbrance').get('level')[0:1]",
-    'percep': "re.sub(r'\+-','-','+' + get_attr(character.find('skills').findall('skill'),('name','Perception'),(None,'value')))",
-    'percep situational': "get_attr(character.find('skills').findall('skill'),('name','Perception'),('situationalmodifiers','text'))",
-    'all skills..': "get_skills(character,minRank=0,minMod=-9999)",
-    'trained skills..': "get_skills(character,minRank=1,minMod=4)",
-    'feats..': "get_attrlist(character,'feats','feat','name',test=('profgroup','%s != \"yes\"'))",
-    'traits..': "get_attrlist(character,'traits','trait','name')",
-    'flaws..': "get_attrlist(character,'flaws','flaw','name')",
-    'skilltricks..': "get_attrlist(character,'skilltricks','skilltrick','name')",
-    'animaltricks..': "get_attrlist(character,'animaltricks','animaltrick','name')[0:-8]",
-    'BAB': "character.find('attack').get('baseattack')",
-    'meleeB': "character.find('attack').get('meleeattack')",
-    'rangeB': "character.find('attack').get('rangedattack')",
-    'attack special..': "get_attrlist(character,'attack','special','shortname')",
-    'melee weapons..': "get_weaponlist(character,'melee',onlyEquipped=False)",
-    'range weapons..': "get_weaponlist(character,'ranged',onlyEquipped=False)",
-    'melee equipped weapons..': "get_weaponlist(character,'melee',onlyEquipped=True)",
-    'range equipped weapons..': "get_weaponlist(character,'ranged',onlyEquipped=True)",
-    'defenses armor..': "get_attrlist(character,'defenses','armor','name',quant=True)",
-    'magic items..': "get_attrlist(character,'magicitems','item','name',quant=True)",
-    'gear items..': "get_attrlist(character,'gear','item','name',quant=True)",
     'spelllike special..': "get_attrlist(character,'spelllike','special','name',quant=True)",
     'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name',quant=True)",
     'other special..': "get_attrlist(character,'otherspecials','special','name')",
@@ -250,10 +300,10 @@ class GoogleSlideMatcher(Matcher):
     for each item in the list and returned as a list of tuples
     """
     IMAGEMATCH = {
-    'typeIcon': 'feature.types.typeList[0].typeIcon', # creatrue type icon
-    'image': 'images.imageList[0]', # character image
-    'terrainIcon':'feature.npc.ecology.environment.terrainIconList[0]', #terrain icon
-    'climateIcon': 'feature.npc.ecology.environment.climateIconList[0]', #climate icon
+    'typeIcon': 'feature.types.type.typeIcon', # creatrue type icon
+    'image': 'images.image', # character image
+    'terrainIcon':'feature.npc.ecology.environment.terrainIcon', #terrain icon
+    'climateIcon': 'feature.npc.ecology.environment.climateIcon', #climate icon
     }
 
     """

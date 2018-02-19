@@ -66,11 +66,13 @@ def _setOtherSpeeds(oldElement,speedsText,*args,**kwargs):
             moveQualMatch = re.search(r'ft.\s*\((\w+)\)',speed)
             moveQual = moveQualMatch and moveQualMatch.groups()[0] or None
             # assign attributes for tag
+            moveAttr['name'] =  moveType
             moveAttr['text'] = "%d'" % int(moveSpeed)
             moveAttr['value'] = int(moveSpeed)
             if moveQual: moveAttr['maneuverability'] = moveQual
             # append element
             et.SubElement(oldElement,moveType.lower(),moveAttr)
+            et.SubElement(oldElement,"other",moveAttr)
     return oldElement
 
 def _getTypesSubtypes(typesText):
@@ -258,7 +260,13 @@ def _addBetterSkillsElements(oldElement,*args,**kwargs):
         # first add elements with tags besed on specific subname
         newTag = nameList[0].lower() + "".join([i.capitalize() for i in nameList[1:]])
         newDict = dict(elem.items())
-        newDict['subname'] = " ".join([i.capitalize() for i in nameList[1:]])
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if re.search(r'[()]',elem.get('name')):
+            newDict['subname'] = " ".join([i.capitalize() for i in nameList[1:]])
+        else:
+            newDict['subname'] = ''
         newDict['text'] = "%+d" % int(newDict['value'])
         if 'armorcheck' in newDict and {'Yes':'yes','yes':'yes'}[newDict['armorcheck']] == "yes":
             if 'fullXml' in kwargs:
@@ -269,15 +277,44 @@ def _addBetterSkillsElements(oldElement,*args,**kwargs):
         if 'trainedonly' in newDict and newDict['trainedonly'] == 'yes':
             if int(newDict['ranks']) <= 0:
                 del newDict['value']
-                del newDict['text']
-        newText = elem.text
+                newDict['text'] = u'\x2014'
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+        # create a new subelement of the parent with the new tag and atributes
         se = et.SubElement(oldElement,newTag,newDict)
         se.text = newText
+        se.tail = newTail
+        se.extend(newSubs)
         if nameList[0] in ['Craft','Knowledge','Perform','Profession']:
             # now do the same but with just the main name as the tag
             newTag = nameList[0].lower()
             se = et.SubElement(oldElement,newTag,newDict)
             se.text = newText
+            se.tail = newTail
+            se.extend(newSubs)
+    return oldElement
+
+def _addFeatsAttributes(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if 'profgroup' not in newDict:
+            newDict['profgroup'] = 'no'
+        if 'useradded' not in newDict:
+            newDict['useradded'] = 'yes'
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
     return oldElement
 
 def _addBetterNamedElements(oldElement,*args,**kwargs):
@@ -293,6 +330,79 @@ def _addBetterNamedElements(oldElement,*args,**kwargs):
             se.text = newText
             se.extend(list(elem))
     return oldElement
+
+def _addMeleeAttributes(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        if elem.tag != "weapon": continue
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if 'summary' not in newDict:
+            newDict['summary'] = "%(name)s(%(typetext)s)" % newDict
+            if 'equipped' in newDict: newDict['summary'] += " %s" % newDict['equipped']
+            newDict['summary'] += " %(attack)s (%(damage)s %(crit)s)" % newDict
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+    return oldElement
+
+def _addRangedAttributes(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        if elem.tag != "weapon": continue
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if 'summary' not in newDict:
+            newDict['summary'] = "%(name)s(%(typetext)s)" % newDict
+            if 'equipped' in newDict: newDict['summary'] += " %s" % newDict['equipped']
+            if elem.find('rangedattack'):
+                newDict['summary'] += " %(attack)s %(range)s" % {'attack':elem.find('rangedattack').get('attack',default=newDict['attack']),
+                                                                     'range':elem.find('rangedattack').get('rangeinctext',default='')}
+            else:
+                newDict['summary'] += " %(attack)s" % newDict
+            newDict['summary'] += " (%(damage)s %(crit)s)" % newDict
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+    return oldElement
+
+def _addNameQuantAttribute(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if 'namequant' not in newDict:
+            q = 1
+            if 'left' in newDict and newDict['left']:
+                q = int(newDict['left'])
+            elif 'quantity' in newDict and newDict['quantity']:
+                q = int(newDict['quantity'])
+            if q == 0:
+                newDict['namequant'] = ""
+            elif q > 1:
+                newDict['namequant'] = "%s [%d]" % (newDict['name'],q)
+            else:
+                newDict['namequant'] = newDict['name']
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+    return oldElement
+
 
 class Icon(object):
     """
@@ -514,7 +624,7 @@ class Feature(object):
         """
         assert hasattr(self,attribute),"%s must be an attribute of %s" % (attribute,self)
         inString = getattr(self,attribute)
-        assert type(inString) == str, "%s must be a string not %s" % (inString,type(inString))
+        assert type(inString) == str or type(inString) == unicode, "%s must be a string not %s" % (inString,type(inString))
         # figure out list of abbreviation tuples
         myAbbreviate = abbrList
         # if there are no abbrList consider alternatives
@@ -792,6 +902,9 @@ class Character(object):
      'animaltricks':[
       (r'(?i)\s?\[Trick\]',''),
      ],
+     'weapon':[
+      (r'(?i)(M)asterwork', r'\1wk'),
+     ],
     }
     abbreviations['all'] = [item for sublist in abbreviations.values() for item in sublist]
     abbreviations['none'] = []
@@ -821,10 +934,17 @@ class Character(object):
      'spellclasses': (r'(?ms)<br/>\n<b>([^<]+ (Spells|Extracts) (Known|Prepared)\s*</b>\s*\(CL.*)<br/>\n<hr/><b>Statistics',_setTrueSpellclass),
      'npc': (r'(?m)^(.*)$',_addBetterNpcInfo),
      'skills': (r'(?m)^(.*)$',_addBetterSkillsElements),
+     'feats': (r'(?m)^(.*)$',_addFeatsAttributes),
      'penalties': (r'(?m)^(.*)$',_addBetterNamedElements),
      'attributes': (r'(?m)^(.*)$',_addBetterNamedElements),
      'saves': (r'(?m)^(.*)$',_addBetterNamedElements),
      'maneuvers': (r'(?m)^(.*)$',_addBetterNamedElements),
+     'melee': (r'(?m)^(.*)$',_addMeleeAttributes),
+     'ranged': (r'(?m)^(.*)$',_addRangedAttributes),
+     'magicitems': (r'(?m)^(.*)$',_addNameQuantAttribute),
+     'spelllike': (r'(?m)^(.*)$',_addNameQuantAttribute),
+     'gear': (r'(?m)^(.*)$',_addNameQuantAttribute),
+     'trackedresources': (r'(?m)^(.*)$',_addNameQuantAttribute),
     }
     #htmlTypeSearch = r'(?m)<br/>\s*%s %s ([A-Za-z ]+)\b\s+(\(.*\))?<br/>' # % (align,size)
     #htmlSubtypeSearch = r'(?m)<br/>\s*%s %s [A-Za-z ]+\b\s+\((.*)\)<br/>' # % (align,size)
