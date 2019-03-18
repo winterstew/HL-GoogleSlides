@@ -14,8 +14,8 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 DEFAULTMATCHER = 'GoogleSlide'
-TEMPLATENAME = "StatBlock Template"
-PAGENAME = "NPC-Combat-Image"
+TEMPLATENAME = "StatBlockVertical Template"
+PAGENAME = "BestiaryStyle-Image"
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/slides.googleapis.com-python-quickstart.json
 SCOPES = ('https://www.googleapis.com/auth/presentations',
@@ -119,7 +119,7 @@ class GoogleSlideRenderer(Renderer):
         self.slideIds = map(lambda x:x.get('objectId'),self.slides)
         # find slide to use with characters that have an image and for those that do not
         self.imageSlideId = self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Image',self.slideName) + '}}')
-        self.noImageSlideId = self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Noimage',self.slideName) + '}}')
+        self.noImageSlideId = self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Noimage',self.slideName) + '}}') or self.imageSlideId
         self.characterIndex = 0
         if self.verbosity >= 6: print(self.slideIds)
         if self.verbosity >= 2: print("Image Slide: %s" % self.imageSlideId)
@@ -270,10 +270,13 @@ class GoogleSlideRenderer(Renderer):
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
             flow.user_agent = APPLICATION_NAME
+            #setattr(kwargs['flags'],'logging_level','CRITICAL')
+            print(dir(tools))
             if 'flags' in kwargs:
-                credentials = tools.run_flow(flow, store, kwargs['flags'])
-            else: # Needed only for compatibility with Python 2.6
-                credentials = tools.run(flow, store)
+                credentials = tools.run_flow(flow, store, flags=kwargs['flags'])
+            else: 
+                from argparse import Namespace
+                credentials = tools.run_flow(flow, store)
             if 'verbosity' in kwargs and kwargs['verbosity'] >= 1: print('Storing credentials to ' + credential_path)
         return credentials
 
