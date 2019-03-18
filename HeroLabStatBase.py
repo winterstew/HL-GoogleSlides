@@ -5,7 +5,7 @@ Created on Mon Jan 01 10:08:15 2018
 @author: Steven Weigand
 """
 from __future__ import print_function
-import string,re,os,tempfile,zipfile,shutil,sys
+import string,re,os,tempfile,zipfile,shutil,sys,types
 from collections import Counter
 
 import xml.etree.cElementTree as et
@@ -19,16 +19,16 @@ def printFeatureList(myList,name='',**kwargs):
     myFile = 'toFile' in kwargs and type(kwargs['toFile']) == file and kwargs['toFile'] or sys.stdout
     myEncoding = 'encode' in kwargs and kwargs['encode'] or 'utf8'
     for idx,l in enumerate(myList):
-        if type(l) != list and type(l) != Feature:
+        if not isinstance(l,list) and not isinstance(l,Feature):
             if type(l) == Icon:
                 toPrint =  "%s[%s].imageHigh = %s\n" % (name,idx,l.imageHigh)
                 toPrint += "%s[%s].imageLow = %s" % (name,idx,l.imageLow)
             else:
                 toPrint = "%s[%s] = %s" % (name,idx,l)
             print(toPrint.encode(myEncoding),file=myFile)
-        elif type(l) == Feature:
+        elif isinstance(l,Feature):
             printFeature(l,"%s[%s]" % (name,idx),**kwargs)
-        elif type(l) == list:
+        elif isinstance(l,list):
             printFeatureList(l,"%s[%s]" % (name,idx),**kwargs)
 
 def printFeature(myFeature,name='',**kwargs):
@@ -42,16 +42,16 @@ def printFeature(myFeature,name='',**kwargs):
     for fkey in myKeys:
         if fkey in printOmit: continue
         val = getattr(myFeature,fkey)
-        if type(val) != list and type(val) != Feature:
+        if not isinstance(val,list) and not isinstance(val,Feature):
             if type(val) == Icon:
                 toPrint =  "%s.%s.imageHigh = %s\n" % (name,fkey,val.imageHigh)
                 toPrint += "%s.%s.imageLow = %s" % (name,fkey,val.imageLow)
             else:
                 toPrint = "%s.%s = %s" % (name,fkey,val)
             print(toPrint.encode(myEncoding),file=myFile)
-        elif type(val) == Feature:
+        elif isinstance(val,Feature):
             printFeature(val,"%s.%s" % (name,fkey),**kwargs)
-        elif type(val) == list:
+        elif isinstance(val,list):
             printFeatureList(val,"%s.%s" % (name,fkey),**kwargs)
 
 def _setOtherSpeeds(oldElement,speedsText,*args,**kwargs):
@@ -140,10 +140,12 @@ def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
         maxcasts = []
         unlimited = []
         used = []
+        emphasis = {}
         # split between spell levels, the first line has no spell levels
         for spList in re.split(r'(?m)<br/>\n&nbsp;&nbsp;&nbsp;',spClass)[1:]:
             # extract level and castings
             levelMatch = re.match(r'(?P<level>\d)([a-z][a-z])?( +\((?P<castings>[^\)]+)\))?\xe2\x80\x94',spList)
+            spellCount = 0
             # only look as spell list lines
             if levelMatch:
                 levelDict = levelMatch.groupdict()
@@ -163,7 +165,7 @@ def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
                         unlimited.append(None)
                         maxcasts.append(re.match(r'(\d)\/',levelDict['castings']).group(1))
                         used.append('0')
-                    # something else in the parenthetical after the level that I do not knoe
+                    # something else in the parenthetical after the level that I do not know
                     else:
                         unlimited.append(None)
                         maxcasts.append(levelDict['castings'])
@@ -174,10 +176,14 @@ def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
                     unlimited.append(None)
                     maxcasts.append(spellCount)
                     used.append(spellCount)
+            else:
+                emphasisMatch = re.match(r'(<b>(?P<footnote>[A-Z])</b>\s+(?P<footnotetext>[^;]+);\s*)?<b>(?P<emphasistype>[A-Za-z]+)</b>\s+(?P<emphasis>[A-Za-z, ]+)(\s<b>(?P<emphasisextra>[A-Za-z, ]+)</b>\s*)?$',spList)
+                if emphasisMatch:
+                    emphasis = emphasisMatch.groupdict()
         # if there are listed levels and no clMax yet lets use the levels
         if levels and not clMax: clMax = max(levels)
-        spellclass.append({'name':clName,'maxspelllevel':clMax,'spells':clType})
-        spellclass.append([]) # starting empty list for spelllevels
+        spellclass.append(dict([('name',clName),('maxspelllevel',clMax),('spells',clType)] + emphasis.items()))
+        spellclass.append([]) # starting empty list for spelllevels        
         # if we have levels from the HTML lets use them
         if levels:
             # use max spell level and count up to populate subelements
@@ -192,7 +198,7 @@ def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
                     lattr['level'] = levels[lidx]
                     lattr['used'] = used[lidx]
                     if unlimited[lidx]: lattr['unlimited'] = unlimited[lidx]
-                    if maxcasts[lidx]: lattr['maxcasts'] = unlimited[lidx]
+                    if maxcasts[lidx]: lattr['maxcasts'] = maxcasts[lidx]
                 # if not in list, skip it
                 else: continue
                 spellclass[2].append(('spelllevel',lattr))
@@ -228,11 +234,6 @@ def _addBetterNpcInfo(oldElement,*args,**kwargs):
                            ('Ecology - Organization',"organization"),
                            ('Ecology - Treasure',"treasure"),
                           ],
-                #need to look for other elements with npcinfo subelements
-                #and create an element tag from their name
-                #"additional":[
-                #  ("npcinfo",re.sub(r'&.+?;','') name="The Other"
-                # ],
                }
     # find and append elements
     for elem in list(oldElement):
@@ -277,7 +278,9 @@ def _addBetterSkillsElements(oldElement,*args,**kwargs):
         if 'trainedonly' in newDict and newDict['trainedonly'] == 'yes':
             if int(newDict['ranks']) <= 0:
                 del newDict['value']
-                newDict['text'] = u'\x2014'
+                if 'valuenoacp' in newDict: del newDict['valuenoacp']
+                #newDict['text'] = u'\u2014' # em-dash
+                newDict['text'] = 'N/A'
         # reset the current element with new attributes
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
@@ -391,10 +394,28 @@ def _addNameQuantAttribute(oldElement,*args,**kwargs):
                 q = int(newDict['quantity'])
             if q == 0:
                 newDict['namequant'] = ""
+                if re.search(r'(?i)at will',newDict['name']): newDict['namequant'] = newDict['name']
             elif q > 1:
                 newDict['namequant'] = "%s [%d]" % (newDict['name'],q)
             else:
                 newDict['namequant'] = newDict['name']
+        # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+    return oldElement
+    
+def _addTypeAndValueAttribute(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem)
+        if 'type' not in newDict and 'value' not in newDict and 'shortname' in newDict:
+            (newDict['type'],newDict['value']) = re.split(r' ',newDict['shortname'])
         # reset the current element with new attributes
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
@@ -571,7 +592,7 @@ class Feature(object):
         """
         # element must be an et.Element
         assert et.iselement(element),"%s is not an XML element" % element
-        assert type(parent) == Character or type(parent) == Feature, \
+        assert isinstance(parent,Character) or isinstance(parent,Feature), \
                         "parent %s is must be a Character or Feature" % parent
         # assign identifying and text attributes
         self.fParent = parent
@@ -599,13 +620,28 @@ class Feature(object):
         self.fSub = []
         # assign Feature attributes from element items
         [setattr(self,item[0],item[1]) for item in element.items()]
-        # append Features to the fSub array for subfeatures
-        [self.fSub.append(Feature(elem,self)) for elem in list(element)]
-        #for elem in list(element):
-        #    if type(self) == Feature:
-        #        self.fSub.append(Feature(elem,self))
-        #    else:
-        #        self.fSub.append(Feature(elem))
+        #if element.tag == "spelllevel":
+        #    print("level:",element.items())
+        
+        ### Doing it this way works for creating subelements
+        ### but for choosing the featrure class to use
+        ### while creating the element, I need to make the check in the
+        ### element items loop
+        ## determine class for subelements
+        #if element.tag in Character.featureClass and Character.featureClass[element.tag]:
+        #    FeatureClass = Character.featureClass[element.tag]
+        #else:
+        #    FeatureClass = Feature
+        ## append Features to the fSub array for subfeatures
+        #[self.fSub.append(FeatureClass(elem,self)) for elem in list(element)]
+        ### So I will do it this way
+        for elem in list(element):
+            if elem.tag in Character.featureClass and Character.featureClass[elem.tag]:
+                FeatureClass = Character.featureClass[elem.tag]
+            else:
+                FeatureClass = Feature
+            self.fSub.append(FeatureClass(elem,self))
+                
         myCount = Counter([item.fTag for item in self.fSub])
         for idx,sub in enumerate(self.fSub):
             if myCount[sub.fTag] == 1:
@@ -614,6 +650,15 @@ class Feature(object):
                      getattr(self,"%sList" % sub.fTag) or []
             myList.append(sub)
             setattr(self,"%sList" % sub.fTag,myList[:])
+        ##  This was for test print statements only
+        if False and element.tag in Character.featureClass and Character.featureClass[element.tag]:
+            if len(self.fSub) > 0: 
+                    print(element.tag,dir(self),len(self.fSub))
+                    print(dir(self.fSub),dir(self.fSub[-1]))
+                    if hasattr(self,'spellSort'):
+                        print(list(self.spellSort(0)))
+                    if hasattr(self,'spellClassSort'):
+                        print(list(self.spellClassSort(0)))
 
     def abbreviate(self,attribute,abbrList=[],**kwargs):
         """abbreviate feature values with re.sub based on Feature tag
@@ -646,6 +691,23 @@ class Feature(object):
         for a in myAbbreviate:
                 inString = re.sub(a[0],a[1],inString)
         return inString
+
+class SpellFeature(Feature):
+    def spellSort(self,*args,**kwargs):
+        spells = hasattr(self,'spellList') and sorted([(i.level,i.name) for i in self.spellList],key=lambda x:("0" + x[0])[-2:]+x[1]) or []
+        lvl = -1
+        for sp in spells:
+            levelText = lvl < sp[0] and " (%s):%s" % sp or "%s" % sp[1]
+            lvl = sp[0]
+            yield levelText
+
+class SpellClassFeature(Feature):
+    def spellClassSort(self,*args,**kwargs):
+        classes = hasattr(self,'spellclassList') and sorted([i for i in self.spellclassList],key=lambda x:x.name) or []
+        for cls in classes:
+            if hasattr(cls,"maxspelllevel") and int(cls.maxspelllevel) > -1:
+                if hasattr(cls,"spelllevelList") and len(cls.spelllevelList) > 0:
+                    yield cls.name + " " + ",".join(["%s/%s" % (i.level,getattr(i,'maxcasts',hasattr(i,'unlimited') and i.unlimited == "yes" and '*' or '')) for i in cls.spelllevelList])
 
 class Character(object):
     """Class for a single character from a portfolio
@@ -941,14 +1003,23 @@ class Character(object):
      'maneuvers': (r'(?m)^(.*)$',_addBetterNamedElements),
      'melee': (r'(?m)^(.*)$',_addMeleeAttributes),
      'ranged': (r'(?m)^(.*)$',_addRangedAttributes),
+     'defenses': (r'(?m)^(.*)$',_addNameQuantAttribute),
      'magicitems': (r'(?m)^(.*)$',_addNameQuantAttribute),
      'spelllike': (r'(?m)^(.*)$',_addNameQuantAttribute),
      'gear': (r'(?m)^(.*)$',_addNameQuantAttribute),
      'trackedresources': (r'(?m)^(.*)$',_addNameQuantAttribute),
+     'resistances': (r'(?m)^(.*)$',_addTypeAndValueAttribute),
     }
     #htmlTypeSearch = r'(?m)<br/>\s*%s %s ([A-Za-z ]+)\b\s+(\(.*\))?<br/>' # % (align,size)
     #htmlSubtypeSearch = r'(?m)<br/>\s*%s %s [A-Za-z ]+\b\s+\((.*)\)<br/>' # % (align,size)
     #htmlMovementSearch = r'<b>Speed\s*</b>(.*)\s*<br/>'
+
+    featureClass = {
+      'spellsknown':SpellFeature,
+      'spellsmemorized':SpellFeature,
+      'spellbook':SpellFeature,
+      'spellclasses':SpellClassFeature,
+    }
 
     # featureIcons is used for matching icons to features
     # the key is the icon group, and the value is a two member tuple

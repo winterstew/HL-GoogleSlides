@@ -11,9 +11,6 @@ from HeroLabStatBase import *
 from HeroLabStatRender import Renderer
 from HeroLabStatMatch import Matcher
 
-
-TEMPLATENAME = "StatBlock Template"
-PAGENAME = "NPC-Combat-"
 ICONFILE = "icons.zip"
 VERBOSITY = 1
 
@@ -41,7 +38,7 @@ def main():
         parser.add_argument('--renderer', '-R', default=None, help="renderer to use")
         parser.add_argument('--renderer-options', '-r', default=None, help="comma separated list of renderer options")
         parser.add_argument('--verbose', '-v', action='count')
-        parser.add_argument('--icons', '-i', default=ICONFILE, help="HL-GoogleSlides icon file")
+        parser.add_argument('--icons', '-i', default=ICONFILE, help="icon file which gets tied into the portfolio")
         parser.add_argument('portfolioFiles', action='append', type=lambda f:zipfile.ZipFile(f,'r'), help='HeroLab Protfolio file')
         flags = parser.parse_args()
         #flags = parser.parse_args(['C:\Users\steve\Documents\Hero Lab\portfolios\pathfinder\Ironfang Invation\old\Test Nasty.por','--icons','iconsPaizo.zip'])
@@ -172,13 +169,6 @@ def main():
         renderer.render()
         portfolio.close()
     icons.close()
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()

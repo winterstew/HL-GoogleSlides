@@ -30,17 +30,17 @@ class GoogleSlideMatcher(Matcher):
 
     TEXTMATCH
     ==========
-    The text match dictionary is for replacing keyworded and bracketed text with
+        The text match dictionary is for replacing keyworded and bracketed text with
     the result of evaluation of the value for each item.  Examples of using the
     format in a template document are as follows::
 
     {{keyword}}}
     {{(keyword)}}
-    {{head:_keyword}}
-    {{(head:_keyword)}}
-    {{head:_keyword..}}
-    {{head:.c.keyword}}
-    {{(head:_keyword..)}}
+    {{head|_keyword}}
+    {{(head|_keyword)}}
+    {{head|_keyword..}}
+    {{head|.c.keyword}}
+    {{(head|_keyword..)}}
 
       ``keyword``
         must have a match in the dictionary to give a value which will be
@@ -50,9 +50,13 @@ class GoogleSlideMatcher(Matcher):
         must be the outer most element, but inside the double brackets.  If
         the value evaluation results in something parenthesis are placed around it
 
-      ``head:``
+      ``head|``
         This is replaced with the *head* text if the value evaluation results
-        in something.
+        in something.  The ``|`` (vetical bar) may not be used anywhere else.
+
+      ``head|?``
+        This is replaced with the *head* text if the value evaluation results
+        in something, however only the head test is returned.
 
       ``_``
         This is used to indicate that instead of the evaluated value the parent
@@ -69,11 +73,32 @@ class GoogleSlideMatcher(Matcher):
         should evaluate to an attribute from the first element in the list.  The
         list should be one element up from the attribute.  The result will be the
         same attribute from all the elements in the list.  Any text following
-        the ``..`` will be used as separators between the images.
+        the ``..`` will be used as separators between the items in the list.
 
     The value for each item in the text match dictionary should evaluate to the
     text which will replace the keyword in the template document, or as mentioned
     above the text for the first attribute in a list.
+    
+    There are also some simple operations which can be done as part of the value
+    evaluation.  These include multiple attribute evaluation, keyword nesting, 
+    and simple conditionals.
+    
+        ``\x1f``
+          This is used to indicate that there are multiple attributes references
+          in the keyword item's value.  Each attribute is listed with this 
+          character as the separator and will evaluate as a space separated list
+          
+        ``\x1e``
+           This is used to nest keywords in the values.  The double brackets
+           are not used.  However, all the modifiers can be used.  Each is 
+           separated with thsi character and will be result in a list of values
+
+        ``\x1d``
+          This is used to separate a conditional from the following replacement
+          The conditional can only be very simple with operators as in the global
+          OPERATORS, all numbers will be treated as floats, sring comparisons 
+          should be listed without any quotes and any attribute replacements
+          must be very simple.
     """
     SLIDENAMEMATCH = {
     }
@@ -85,6 +110,8 @@ class GoogleSlideMatcher(Matcher):
     'NPC-Noncombat-Image': 'name', # character name
     'NPC-Combat-Noimage': 'name', # character name
     'NPC-Combat-Image': 'name', # character name
+    'BestiaryStyle-Noimage': 'name', # character name
+    'BestiaryStyle-Image': 'name', # character name
     'summary': 'summary', # usually the creature's race, class, alignment abbrev, size, and creature type
     'character type': 'type', # Hero, Arcane Familiar, Animal Commpanion, etc
     'player': 'playername',
@@ -95,12 +122,12 @@ class GoogleSlideMatcher(Matcher):
     'space': 'feature.size.space.text', # space a creature  takes up with units
     'reach': 'feature.size.reach.text', # space a creature threatens beyond its own square
     'deity': 'feature.deity.name', # deity worshiped
-    'CR': 'feature.challengerating.text', # challenge rating with CR prepended
-    'XP': 'feature.xpaward.text', # XP awarded for creature (comma for thousands and XP appended)
+    'CR': 'feature.challengerating.value', # challenge rating with CR prepended
+    'XP': 'feature.xpaward.value', # XP awarded for creature (comma for thousands and XP appended)
     'classes summary': 'feature.classes.summary', # summary list of all classes
     'type': 'feature.types.typeList[0].name', # get name of creature type
     'subtype': 'feature.subtypes.subtypeList[0].name)', # get name of creatrue subtype
-    'hero': "feature.heropoints.enabled == 'yes'\x1dfeature.heropoints.total", # get hero points
+    'hero': "feature.heropoints.enabled == yes\x1dfeature.heropoints.total", # get hero points
     'senses': "feature.senses.specialList[0].shortname", # Scent, Low-light, etc
     'auras': "feature.auras.specialList[0].name", # Good, Evil, Fear, etc
     'favoredclasses': "feature.favoredclasses.favoredclassList[0].name", # favored classes for level bonus
@@ -109,7 +136,7 @@ class GoogleSlideMatcher(Matcher):
     'xp': "feature.xp.total", # total experience points earned
     'money': "feature.money.total", # total gold piece worth
     'gender': "feature.personal.gender", # Male, Female, etc
-    'age': "feature.personal.age != '0'\x1dfeature.personal.age", # years since birth
+    'age': "feature.personal.age and feature.personal.age > 0\x1dfeature.personal.age", # years since birth
     'hair': "feature.personal.hair", # hair color, description, name
     'eyes': "feature.personal.eyes", # eye color, number, etc
     'skin': "feature.personal.skin", # skin color, thickness, etc
@@ -143,11 +170,12 @@ class GoogleSlideMatcher(Matcher):
     'Refls': "feature.saves.reflexSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for reflex saving throw
     'Will': "feature.saves.willSave.save", # roll modifier for will saving throw
     'Wills': "feature.saves.willSave.situationalmodifiers.situationalmodifierList[0].text", # situational modifier for will saving throw
-    'defence special': "feature.defensive.special.name", # special defensive abilities (name includes type, shortname does not)
+    'defense special': "feature.defensive.special.name", # special defensive abilities (name includes type, shortname does not)
     'DR': "feature.damagereduction.special.shortname", # DR
-    'immune special': "feature.immunities.special.shortname", # special immunities
-    'resist special': "feature.resistances.special.shortname", # special resistances
-    'weak special': "feature.weaknesses.special.shortname", # special vulnerabilities
+    'SR': "feature.resistances.specialList[0].type == spells\x1dfeature.resistances.specialList[0].value", # SR 
+    'immune special': "feature.immunities.specialList[0].shortname", # special immunities
+    'resist special': "feature.resistances.specialList[0].shortname", # special resistances
+    'weak special': "feature.weaknesses.specialList[0].shortname", # special vulnerabilities
     'AC': "feature.armorclass.ac", #
     'tAC': "feature.armorclass.touch", #
     'ffAC': "feature.armorclass.flatfooted", #
@@ -157,7 +185,7 @@ class GoogleSlideMatcher(Matcher):
     'CMB': "feature.maneuvers.cmb",
     'CMD': "feature.maneuvers.cmd",
     'ffCMD': "feature.maneuvers.cmdflatfooted",
-    'CMBothers': " blow::CMBblow\x1f rush::CMBrush\x1f trick::CMBtrick\x1f dsarm::CMBdisarm\x1f drag::CMBdrag\x1f feint::CMBfeint\x1f grpl::CMBgrapple\x1f over::CMBoverrun\x1f pull::CMBpull\x1f push::CMBpush\x1f repo::CMBreposition\x1f steal::CMBsteal\x1f sndr::CMBsunder\x1f trip::CMBtrip",
+    'CMBothers': " blow:|CMBblow\x1f rush:|CMBrush\x1f trick:|CMBtrick\x1f dsarm:|CMBdisarm\x1f drag:|CMBdrag\x1f feint:|CMBfeint\x1f grpl:|CMBgrapple\x1f over:|CMBoverrun\x1f pull:|CMBpull\x1f push:|CMBpush\x1f repo:|CMBreposition\x1f steal:|CMBsteal\x1f sndr:|CMBsunder\x1f trip:|CMBtrip",
     'CMBblow': "feature.maneuvers.cmb != feature.maneuvers.awesomeBlow.cmb\x1dfeature.maneuvers.awesomeBlow.cmb",
     'CMBrush': "feature.maneuvers.cmb != feature.maneuvers.bullRush.cmb\x1dfeature.maneuvers.bullRush.cmb",
     'CMBtrick': "feature.maneuvers.cmb != feature.maneuvers.dirtyTrick.cmb\x1dfeature.maneuvers.dirtyTrick.cmb",
@@ -172,7 +200,7 @@ class GoogleSlideMatcher(Matcher):
     'CMBsteal': "feature.maneuvers.cmb != feature.maneuvers.steal.cmb\x1dfeature.maneuvers.steal.cmb",
     'CMBsunder': "feature.maneuvers.cmb != feature.maneuvers.sunder.cmb\x1dfeature.maneuvers.sunder.cmb",
     'CMBtrip': "feature.maneuvers.cmb != feature.maneuvers.trip.cmb\x1dfeature.maneuvers.trip.cmb",
-    'CMDothers': " blow::CMDblow\x1f rush::CMDrush\x1f trick::CMDtrick\x1f dsarm::CMDdisarm\x1f drag::CMDdrag\x1f feint::CMDfeint\x1f grpl::CMDgrapple\x1f over::CMDoverrun\x1f pull::CMDpull\x1f push::CMDpush\x1f repo::CMDreposition\x1f steal::CMDsteal\x1f sndr::CMDsunder\x1f trip::CMDtrip",
+    'CMDothers': " blow:|CMDblow\x1f rush:|CMDrush\x1f trick:|CMDtrick\x1f dsarm:|CMDdisarm\x1f drag:|CMDdrag\x1f feint:|CMDfeint\x1f grpl:|CMDgrapple\x1f over:|CMDoverrun\x1f pull:|CMDpull\x1f push:|CMDpush\x1f repo:|CMDreposition\x1f steal:|CMDsteal\x1f sndr:|CMDsunder\x1f trip:|CMDtrip",
     'CMDblow': "feature.maneuvers.cmd != feature.maneuvers.awesomeBlow.cmd\x1dfeature.maneuvers.awesomeBlow.cmd",
     'CMDrush': "feature.maneuvers.cmd != feature.maneuvers.bullRush.cmd\x1dfeature.maneuvers.bullRush.cmd",
     'CMDtrick': "feature.maneuvers.cmd != feature.maneuvers.dirtyTrick.cmd\x1dfeature.maneuvers.dirtyTrick.cmd",
@@ -192,7 +220,7 @@ class GoogleSlideMatcher(Matcher):
     'basespeed': "feature.movement.basespeed.text",
     'speed': "feature.movement.speed.text",
     'climbspeed': "feature.movement.climb.text",
-    'fly':"{{fly::flyspeed}}\x1f{{(_flymaneuver)}}",
+    'fly':"{{fly:|flyspeed}}\x1f{{(_flymaneuver)}}",
     'flyspeed': "feature.movement.fly.text",
     'flymaneuver': 'feature.movement.fly.maneuverability',
     'swimspeed': "feature.movement.swim.text",
@@ -208,7 +236,7 @@ class GoogleSlideMatcher(Matcher):
     'swiftflight': "feature.movement.swiftFlight.name",
     'sidewaysscuttle': "feature.movement.sidewaysScuttle.name",
     'gracefulflight': "feature.movement.gracefulFlight.name",
-    'otherspeed': "{{fly::fly.. }}\x1f{{climb::climbspeed}}\x1f{{swim::swimspeed}}\x1f{{burrow::burrowspeed}}\x1f{{jet::jetspeed}}\x1f{{surge::surgespeed}}\x1f{{leap}}\x1f{{icewalking}}\x1f{{earthglide}}\x1f{{airwalk}}\x1f{{waterwalk}}\x1f{{cloudwalking}}\x1f{{cloudwalking}}\x1f{{swiftflight}}\x1f{{sidewaysscuttle}}\x1f{{gracefulflight}}",
+    'otherspeed': "{{fly:|fly.. }}\x1f{{climb:|climbspeed}}\x1f{{swim:|swimspeed}}\x1f{{burrow:|burrowspeed}}\x1f{{jet:|jetspeed}}\x1f{{surge:|surgespeed}}\x1f{{leap}}\x1f{{icewalking}}\x1f{{earthglide}}\x1f{{airwalk}}\x1f{{waterwalk}}\x1f{{cloudwalking}}\x1f{{cloudwalking}}\x1f{{swiftflight}}\x1f{{sidewaysscuttle}}\x1f{{gracefulflight}}",
     'encumlight': "feature.encumbrance.light",
     'encummedium': "feature.encumbrance.medium",
     'encumheavy': "feature.encumbrance.heavy",
@@ -218,9 +246,10 @@ class GoogleSlideMatcher(Matcher):
     'percep': "feature.skills.perception.text",
     'percep situational': "feature.skills.perception.situationalmodifiers.text",
     'all skills': "feature.skills.skillList[0].name\x1efeature.skills.skillList[0].text",
-    'trained skills': "feature.skills.skillList[0].ranks > 0 and feature.skills.skillList[0].value > 4\x1dfeature.skills.skillList[0].name\x1efeature.skills.skillList[0].text",
+    'trained skills': "feature.skills.skillList[0].ranks > 0\x1dfeature.skills.skillList[0].name\x1efeature.skills.skillList[0].text", 
+    'best skills': "feature.skills.skillList[0].ranks > 0 or feature.skills.skillList[0].value > 4\x1dfeature.skills.skillList[0].name\x1efeature.skills.skillList[0].text", 
     'feats': "feature.feats.featList[0].name",
-    'nonproffeats': "feature.feats.featList[0].profgroup != 'yes'\x1dfeature.feats.featList[0].name",
+    'nonproffeats': "feature.feats.featList[0].profgroup == no\x1dfeature.feats.featList[0].name",
     'traits': "feature.traits.traitList[0].name",
     'flaws': "feature.flaws.flawList[0].name",
     'skilltricks': "feature.skilltricks.skilltrickList[0].name",
@@ -233,40 +262,50 @@ class GoogleSlideMatcher(Matcher):
     'range weapons': "feature.ranged.weaponList[0].summary",
     'melee equipped weapons': "feature.melee.weaponList[0].equipped\x1dfeature.melee.weaponList[0].summary",
     'range equipped weapons': "feature.ranged.weaponList[0].equipped\x1dfeature.ranged.weaponList[0].summary",
-    'defenses armor': "feature.defenses.armorList[0].equipped == 'yes'\x1dfeature.defenses.armorList[0].namequant",
+    'defenses armor': "feature.defenses.armorList[0].equipped == yes\x1dfeature.defenses.armorList[0].namequant",
     'magic items': "feature.magicitems.itemList[0].quantity > 0\x1dfeature.magicitems.itemList[0].namequant",
     'gear items': "feature.gear.itemList[0].quantity > 0\x1dfeature.gear.itemList[0].namequant",
+    'spelllike special': "feature.spelllike.specialList[0].name",
+    'tracked items': "feature.trackedresources.trackedresourceList[0].name",
+    'tracked resource': "feature.trackedresources.trackedresourceList[0].namequant",
+    'other special': "feature.otherspecials.specialList[0].name",
+    'spells known': "feature.spellsknown.spellSort(0)",
+    'spells memorized': "feature.spellsmemorized.spellSort(0)",
+    'spell book': "feature.spellbook.spellSort(0)",
+    'spell classes': "feature.spellclasses.spellClassSort(0)",
+    'npc additional': "feature.npc.additional.npcinfoList[0].name\x1efeature.npc.additional.npcinfoList[0].fText",
+    'npc description': "feature.npc.descriptionList[0].fText",
+    'npc basics': "feature.npc.basics.npcinfoList[0].name\x1efeature.npc.basics.npcinfoList[0].fText",
+    'npc basics-goal': "feature.npc.basics.goalList[0].fText",
+    'npc basics-goals': "feature.npc.basics.goalList[0].fText",
+    'npc basics-motivation': "feature.npc.basics.goalList[0].fText",
+    'npc basics-motivations': "feature.npc.basics.goalList[0].fText",
+    'npc basics-plot': "feature.npc.basics.hookList[0].fText",
+    'npc basics-plots': "feature.npc.basics.hookList[0].fText",
+    'npc basics-hook': "feature.npc.basics.hookList[0].fText",
+    'npc basics-hooks': "feature.npc.basics.hookList[0].fText",
+    'npc basics-boon': "feature.npc.basics.boonList[0].fText",
+    'npc basics-boons': "feature.npc.basics.boonList[0].fText",
+    'npc ecology-stats': "get_textformatch(character.find('npc'),('tactics','npcinfo'),('name','Base Statistics'))",
+    'npc ecology-environment': "feature.npc.ecology.environmentList[0].fText",
+    'npc ecology-organization': "feature.npc.ecology.organizationList[0].fText",
+    'npc ecology-treasure': "feature.npc.ecology.treasureList[0].fText",
+    'npc tactics': "feature.npc.tactics.npcinfoList[0].name\x1efeature.npc.tactics.npcinfoList[0].fText",
+    'npc tactics-base': "feature.npc.tactics.basestatList[0].fText",
+    'npc tactics-before': "feature.npc.tactics.beforecombatList[0].fText",
+    'npc tactics-during': "feature.npc.tactics.duringcombatList[0].fText",
+    'npc tactics-morale': "feature.npc.tactics.moraleList[0].fText",
+    'npc history': "feature.npc.additional.historyList[0].fText",
+    'npc history-goals': "feature.npc.additional.historygoalsList[0].fText",
+    'npc history-goals-boons': "feature.npc.additional.historygoalsboonsList[0].fText",
+    'npc personality-mannerisms': "feature.npc.additional.personalitymannerismsList[0].fText",
+    'npc pc-interactions': "feature.npc.additional.pcinteractionsList[0].fText",
+    'npc pc-interaction': "feature.npc.additional.pcinteractionList[0].fText",
+    'npc interactions': "feature.npc.additional.interactionsList[0].fText",
+    'npc interaction': "feature.npc.additional.interactionList[0].fText",
+    'source book': "feature.bookinfoList[0].name",
     }
     """
-    'spelllike special..': "get_attrlist(character,'spelllike','special','name',quant=True)",
-    'tracked items..': "get_attrlist(character,'trackedresources','trackedresource','name',quant=True)",
-    'other special..': "get_attrlist(character,'otherspecials','special','name')",
-    'spells known..': "get_sortedspells(character,'spellsknown')",
-    'spells memorized..': "get_sortedspells(character,'spellsmemorized')",
-    'spells book..': "get_sortedspells(character,'spellbook')",
-    'spellclasses..': "get_spellclasses(character.find('spellclasses'))",
-    'npc description': "get_textformatch(character.find('npc'),('description',''),('',''))",
-    'npc basics': "get_textformatch(character.find('npc'),('description',''),('',''))",
-    'npc basics-goals': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Motivations & Goals'))",
-    'npc basics-motivation': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Motivations & Goals'))",
-    'npc basics-plots': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Schemes, Plots & Adventure Hooks'))",
-    'npc basics-hooks': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Schemes, Plots & Adventure Hooks'))",
-    'npc basics-boons': "get_textformatch(character.find('npc'),('basics','npcinfo'),('name','Boon'))",
-    'npc tactics-before': "get_textformatch(character.find('npc'),('tactics','npcinfo'),('name','Tactics - Before Combat'))",
-    'npc tactics-during': "get_textformatch(character.find('npc'),('tactics','npcinfo'),('name','Tactics - During Combat'))",
-    'npc tactics-morale': "get_textformatch(character.find('npc'),('tactics','npcinfo'),('name','Tactics - Morale'))",
-    'npc ecology-stats': "get_textformatch(character.find('npc'),('tactics','npcinfo'),('name','Base Statistics'))",
-    'npc ecology-environment': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Environment'))",
-    'npc ecology-organization': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Organization'))",
-    'npc ecology-trerasure': "get_textformatch(character.find('npc'),('ecology','npcinfo'),('name','Ecology - Treasure'))",
-    'npc history': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History'))",
-    'npc history-goals': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals'))",
-    'npc history-goals-boons': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','History / Goals / Boons'))",
-    'npc personality-mannerisms': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Personality / Mannerisms'))",
-    'npc pc-interactions': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interactions'))",
-    'npc pc-interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','PC Interaction'))",
-    'npc interaction': "get_textformatch(character.find('npc'),('additional','npcinfo'),('name','Interaction'))"
-    }
 
     IMAGEMATCH
     ==========

@@ -4,7 +4,7 @@ Created on Mon Jan 15 15:41:38 2018
 
 @author: steve
 """
-import re
+import re,types
 from HeroLabStatBase import VERBOSITY,Character
 
 OPERATORS = ["<",">","==",">=","<=","<>","!=","is","not","in","and","or"]
@@ -39,11 +39,11 @@ class Matcher(object):
 
     {{keyword}}}
     {{(keyword)}}
-    {{head:_keyword}}
-    {{(head:_keyword)}}
-    {{head:_keyword..}}
-    {{head:.c.keyword}}
-    {{(head:_keyword..)}}
+    {{head|_keyword}}
+    {{(head|_keyword)}}
+    {{head|_keyword..}}
+    {{head|.c.keyword}}
+    {{(head|_keyword..)}}
 
       ``keyword``
         must have a match in the dictionary to give a value which will be
@@ -53,12 +53,11 @@ class Matcher(object):
         must be the outer most element, but inside the double brackets.  If
         the value evaluation results in something parenthesis are placed around it
 
-      ``head:``
+      ``head|``
         This is replaced with the *head* text if the value evaluation results
-        in something.  The *head* text may only have one ``:`` (colon) as part
-        of it as the last character.
+        in something.  The ``|`` (vetical bar) may not be used anywhere else.
 
-      ``head:?``
+      ``head|?``
         This is replaced with the *head* text if the value evaluation results
         in something, however only the head test is returned.
 
@@ -77,11 +76,33 @@ class Matcher(object):
         should evaluate to an attribute from the first element in the list.  The
         list should be one element up from the attribute.  The result will be the
         same attribute from all the elements in the list.  Any text following
-        the ``..`` will be used as separators between the images.
+        the ``..`` will be used as separators between the items in the list.
 
     The value for each item in the text match dictionary should evaluate to the
     text which will replace the keyword in the template document, or as mentioned
     above the text for the first attribute in a list.
+    
+    There are also some simple operations which can be done as part of the value
+    evaluation.  These include multiple attribute evaluation, keyword nesting, 
+    and simple conditionals.
+    
+        ``\x1f``
+          This is used to indicate that there are multiple attributes references
+          in the keyword item's value.  Each attribute is listed with this 
+          character as the separator and will evaluate as a space separated list
+          
+        ``\x1e``
+           This is used to nest keywords in the values.  The double brackets
+           are not used.  However, all the modifiers can be used.  Each is 
+           separated with thsi character and will be result in a list of values
+
+        ``\x1d``
+          This is used to separate a conditional from the following replacement
+          The conditional can only be very simple with operators as in the global
+          OPERATORS, all numbers will be treated as floats, sring comparisons 
+          should be listed without any quotes and any attribute replacements
+          must be very simple.
+
     """
     TEXTMATCH = {
     }
@@ -183,7 +204,7 @@ class Matcher(object):
     def _exists(self,toTest,*args,**kwargs):
         """check if the attribute exists within the character attribute tree
 
-        Returns: a siz member tuple
+        Returns: a size member tuple
           isAttr: (boolean) this attribute exists
           testObj: value returned from final test object's attribute
           lastTestObj: (Feature) final test object
@@ -198,16 +219,28 @@ class Matcher(object):
         attrCount = 0
         isAttr = True
         testAttr = ''
+        # loop through each potential object and attribute from the provided
+        # oject test string.  Starting with testObj = self._character
         for (attrCount,myAttr) in enumerate(toTestList):
+            # save the last successful object test
             lastTestObj = testObj
-            attrMatch = re.match(r'([^\[\]]+)(\[(.+?)\])?',myAttr)
+            # match the attribute string to identify list element attributes
+            # or methods of the object.  Also match the list index or
+            # method arguments
+            attrMatch = re.match(r'([^\[\]\(\)]+)([\[\(](.+)?[\)\]])?',myAttr)
             if attrMatch:
+                # next attribute to test without index or arguments
                 testAttr = attrMatch.group(1)
                 testAttrIdx = None
+                # did we match an index/arguments ?
                 if len(attrMatch.groups()) == 3:
                     testAttrIdx = attrMatch.group(3)
+                # first test, does the testObj have the current attribute
                 isAttr = hasattr(testObj,testAttr)
-                if not isAttr: break
+                if not isAttr: 
+                    #print(attrMatch.groups(),testObj,testAttr,dir(testObj))
+                    break
+                # second test, it the attribute a list element or method
                 if testAttrIdx != None:
                     testList = getattr(testObj,testAttr)
                     if type(testList) == list:
@@ -217,6 +250,13 @@ class Matcher(object):
                         testObj = testList[int(testAttrIdx)]
                     elif type(testList) == dict:
                         testObj = testList[testAttrIdx]
+                    elif type(testList) == types.MethodType:
+                        if type(testList(testAttrIdx.split(","))) == types.GeneratorType:
+                            testObj = testList
+                            testList = [i for i in testObj(testAttrIdx.split(","))]
+                        else:
+                            testObj = [i for i in testObj(testAttrIdx.split(","))]
+                        break
                     else:
                         isAttr = False
                         break
@@ -231,7 +271,7 @@ class Matcher(object):
         #            lastTestObj = testObj
         #            testObj = getattr(testObj,testAttr)
         #            break
-        if lastTestObj not in testList: testList = []
+        if testList and lastTestObj not in testList: testList = []
         if not isAttr: testObj = toTest
         return (isAttr,testObj,lastTestObj,testAttr,testList,testAttrIdx)
 
@@ -242,10 +282,9 @@ class Matcher(object):
            keyText: (str) keyword from matcherDictionary possibly with modifiers
              for head, parenthesis, lists, image resolution, and/or abbreviation
 
-        \x1c
         \x1d separate conditional from replacement
-        \x1e serarate replacement values when using multiple (which will be joined with a apace)
-        \x1f separate keyswords in replacement when nesting keywords
+        \x1e serarate replacement values when using multiple (which will be joined with a space)
+        \x1f separate keywords in replacement when nesting keywords
         """
         # just in case the keyText is passed with the brackets
         myKey = re.sub('^\{\{(.*)\}\}$',r'\1',keyText)
@@ -259,7 +298,7 @@ class Matcher(object):
         if pMatch: (myKey,pStart,pEnd) = (pMatch.group(1),'(',')')
         # identify any header and strip it off the myKey
         headText = ''
-        hMatch = re.search(r'^([^:]+[:]?):([?]?[^:].*)$',myKey)
+        hMatch = re.search(r'^([^|]+)\|([^|]+)$',myKey)
         if hMatch: (headText,myKey) = hMatch.groups()
         hOnlyMatch = re.search(r'^[?]',myKey)
         if hOnlyMatch: myKey = re.sub(r'^\?','',myKey)
@@ -270,7 +309,7 @@ class Matcher(object):
         # assign flag for abbreviation
         abbreviate = False
         if re.match(r'^_',myKey) and self.type != 'image': abbreviate = True
-        # addign image resultion
+        # add in image resultion
         imageRes = ''
         if self.type == 'image':
             imageRes = 'imageLow'
@@ -278,12 +317,16 @@ class Matcher(object):
                 imageRes = 'imageHigh'
         # match for the list  option and separator based on flag
         listMatch = re.search(r'\.\.(.*)$',myKey)
+        joiner = ''
+        if listMatch:
+            joiner = listMatch.group(1)
         # strip off all rest of the flags down to the key
         myKey = re.sub(r'\.\..*$','',re.sub(r'^(h_|l_|_)','',myKey))
         # some matchers use the striped key, some use the full key
         keyWord = myKey in self.matcherDictionary and myKey or keyText
         if keyWord not in self.matcherDictionary:
-            if self.verbosity >= 2: print("Warning: key is not in Matcher, %s returned" % keyWord)
+            if self.verbosity >= 2: 
+                print("Warning: key is not in Matcher, %s returned" % keyWord)
             return keyWord
         rtnList = []
         myValue = self.matcherDictionary[keyWord]
@@ -309,7 +352,7 @@ class Matcher(object):
                     testedItem = self._exists(condItem)
                     # if the keyword asks for a list, the attribute exists, and the attribute comes from a list member
                     if listMatch and testedItem[0] and testedItem[4]:
-                        # go through each feature in the list and get the relavant attribute
+                        # go through each feature in the list and get the relavant attribute value
                         conditionalList[condIdx] = [hasattr(lf,testedItem[3]) and getattr(lf,testedItem[3]) for lf in testedItem[4]]
                         itemCount = len(conditionalList[condIdx]) > itemCount and len(conditionalList[condIdx]) or itemCount
                     else:
@@ -326,7 +369,10 @@ class Matcher(object):
                         # all numbers are evaluated as floats
                         try:
                             float(conditionalList[condIdx][itemIdx])
-                            tempConditionalList.append("float(%s)" % conditionalList[condIdx][itemIdx])
+                            if type(conditionalList[condIdx][itemIdx]) != types.BooleanType:
+                                tempConditionalList.append("float(%s)" % conditionalList[condIdx][itemIdx])
+                            else:
+                                conditionalList[condIdx][itemIdx] and tempConditionalList.append("True") or tempConditionalList.append("False")
                         except(ValueError):
                             if conditionalList[condIdx][itemIdx] not in OPERATORS:
                                 tempConditionalList.append('"'+conditionalList[condIdx][itemIdx]+'"')
@@ -343,7 +389,7 @@ class Matcher(object):
             valueList = []
             maxCount = 0
             # loop through each of the \x1e separated values
-            # these will be enterleaved as space separated
+            # these will be interleaved as space separated
             # values for each one in a list (if it is a list)
             for (valCount,myValue) in enumerate(re.split("\x1e",myValue)):
                 valueList.append(list())
@@ -352,9 +398,9 @@ class Matcher(object):
                     myValue = re.sub(r'.image(High|Low)','',myValue)
                     myValue += "." + imageRes
                 testedValue = self._exists(myValue)
-                # it is does not exist append empty result to the list
+                # if it does not exist append empty result to the list
                 if not testedValue[0]:
-                    if self.verbosity >= 1: print("Warning: key:%s -> %s is not in Character %s, empty text returned" % (keyWord,myValue,self.name))
+                    if self.verbosity >= 2: print("Warning: key:%s -> %s is not in Character %s, empty text returned" % (keyWord,myValue,self.name))
                     #if self.type == 'boolean': return False
                     #if self.type == 'boolean':
                     #    valueList[valCount].append('false')
@@ -384,14 +430,18 @@ class Matcher(object):
                 if conditional:
                     # use the cntr to find the relavant conditional or if they are mismatched
                     # just use the last conditional
-                    idx = cntr < len(conditionalResult) and cntr or len(conditionalResult) -1
+                    idx = cntr >= len(conditionalResult) and len(conditionalResult)-1 or cntr
                     if not conditionalResult[idx]:
                         continue
 
                 toJoinList = []
                 for vIdx in range(len(valueList)):
                     if cntr < len(valueList[vIdx]):
-                        if (valueList[vIdx][cntr]): toJoinList.append(valueList[vIdx][cntr])
+                        if (valueList[vIdx][cntr]): 
+                            if type(valueList[vIdx][cntr]) == types.MethodType:
+                                toJoinList.append(joiner.join([i for i in valueList[vIdx][cntr]()]))
+                            else:
+                                toJoinList.append(valueList[vIdx][cntr])
                 if self.type == 'text':
                     rtnList.append(" ".join(toJoinList))
                 # multiple value separated by \x1e are ignored for boolean and images
@@ -404,7 +454,7 @@ class Matcher(object):
                 try:
                     newList.append(repeatText * int(i))
                 except ValueError:
-                    if self.verbosity >= 1: print("Warning: key:%s -> %s attribute %s was not an integer for Character %s, 1 repeat used" % (keyWord,testedValue[2],testedValue[3],self.name))
+                    if self.verbosity >= 2: print("Warning: key:%s -> %s attribute %s was not an integer for Character %s, 1 repeat used" % (keyWord,testedValue[2],testedValue[3],self.name))
                     newList.append(repeatText)
             rtnList = newList[:]
         # if this is a boolean, change the list to boolean list
@@ -413,7 +463,7 @@ class Matcher(object):
         # return the result(s)
         rtnList = filter(lambda i:i,rtnList)
         if len(rtnList) == 0:
-            if self.verbosity >= 1: print("Warning: key:%s -> nothing stored in %s attribute %s for Character %s, empty text returned" % (keyWord,testedValue[2],testedValue[3],self.name))
+            if self.verbosity >= 2: print("Warning: key:%s -> nothing stored in %s attribute %s for Character %s, empty text returned" % (keyWord,testedValue[2],testedValue[3],self.name))
             if self.type == 'boolean': return False
             if self.type == 'image': return ('','')
             return ''
@@ -422,9 +472,6 @@ class Matcher(object):
                 return rtnList[0]
             return rtnList
         if hOnlyMatch: rtnList = []
-        joiner = ''
-        if listMatch:
-            joiner = listMatch.group(1)
         return ''.join([pStart,headText,joiner.join(rtnList),pEnd])
 
     def getKeys(self,*args,**kwargs):
