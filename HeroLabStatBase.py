@@ -692,6 +692,20 @@ class Feature(object):
                 inString = re.sub(a[0],a[1],inString)
         return inString
 
+    def describe(self,attribute,prepend=None,**kwargs):
+        """return description text for the feature
+
+        Args:
+           attribute: (str) name of attribute for which to find decription text
+        """
+        myDescription = prepend and "%s: " % prepend or ""
+        assert hasattr(self,attribute),"%s must be an attribute of %s" % (attribute,self)
+        if hasattr(self,'description') and hasattr(getattr(self,'description'),'fText'):
+            # return the description fText, but replacing any new lines for spaces
+            return re.sub(r'(?m)[\n\r\f\v]',' ',"%s%s" % (myDescription,getattr(getattr(self,'description'),'fText')))
+        else:
+            return myDescription
+
 class SpellFeature(Feature):
     def spellSort(self,*args,**kwargs):
         spells = hasattr(self,'spellList') and sorted([(i.level,i.name) for i in self.spellList],key=lambda x:("0" + x[0])[-2:]+x[1]) or []
@@ -705,7 +719,7 @@ class SpellClassFeature(Feature):
     def spellClassSort(self,*args,**kwargs):
         classes = hasattr(self,'spellclassList') and sorted([i for i in self.spellclassList],key=lambda x:x.name) or []
         for cls in classes:
-            if hasattr(cls,"maxspelllevel") and int(cls.maxspelllevel) > -1:
+            if hasattr(cls,"maxspelllevel") and type(cls.maxspelllevel) and not type(None) and int(cls.maxspelllevel) > -1:
                 if hasattr(cls,"spelllevelList") and len(cls.spelllevelList) > 0:
                     yield cls.name + " " + ",".join(["%s/%s" % (i.level,getattr(i,'maxcasts',hasattr(i,'unlimited') and i.unlimited == "yes" and '*' or '')) for i in cls.spelllevelList])
 

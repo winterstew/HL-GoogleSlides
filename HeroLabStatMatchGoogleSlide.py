@@ -38,9 +38,11 @@ class GoogleSlideMatcher(Matcher):
     {{(keyword)}}
     {{head|_keyword}}
     {{(head|_keyword)}}
-    {{head|_keyword..}}
+    {{head|keyword..}}
+    {{head|?keyword..}}
     {{head|.c.keyword}}
     {{(head|_keyword..)}}
+    {{head|_keyword_..}}
 
       ``keyword``
         must have a match in the dictionary to give a value which will be
@@ -56,12 +58,14 @@ class GoogleSlideMatcher(Matcher):
 
       ``head|?``
         This is replaced with the *head* text if the value evaluation results
-        in something, however only the head test is returned.
+        in something, however only the head text is returned.
 
       ``_``
-        This is used to indicate that instead of the evaluated value the parent
-        Feature's abbreviate method should ne called with the final attribute
-        as the argument.  If the method does not exist, just the value is returned
+        This is used before a keyword to indicate that instead of the evaluated 
+        value the parent Feature's abbreviate method should ne called with the 
+        final attribute as the argument.  
+        If it is used after the keyword, the parent Feature's describe method
+        is called and the result returned. 
 
       ``.c.``
         This before the keyword is used for tracking item lists.  The value

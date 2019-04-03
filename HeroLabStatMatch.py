@@ -41,9 +41,11 @@ class Matcher(object):
     {{(keyword)}}
     {{head|_keyword}}
     {{(head|_keyword)}}
-    {{head|_keyword..}}
+    {{head|keyword..}}
+    {{head|?keyword..}}
     {{head|.c.keyword}}
     {{(head|_keyword..)}}
+    {{head|_keyword_..}}
 
       ``keyword``
         must have a match in the dictionary to give a value which will be
@@ -59,13 +61,15 @@ class Matcher(object):
 
       ``head|?``
         This is replaced with the *head* text if the value evaluation results
-        in something, however only the head test is returned.
+        in something, however only the head text is returned.
 
       ``_``
-        This is used to indicate that instead of the evaluated value the parent
-        Feature's abbreviate method should ne called with the final attribute
-        as the argument.  If the method does not exist, just the value is returned
-
+        This is used before a keyword to indicate that instead of the evaluated 
+        value the parent Feature's abbreviate method should ne called with the 
+        final attribute as the argument.  
+        If it is used after the keyword, the parent Feature's describe method
+        is called and the result returned. 
+        
       ``.c.``
         This before the keyword is used for tracking item lists.  The value
         should evaluate to an integer value.  The ``c`` can be any single character
@@ -309,19 +313,22 @@ class Matcher(object):
         # assign flag for abbreviation
         abbreviate = False
         if re.match(r'^_',myKey) and self.type != 'image': abbreviate = True
-        # add in image resultion
+        # add in image resoultion
         imageRes = ''
         if self.type == 'image':
             imageRes = 'imageLow'
             if re.match(r'^h_',myKey):
                 imageRes = 'imageHigh'
-        # match for the list  option and separator based on flag
+         # match for the list  option and separator based on flag
         listMatch = re.search(r'\.\.(.*)$',myKey)
         joiner = ''
         if listMatch:
             joiner = listMatch.group(1)
-        # strip off all rest of the flags down to the key
+        # strip off repeat, resolution, and abbreviate flags down to the key
         myKey = re.sub(r'\.\..*$','',re.sub(r'^(h_|l_|_)','',myKey))
+        # match for the description option and strip the flag
+        describe = re.search(r'_$',myKey)
+        myKey = re.sub(r'_$','',myKey)
         # some matchers use the striped key, some use the full key
         keyWord = myKey in self.matcherDictionary and myKey or keyText
         if keyWord not in self.matcherDictionary:
@@ -413,17 +420,21 @@ class Matcher(object):
                 # if we have the value add it/them to the list
                 feature = testedValue[2]
                 attr = testedValue[3]
+                
+                featureList = []
                 if listMatch and testedValue[4]:
                     featureList = testedValue[4]
-                    if abbreviate:
-                        valueList[valCount] += [hasattr(f,attr) and f.abbreviate(attr) for f in featureList]
-                    else:
-                        valueList[valCount] += [hasattr(f,attr) and getattr(f,attr) for f in featureList]
                 else:
-                    if abbreviate:
-                        valueList[valCount] += [feature.abbreviate(attr)]
-                    else:
-                        valueList[valCount] += [getattr(feature,attr)]
+                    featureList = [feature]
+                for f in featureList:
+                    if listMatch and hasattr(f,attr) or not listMatch:
+                        if abbreviate:
+                            myVal = f.abbreviate(attr)
+                        else:
+                            myVal = getattr(f,attr)
+                        if describe:
+                            myVal = f.describe(attr,myVal)
+                        valueList[valCount] += [myVal]
                 # keep track of max values per valCount
                 maxCount = len(valueList[valCount]) > maxCount and len(valueList[valCount]) or maxCount
             for cntr in range(maxCount):
