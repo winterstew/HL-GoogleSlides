@@ -116,6 +116,8 @@ class GoogleSlideMatcher(Matcher):
     'NPC-Combat-Image': 'name', # character name
     'BestiaryStyle-Noimage': 'name', # character name
     'BestiaryStyle-Image': 'name', # character name
+    'BestiaryStyle-Noimage-Page2': 'name', # character name
+    'BestiaryStyle-Image-Page2': 'name', # character name
     'summary': 'summary', # usually the creature's race, class, alignment abbrev, size, and creature type
     'character type': 'type', # Hero, Arcane Familiar, Animal Commpanion, etc
     'player': 'playername',

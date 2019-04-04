@@ -6,6 +6,7 @@ Created on Fri Dec 29 17:36:15 2017
 """
 from __future__ import print_function
 import zipfile
+import os.path
 
 from HeroLabStatBase import *
 from HeroLabStatRender import Renderer
@@ -67,9 +68,10 @@ def main():
     icons = Icons(flags.icons,verbosity=VERBOSITY)
     #icons = Icons(flags.icons,verbosity=0)
     for portfolioFile in flags.portfolioFiles:
+        if VERBOSITY > 0: print ("loading portfolio '%s'" % os.path.basename(portfolioFile.filename))
         portfolio = Portfolio(portfolioFile,icons=icons,verbosity=VERBOSITY)
         for c in portfolio.characters:
-            print(c.name)
+            #print(c.name)
             #charFile = open("%s.txt"%c.name,'w')
             #printFeature(c,'character',toFile=charFile)
             #printFeature(c,'c')
@@ -162,7 +164,8 @@ def main():
             #print(c.getDrawbacks(asList=False,longForm=False))
             #print(c.getAnimalTricks(asList=False,longForm=False))
             #print(c.getSpecialAttack(asList=True,longForm=True))
-            print('-'*10)
+            #print('-'*10)
+            pass
         #print(portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10))
         #print(portfolio.characters[1].getAlignment())
         renderer = Renderer(portfolio,flags,matcherClass=Matcher,verbosity=VERBOSITY)

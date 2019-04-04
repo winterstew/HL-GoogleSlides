@@ -33,8 +33,10 @@ class Renderer(object):
         self.matcherClass = matcherClass
 
     def render(self,*args,**kwargs):
+        if self.verbosity > 0: print ("Render Characters")
         self.startPortfolio()
         for c in self.portfolio.characters:
+            if self.verbosity > 0: print("  %s" % c.name)
             self.eachCharacter(c)
         self.endPortfolio()
 

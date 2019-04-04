@@ -96,17 +96,12 @@ class GoogleSlideRenderer(Renderer):
     def __init__(self,portfolio,flags,matcherClass,*args,**kwargs):
         super(GoogleSlideRenderer, self).__init__(portfolio,flags,matcherClass,*args,**kwargs)
         self.templateName = len(self.options) > 0 and self.options[0] or TEMPLATENAME
-        self.slideName = len(self.options) > 1 and self.options[1] or PAGENAME
+        self.slideName = len(self.options) > 1 and self.options[1:] or [PAGENAME]
         self.credentials = self.get_credentials(**kwargs)
         self.http = self.credentials.authorize(httplib2.Http())
         self.service = discovery.build('slides', 'v1', http=self.http)
         self.drive_service = discovery.build('drive', 'v3', http=self.http)
 
-    def render(self,*args,**kwargs):
-        self.startPortfolio()
-        for c in self.portfolio.characters:
-            self.eachCharacter(c)
-        self.endPortfolio()
 
     def startPortfolio(self,*args,**kwargs):
         """ locate Google Drive Presentation and Slides within it and create matcher instances"""
@@ -118,12 +113,14 @@ class GoogleSlideRenderer(Renderer):
         self.slides = self.presentation.get('slides')
         self.slideIds = map(lambda x:x.get('objectId'),self.slides)
         # find slide to use with characters that have an image and for those that do not
-        self.imageSlideId = self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Image',self.slideName) + '}}')
-        self.noImageSlideId = self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Noimage',self.slideName) + '}}') or self.imageSlideId
+        self.imageSlideId = [self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Image',sn) + '}}') for sn in self.slideName]
+        self.noImageSlideId = [self.findSlideByText('{{' + re.sub(r'-(No)?[Ii]mage',r'-Noimage',sn) + '}}') or self.imageSlideId[sni] for sni,sn in enumerate(self.slideName)]
         self.characterIndex = 0
         if self.verbosity >= 6: print(self.slideIds)
-        if self.verbosity >= 2: print("Image Slide: %s" % self.imageSlideId)
-        if self.verbosity >= 2: print("NoImage Slide: %s" % self.noImageSlideId)
+        if self.verbosity >= 2: 
+            for si in self.imageSlideId: print("Image Slide: %s" % si) 
+        if self.verbosity >= 2: 
+            for si in self.noImageSlideId: print("NoImage Slide: %s" % si)
 
     def findSlideByText(self,findText,*args,**kwargs):
         """ return the first slideId for slide containing the findText """
@@ -147,89 +144,89 @@ class GoogleSlideRenderer(Renderer):
         return None
 
     def eachCharacter(self,character,*args,**kwargs):
-        # select slide to use
-        slideId = self.noImageSlideId
-        if hasattr(character,"images") and hasattr(character.images,"imageList") and len(character.images.imageList) > 0:
-            slideId = self.imageSlideId
-        # create image matcher instance
-        imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image',verbosity=self.verbosity)
-        # duplicate slide
-        body = { "requests":  [ {
-          "duplicateObject": {
-            "objectId":  slideId
-          }
-        } ] }
-        response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
-        newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
-        newSlide = self.service.presentations().pages().get(presentationId=self.presentationId,pageObjectId=newSlideId).execute()
-        # create text matcher instance
-        textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
-        body = { "requests": [ {
-                   "updateSlidesPosition": {
-                     "slideObjectIds": [ newSlideId ],
-                     "insertionIndex": self.characterIndex
-                   }
-                 } ] }
-        # run through all the flag text from the template and replace from the matched
-        for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
-            body['requests'].append({
-              "replaceAllText": {
-                "replaceText":  textMatcher.getMatch(replaceKey),
-                "pageObjectIds": [newSlideId],
-                "containsText": {
-                  "text": replaceKey,
-                  "matchCase": True
-                }
+        # loop through select slides to use
+        for idIndex,slideId in enumerate(self.noImageSlideId):
+            if hasattr(character,"images") and hasattr(character.images,"imageList") and len(character.images.imageList) > 0:
+                slideId = self.imageSlideId[idIndex]
+            # duplicate slide
+            body = { "requests":  [ {
+              "duplicateObject": {
+                "objectId":  slideId
               }
-            })
-        # run through all the flags with an image matcher and
-        # upload images keeping a keyed list on URLs
-        imageDict = {}
-        for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
-            images = imageMatcher.getMatch(replaceKey)
-            # with GoogleSheets images need to have their keyword text within a shape,
-            # and are replaced with a batchUpdate request of replaceAllShapesWithImage
-            # this means that inserting a list of images will not work
-            imageFile = type(images) == list and images[0] or images
-            if imageFile and type(imageFile) == tuple:
-                # create an empth image if none exists
-                if not imageFile[1] or not os.path.exists(imageFile[1]):
-                    imageFile = ('empty.png',os.path.join(character.tempDir,'empty.png'))
-                    if not os.path.exists(imageFile[1]):
-                        emptyImage = Image.new('RGBA',(50,50),color=(255,255,255,0))
-                        emptyImage.save(imageFile[1])
-                        emptyImage.close()
-                # upload the image
-                upload = self.drive_service.files().create(
-                    body={'name': imageFile[0],
-                          'mimeType': mimetypes.guess_type(imageFile[1])[0]},
-                    media_body=imageFile[1]).execute()
-                # get its ID
-                file_id = upload.get('id')
-                # get its URL
-                image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
-                imageDict[replaceKey] = (file_id,image_url)
-        # run through all the tags again this time
-        # appending to the requests to replace with images
-        for replaceKey in imageDict.keys():
-            image_url = imageDict[replaceKey][1]
-            body['requests'].append({
-              'replaceAllShapesWithImage': {
-                'imageUrl': image_url,
-                'replaceMethod': 'CENTER_INSIDE',
-                "pageObjectIds": [newSlideId],
-                'containsText': {
-                  'text': replaceKey,
-                  'matchCase': True
-                }
-              }
-            })
-        # Finally execute the big request
-        response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
-        self.characterIndex += 1
-        # Remove the temporary image file from Drive.
-        for file_id in [image[0] for image in imageDict.values()]:
-            if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
+            } ] }
+            response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
+            newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
+            newSlide = self.service.presentations().pages().get(presentationId=self.presentationId,pageObjectId=newSlideId).execute()
+            # create image matcher instance
+            imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image',verbosity=self.verbosity)
+            # create text matcher instance
+            textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
+            body = { "requests": [ {
+                       "updateSlidesPosition": {
+                         "slideObjectIds": [ newSlideId ],
+                         "insertionIndex": self.characterIndex
+                       }
+                     } ] }
+            # run through all the flag text from the template and replace from the matched
+            for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
+                body['requests'].append({
+                  "replaceAllText": {
+                    "replaceText":  textMatcher.getMatch(replaceKey),
+                    "pageObjectIds": [newSlideId],
+                    "containsText": {
+                      "text": replaceKey,
+                      "matchCase": True
+                    }
+                  }
+                })
+            # run through all the flags with an image matcher and
+            # upload images keeping a keyed list on URLs
+            imageDict = {}
+            for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
+                images = imageMatcher.getMatch(replaceKey)
+                # with GoogleSheets images need to have their keyword text within a shape,
+                # and are replaced with a batchUpdate request of replaceAllShapesWithImage
+                # this means that inserting a list of images will not work
+                imageFile = type(images) == list and images[0] or images
+                if imageFile and type(imageFile) == tuple:
+                    # create an empth image if none exists
+                    if not imageFile[1] or not os.path.exists(imageFile[1]):
+                        imageFile = ('empty.png',os.path.join(character.tempDir,'empty.png'))
+                        if not os.path.exists(imageFile[1]):
+                            emptyImage = Image.new('RGBA',(50,50),color=(255,255,255,0))
+                            emptyImage.save(imageFile[1])
+                            emptyImage.close()
+                    # upload the image
+                    upload = self.drive_service.files().create(
+                        body={'name': imageFile[0],
+                              'mimeType': mimetypes.guess_type(imageFile[1])[0]},
+                        media_body=imageFile[1]).execute()
+                    # get its ID
+                    file_id = upload.get('id')
+                    # get its URL
+                    image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
+                    imageDict[replaceKey] = (file_id,image_url)
+            # run through all the tags again this time
+            # appending to the requests to replace with images
+            for replaceKey in imageDict.keys():
+                image_url = imageDict[replaceKey][1]
+                body['requests'].append({
+                  'replaceAllShapesWithImage': {
+                    'imageUrl': image_url,
+                    'replaceMethod': 'CENTER_INSIDE',
+                    "pageObjectIds": [newSlideId],
+                    'containsText': {
+                      'text': replaceKey,
+                      'matchCase': True
+                    }
+                  }
+                })
+            # Finally execute the big request
+            response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
+            self.characterIndex += 1
+            # Remove the temporary image file from Drive.
+            for file_id in [image[0] for image in imageDict.values()]:
+                if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
 
     def endPortfolio(self,*args,**kwargs):
         body = { "requests": [] }
