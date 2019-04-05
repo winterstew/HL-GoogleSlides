@@ -220,6 +220,7 @@ class Matcher(object):
         testObj = self._character
         lastTestObj = testObj
         testList = []
+        testAttrIdx = None
         attrCount = 0
         isAttr = True
         testAttr = ''
@@ -379,7 +380,10 @@ class Matcher(object):
                             if type(conditionalList[condIdx][itemIdx]) != types.BooleanType:
                                 tempConditionalList.append("float(%s)" % conditionalList[condIdx][itemIdx])
                             else:
-                                conditionalList[condIdx][itemIdx] and tempConditionalList.append("True") or tempConditionalList.append("False")
+                                if conditionalList[condIdx][itemIdx]:
+                                    tempConditionalList.append("True")
+                                else:
+                                    tempConditionalList.append("False")
                         except(ValueError):
                             if conditionalList[condIdx][itemIdx] not in OPERATORS:
                                 tempConditionalList.append('"'+conditionalList[condIdx][itemIdx]+'"')

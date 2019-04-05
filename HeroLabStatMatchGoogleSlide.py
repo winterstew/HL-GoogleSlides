@@ -110,6 +110,7 @@ class GoogleSlideMatcher(Matcher):
     'role': 'role', # pc, npc, etc
     'align': 'feature.alignment.name', # alignment written out
     'name': 'name', # character name
+    'master': "isMinion\x1dparent.name", # name of a minions master
     'NPC-Noncombat-Noimage': 'name', # character name
     'NPC-Noncombat-Image': 'name', # character name
     'NPC-Combat-Noimage': 'name', # character name

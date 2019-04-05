@@ -6,6 +6,7 @@ Created on Sat Jan 20 05:23:12 2018
 """
 from HeroLabStatRender import Renderer
 import pypdftk
+import re
 
 DEFAULTMATCHER = 'CSpdf'
 
