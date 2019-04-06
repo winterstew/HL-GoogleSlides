@@ -5,7 +5,7 @@ Created on Fri Dec 29 17:36:15 2017
 @author: steve
 """
 from __future__ import print_function
-import zipfile
+import zipfile,sys
 import os.path
 
 from HeroLabStatBase import *
@@ -165,12 +165,13 @@ def main():
             #print(c.getAnimalTricks(asList=False,longForm=False))
             #print(c.getSpecialAttack(asList=True,longForm=True))
             #print('-'*10)
-            pass
+            sys.stdout.flush()
         #print(portfolio.characters[1].getSkill('Craft (stonemasonry)',valueOnly=True,withRank=True,atLeast=10))
         #print(portfolio.characters[1].getAlignment())
         renderer = Renderer(portfolio,flags,matcherClass=Matcher,verbosity=VERBOSITY)
         renderer.render()
         portfolio.close()
+        sys.stdout.flush()
     icons.close()
 
 if __name__ == '__main__':

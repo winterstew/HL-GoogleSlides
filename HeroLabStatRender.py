@@ -5,6 +5,7 @@ Created on Sat Jan 20 05:23:12 2018
 @author: steve
 """
 from HeroLabStatBase import VERBOSITY,PRINTOMIT,printFeature
+import sys
 
 class Renderer(object):
     """
@@ -38,7 +39,8 @@ class Renderer(object):
         for c in self.portfolio.characters:
             if self.verbosity > 0: print("  %s" % c.name)
             self.eachCharacter(c)
-        self.endPortfolio()
+            sys.stdout.flush()
+        self.endPortfolio()        
 
     def startPortfolio(self,*args,**kwargs):
         pass
