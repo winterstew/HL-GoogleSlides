@@ -218,4 +218,7 @@ pip-log.txt
 #HL-GoogleSlides additions
 HL-GoogleSlides-*.json
 iconsPaizo.zip
-Character\ Sheet\ fillable.pdf
+PF_char_sheet-fillable_6_pgs.pdf
+PF_char_sheet-fillable_6_pgs_fields_utf8.txt
+.spyderproject
+client_secret*.json

@@ -1,0 +1,3533 @@
+---
+FieldType: Text
+FieldName: Character Name
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Alignment
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Player
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Character Level
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Deity
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Homeland
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Race
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Size
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Gender
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Age
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Height
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Hair
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Eyes
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Natural Armor
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Deflection Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Hp
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Reduction
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Wounds/Current Hp
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Nonlethal Damage
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Armor Class
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Initiative Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Armor Bonus
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Shield Bonus
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Dex Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Base Speed
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Fly Maneuverability
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Swim
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Climb
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Burrow
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: With Armor
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Touch Armor Class
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Flat-Footed Armor Class
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: Climb check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Craft Check 1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Craft Check 2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Craft Check3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Acrobatics
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Appraise Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Bluff Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Diplomacy Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Disable Device Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Disguise Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Escape Artist Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Fly Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Handle Animal Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Heal Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Intimidate Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Arcana) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Dungeoneering) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Engineering) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Geography) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (History) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Local) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Nature) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Nobility) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Planes) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Knowledge (Religion) Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Linguistics Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Perception Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Perform 1 check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Perform 2 Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Profession 1 Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Profession 3 Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Ride Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Sense Motive Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Sleight Of Hand Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: SpellCraft Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Stealth Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Survival
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Swim Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Use Magic Device Check
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Text
+FieldName: Craft 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Craft 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Craft 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Perform 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Perform 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Profession 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Profession 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 27
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 28
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 29
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 30
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 31
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 32
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 33
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 34
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 35
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 36
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 37
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 38
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Bonus 39
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 27
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 28
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 29
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 30
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 31
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 32
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 33
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 34
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 35
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 36
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 37
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 38
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Mod. 39
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ranks 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ranks 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ranks 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 27
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 28
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 29
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 30
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 31
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 32
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 33
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 34
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 35
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 36
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 37
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 38
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Rank 39
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 27
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 28
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 29
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 30
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 31
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 32
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 33
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 34
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 35
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 36
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 37
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 38
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Mod. 39
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weapon Name Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weapon Name Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weapon Name Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weapon Name Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weapon Name Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Attack Bonus slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Attack Bonus slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Attack Bonus slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Attack Bonus slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Attack Bonus slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Critical Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Critical Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Critical Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Critical Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Critical Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Range slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Range slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Range slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Range slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Range slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ammunition Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ammunition Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ammunition Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ammunition Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ammunition Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Damage Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Conditional Modifiers Line 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Conditional Modifiers Line 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Conditional Modifiers Line 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Languages Line 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Languages Line 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Languages Line 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Will save
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Reflex Save
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total Fortitude Save
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Base Save Fortitude
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Magic Modifier Fortitude
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Modifier Fortitude
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temporary Modifier Fortitude
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Base Save Reflex
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Magic Modifier Reflex
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Modifier Reflex
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temporary Modifier Reflex
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Base SaveWill
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Magic Modifier Will
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Misc Modifier Will
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temporary Modifier Will
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Resistance
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total CMB
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total CMD
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Size Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Dexterity
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Dexterity
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Dexterity
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Dexterity
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Strength
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Strength
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Strength
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Strength
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Constitution
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Constitution
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Constitution
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Constitution
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Intelligence
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Intelligence
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Intelligence
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Intelligence
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Wisdom
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Wisdom
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Wisdom
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Wisdom
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Score Charisma
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Ability Modifier Charisma
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Adjustment Charisma
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Temp Modifier Charisma
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Con Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Wis Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Saving Throw Modifiers
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Str Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Base Attack Bonus
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: CMB/CMD Modifiers
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: ,Modifiers
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Initiative Misc Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Misc Modifier
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Items Slot 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Items Slot 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Items Slot 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Items Slot 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: AC Items Slot 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Type Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Check Penalty Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Failure Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Weight Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Properties Total
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Item 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 21
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 22
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 23
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 24
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 25
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: WT. 26
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Total WT
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Light Load
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Medium Load
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Heavy Load
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Lift Over Head
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Lift Off Ground
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Drag or Push
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Copper
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Silver
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Gold
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Platinum
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Second Class Experience Points
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: First Class Experience Points
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: First Class Next Level
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Second Class Next Level
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Feat 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 10
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 11
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 12
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 13
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 14
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 15
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 16
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 17
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 18
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 19
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Special Abilities 20
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 0
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Known Level 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 0
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Save DC level 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 0
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spells Per Day Level 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Bonus Spells Level 9
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Conditional Modifiers
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Domains/Specialty School
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 0 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 1 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 2 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 3 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 4 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 5 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 6 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 7 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 8 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~1
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~2
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~3
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~4
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~5
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~6
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~7
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~8
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Button
+FieldName: Spells Known Check Box Level 9 ~9
+FieldFlags: 0
+FieldJustification: Left
+FieldStateOption: Off
+FieldStateOption: Yes
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 0 ~8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 1 ~8
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 2 ~7
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 3 ~6
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 4 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 4 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 4 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 4 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 4 ~5
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 5 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 5 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 5 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 5 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 6 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 6 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 6 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 6 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 7 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 7 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 7 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 7 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 8 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 8 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 8 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 9 ~1
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 9 ~2
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 9 ~3
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 9 ~4
+FieldFlags: 0
+FieldJustification: Left
+---
+FieldType: Text
+FieldName: Spell Name Level 9 ~5
+FieldFlags: 0
+FieldJustification: Left
