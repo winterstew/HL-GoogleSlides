@@ -6,7 +6,7 @@ Created on Fri Apr  5 07:13:15 2019
 """
 
 from __future__ import print_function
-import sys,re,os
+import sys,re,os,json
 import PySimpleGUI27 as sg      
 import subprocess,threading,Queue 
 
@@ -59,20 +59,54 @@ def getIconFile():
     if os.path.isfile('iconsPaizo.zip'): return os.path.abspath('iconsPaizo.zip')
     if os.path.isfile('icons.zip'): return os.path.abspath('icons.zip')
     return ''
+    
+def loadDefaults(dp):
+    defaults = {}
+    if os.path.isfile(dp):
+        f = open(dp,'r')
+        defaults = json.load(f)
+        f.close()
+    return defaults
+
+def saveDefaults(dp,v):
+    f = open(dp,'w')
+    json.dump(v,f)
+    f.close()
+    return
+
+home_dir = os.path.expanduser('~')
+credential_dir = os.path.join(home_dir, '.credentials')
+if not os.path.exists(credential_dir):
+    os.makedirs(credential_dir)
+defaults_path = os.path.join(credential_dir,'HLRender_defaults.json')
+defaults = loadDefaults(defaults_path)
+print(defaults)
+print(defaults['authorized'])
 
 toprow = [sg.Text('Output Window', key='head', size=(40, 1))]
 if 'GoogleSlide' in getRenderers():
     toprow.append(sg.Button('get Google credentials',key='credentials'))
+    sg.Button()
 layout = [      
     toprow,
     [sg.Output(size=(88, 20))],
-    [sg.Text('Icon file')],[sg.InputText(default_text=getIconFile(),key='iconFile'), sg.FileBrowse()],
-    [sg.Text('Renderer')],[sg.InputCombo(getRenderers(),key='renderer')],
-    [sg.Text('Matcher')],[sg.InputCombo(getMatchers(),key='matcher')],
-    [sg.Text('Portfolio file')],[sg.InputText(key='portFile'), sg.FileBrowse()], 
+    [sg.Text('Icon file'),sg.InputText(default_text=hasattr(defaults,'iconFile') and defaults['iconFile'] or getIconFile(),
+                                       key='iconFile'), sg.FileBrowse()],
+    [sg.Text('Renderer'),sg.InputCombo(getRenderers(),
+                                       default_value=hasattr(defaults,'renderer') and defaults['renderer'] or '',
+                                       key='renderer'),
+     sg.Text('renderer options'),sg.InputText(default_text=hasattr(defaults,'renderer_options') and defaults['renderer_options'] or '',
+                                              key='renderer_options')],
+    [sg.Text('Matcher'),sg.InputCombo(getMatchers(),
+                                      default_value=hasattr(defaults,'matcher') and defaults['matcher'] or '',
+                                      key='matcher'),
+     sg.Text('matcher options'),sg.InputText(default_text=hasattr(defaults,'matcher_options') and defaults['matcher_options'] or '',
+                                             key='matcher_options')],
+    [sg.Text('Portfolio file'),sg.InputText(default_text=hasattr(defaults,'portFile') and defaults['portFile'] or '',
+                                            key='portFile'), sg.FileBrowse()], 
     [sg.Button('Render',key='render'),sg.Button('Exit',key='exit')]
         ]
-
+        
 window = sg.Window('Script launcher').Layout(layout)      
 # ---===--- Loop taking in user input and using it to call scripts --- #      
 
@@ -88,7 +122,9 @@ while True:
         cmd = ['python',os.path.abspath('HeroLabStatExport.py')]
         if value['iconFile']: cmd += ['-i',value['iconFile']]
         if value['renderer']: cmd += ['-R',value['renderer']]
+        if value['renderer_options']: cmd += ['-r',value['renderer_options']]
         if value['matcher']: cmd += ['-M',value['matcher']]
+        if value['matcher_options']: cmd += ['-m',value['matcher_options']]
         if value['portFile']: 
             cmd += [value['portFile']]
             ExecuteCommandSubprocess(window,*cmd)
@@ -96,11 +132,20 @@ while True:
             print('Need a Portfolio File')
         window.Element('head').Update('Output Window')     
         window.Element('exit').Update('Exit',disabled=False)
-        window.Element('render').Update('Render',disabled=False)          
-        window.Refresh()
+        window.Element('render').Update('Render',disabled=False)
+        saveDefaults(defaults_path,value)
     elif event == 'credentials':
+        window.Element('render').Update('Working',disabled=True)
+        window.Element('exit').Update('Exit',disabled=True)
+        window.Element('credentials').Update('authorizing...',disabled=True)
         cmd = ['python',os.path.abspath('HeroLabStatRenderGoogleSlide.py')]
         print('running:')
         print(" ".join(cmd))
         ExecuteCommandSubprocess(window,*cmd)
+        window.Element('exit').Update('Exit',disabled=False)
+        window.Element('render').Update('Render',disabled=False)
+        window.Element('credentials').Update('authorized',disabled=True)
+        value['authorized'] = True
+        saveDefaults(defaults_path,value)
+
     
