@@ -17,66 +17,16 @@ DEFAULTMATCHER = 'GoogleSlide'
 TEMPLATENAME = "StatBlockVertical Template"
 PAGENAME = "BestiaryStyle-Image"
 # If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/slides.googleapis.com-python-quickstart.json
+# at ~/.credentials/slides.googleapis.com-python-HLRender.json
 SCOPES = ('https://www.googleapis.com/auth/presentations',
           'https://www.googleapis.com/auth/drive')
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'HL-GoogleSlides'
+APPLICATION_NAME = 'HLRender'
 KEYS_WITH_TEXT = (u'pageElements',u'elementGroup',u'shape',u'table',u'children',
                   u'text',u'textElements',u'textRun',u'content',u'tableRows',
                   u'tableCells')
 
 
-"""
-def get_credentials(*args,**kwargs):
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'slides.googleapis.com-python-HL-GoogleSlides.json')
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        if self.verbosity >= 1: print('Storing credentials to ' + credential_path)
-    return credentials
-
-def copy_template(service,templateName,newName,*args,**kwargs):
-    newId = None
-    page_token=None
-    #print(templateIds.keys())
-    while True:
-        response = service.files().list(q="mimeType='application/vnd.google-apps.presentation'",
-                             spaces='drive',
-                             fields='nextPageToken, files(id,name,mimeType)',
-                             pageToken=page_token).execute()
-        for presentation in response.get('files', []):
-            if presentation.get('name') == templateName:
-                newResponse = service.files().copy(fileId=presentation.get('id'),
-                             body={ 'name': newName }).execute()
-                newId = newResponse.get('id')
-        page_token = response.get('nextPageToken',None)
-        if page_token is None:
-            break
-        return newId
-
-templateName =  TEMPLATENAME
-slideName =  PAGENAME
-credentials = get_credentials()
-http = credentials.authorize(httplib2.Http())
-service = discovery.build('slides', 'v1', http=http)
-drive_service = discovery.build('drive', 'v3', http=http)
-presentationId = copy_template(drive_service,templateName,'testtemplate')
-presentation = service.presentations().get(presentationId=presentationId).execute()
-slides = presentation.get('slides')
-slideIds = map(lambda x:x.get('objectId'),slides)
-"""
 
 class GoogleSlideRenderer(Renderer):
     """
@@ -97,7 +47,7 @@ class GoogleSlideRenderer(Renderer):
         super(GoogleSlideRenderer, self).__init__(portfolio,flags,matcherClass,*args,**kwargs)
         self.templateName = len(self.options) > 0 and self.options[0] or TEMPLATENAME
         self.slideName = len(self.options) > 1 and self.options[1:] or [PAGENAME]
-        self.credentials = self.get_credentials(**kwargs)
+        self.credentials = self.get_credentials(flags=flags)
         self.http = self.credentials.authorize(httplib2.Http())
         self.service = discovery.build('slides', 'v1', http=self.http)
         self.drive_service = discovery.build('drive', 'v3', http=self.http)
@@ -261,19 +211,31 @@ class GoogleSlideRenderer(Renderer):
         if not os.path.exists(credential_dir):
             os.makedirs(credential_dir)
         credential_path = os.path.join(credential_dir,
-                                       'slides.googleapis.com-python-HL-GoogleSlides.json')
+                                       'slides.googleapis.com-python-HLRender.json')
         store = Storage(credential_path)
         credentials = store.get()
+
         if not credentials or credentials.invalid:
             flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
             flow.user_agent = APPLICATION_NAME
             #setattr(kwargs['flags'],'logging_level','CRITICAL')
-            print(dir(tools))
-            if 'flags' in kwargs:
-                credentials = tools.run_flow(flow, store, flags=kwargs['flags'])
-            else: 
-                from argparse import Namespace
-                credentials = tools.run_flow(flow, store)
+            #kwargs['flags'].logging_level=50
+            #print(kwargs['flags'])
+            #if 'flags' in kwargs:
+            #    print('first one')
+            #    credentials = tools.run_flow(flow, store, flags=kwargs['flags'])
+            #else: 
+            #    print('second one')
+            #    from argparse import ArgumentParser
+            #    credentials = tools.run_flow(flow, store, flags=ArgumentParser().parse_args())
+            from argparse import Namespace
+            n = Namespace()
+            f = hasattr(kwargs,'flags') and kwargs['flags'] or None
+            n.logging_level= (f and hasattr(f,'logging_level') and getattr(f,'logging_level')) or 'ERROR'
+            n.auth_host_name= (f and hasattr(f,'auth_host_name') and getattr(f,'auth_host_name')) or 'localhost'
+            n.auth_host_port= (f and hasattr(f,'auth_host_port') and getattr(f,'auth_host_port')) or [8080, 8090]
+            n.noauth_local_webserver= (f and hasattr(f,'noauth_local_webserver') and getattr(f,'noauth_local_webserver')) or False
+            credentials = tools.run_flow(flow, store, flags=n)
             if 'verbosity' in kwargs and kwargs['verbosity'] >= 1: print('Storing credentials to ' + credential_path)
         return credentials
 
@@ -299,3 +261,6 @@ class GoogleSlideRenderer(Renderer):
             if page_token is None:
                 break
             return newId
+            
+if __name__ == '__main__':
+    GoogleSlideRenderer.get_credentials()

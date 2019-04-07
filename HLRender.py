@@ -20,8 +20,7 @@ def enqueue_output(out, queue):
 def ExecuteCommandSubprocess(w,command, *args):
     try:
         cmd = [command] + list(args)
-        portDir = os.path.dirname(args[-1])
-        print(portDir)
+        portDir = len(args) > 1 and os.path.dirname(args[-1]) or os.path.abspath('.')
         sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, cwd=portDir, close_fds=ON_POSIX)
         q = Queue.Queue()
         t = threading.Thread(target=enqueue_output, args=(sp.stdout, q))
@@ -61,16 +60,18 @@ def getIconFile():
     if os.path.isfile('icons.zip'): return os.path.abspath('icons.zip')
     return ''
 
+toprow = [sg.Text('Output Window', key='head', size=(40, 1))]
+if 'GoogleSlide' in getRenderers():
+    toprow.append(sg.Button('get Google credentials',key='credentials'))
 layout = [      
-    [sg.Text('Output Window', key='head', size=(40, 1))],
+    toprow,
     [sg.Output(size=(88, 20))],
     [sg.Text('Icon file')],[sg.InputText(default_text=getIconFile(),key='iconFile'), sg.FileBrowse()],
     [sg.Text('Renderer')],[sg.InputCombo(getRenderers(),key='renderer')],
     [sg.Text('Matcher')],[sg.InputCombo(getMatchers(),key='matcher')],
-    [sg.Text('Portfolio file')],[sg.InputText(key='portFile'), sg.FileBrowse()],
-    [sg.Button('Render',key='render'), sg.Button('Exit',key='exit')]
-        ]      
-
+    [sg.Text('Portfolio file')],[sg.InputText(key='portFile'), sg.FileBrowse()], 
+    [sg.Button('Render',key='render'),sg.Button('Exit',key='exit')]
+        ]
 
 window = sg.Window('Script launcher').Layout(layout)      
 # ---===--- Loop taking in user input and using it to call scripts --- #      
@@ -97,4 +98,9 @@ while True:
         window.Element('exit').Update('Exit',disabled=False)
         window.Element('render').Update('Render',disabled=False)          
         window.Refresh()
+    elif event == 'credentials':
+        cmd = ['python',os.path.abspath('HeroLabStatRenderGoogleSlide.py')]
+        print('running:')
+        print(" ".join(cmd))
+        ExecuteCommandSubprocess(window,*cmd)
     
