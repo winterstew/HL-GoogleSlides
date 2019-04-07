@@ -53,11 +53,11 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
 5. back at "API & Service" -> "Credentials" click the download JSON button and save the file as client_secret.json in the HLRender directory
 6. authorize HLRender to access your google drive and slides
    - from the command line
-   ```
-   python HeroLabStatRenderGoogleSlide.py
-   ```
+     ```
+     python HeroLabStatRenderGoogleSlide.py
+     ```
    - from the GUI
-   ```
+     click "get Google credentials"
   
 ## Usage
 ### GoogleSlide
