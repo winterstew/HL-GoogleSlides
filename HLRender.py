@@ -80,8 +80,6 @@ if not os.path.exists(credential_dir):
     os.makedirs(credential_dir)
 defaults_path = os.path.join(credential_dir,'HLRender_defaults.json')
 defaults = loadDefaults(defaults_path)
-print(defaults)
-print(defaults['authorized'])
 
 toprow = [sg.Text('Output Window', key='head', size=(40, 1))]
 if 'GoogleSlide' in getRenderers():
@@ -90,19 +88,19 @@ if 'GoogleSlide' in getRenderers():
 layout = [      
     toprow,
     [sg.Output(size=(88, 20))],
-    [sg.Text('Icon file'),sg.InputText(default_text=hasattr(defaults,'iconFile') and defaults['iconFile'] or getIconFile(),
+    [sg.Text('Icon file'),sg.InputText(default_text='iconFile' in defaults and defaults['iconFile'] or getIconFile(),
                                        key='iconFile'), sg.FileBrowse()],
     [sg.Text('Renderer'),sg.InputCombo(getRenderers(),
-                                       default_value=hasattr(defaults,'renderer') and defaults['renderer'] or '',
+                                       default_value='renderer' in defaults and defaults['renderer'] or '',
                                        key='renderer'),
-     sg.Text('renderer options'),sg.InputText(default_text=hasattr(defaults,'renderer_options') and defaults['renderer_options'] or '',
+     sg.Text('renderer options'),sg.InputText(default_text='renderer_options' in defaults and defaults['renderer_options'] or '',
                                               key='renderer_options')],
     [sg.Text('Matcher'),sg.InputCombo(getMatchers(),
-                                      default_value=hasattr(defaults,'matcher') and defaults['matcher'] or '',
+                                      default_value='matcher' in defaults and defaults['matcher'] or '',
                                       key='matcher'),
-     sg.Text('matcher options'),sg.InputText(default_text=hasattr(defaults,'matcher_options') and defaults['matcher_options'] or '',
+     sg.Text('matcher options'),sg.InputText(default_text='matcher_options' in defaults and defaults['matcher_options'] or '',
                                              key='matcher_options')],
-    [sg.Text('Portfolio file'),sg.InputText(default_text=hasattr(defaults,'portFile') and defaults['portFile'] or '',
+    [sg.Text('Portfolio file'),sg.InputText(default_text='portFile' in defaults and defaults['portFile'] or '',
                                             key='portFile'), sg.FileBrowse()], 
     [sg.Button('Render',key='render'),sg.Button('Exit',key='exit')]
         ]
@@ -132,7 +130,8 @@ while True:
             print('Need a Portfolio File')
         window.Element('head').Update('Output Window')     
         window.Element('exit').Update('Exit',disabled=False)
-        window.Element('render').Update('Render',disabled=False)
+        window.Element('render').Update('Render',disabled=False)        
+        value['authorized'] = 'authorized' in defaults and defaults['authorized'] or False
         saveDefaults(defaults_path,value)
     elif event == 'credentials':
         window.Element('render').Update('Working',disabled=True)
