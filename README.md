@@ -35,7 +35,7 @@ This was written for Python 2.7
 - oauth2client
 
 ### edit HLRender.bat to call the GUI
-Currently is is set up to call the Anaconda activate script from the user's Anaconda2 directory and then start the GUI.  
+Currently it is set up to call the Anaconda activate script from the user's Anaconda2 directory and then start the GUI.  
 
 ### create and install Google OAuth2 client ID
 To use the GoogleSlide renderer, you will have to create an OAuth client ID for the application.  Then you will have to download the client_secrets.json file and authorize HLRender to access your Google Drive and Google Slide.  
