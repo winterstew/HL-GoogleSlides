@@ -260,7 +260,7 @@ class GoogleSlideRenderer(Renderer):
             page_token = response.get('nextPageToken',None)
             if page_token is None:
                 break
-            return newId
+        return newId
             
 if __name__ == '__main__':
     GoogleSlideRenderer.get_credentials()
