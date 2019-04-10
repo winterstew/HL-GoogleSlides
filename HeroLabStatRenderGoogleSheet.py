@@ -13,9 +13,11 @@ from PIL import Image
 #from oauth2client import client
 #from oauth2client import tools
 #from oauth2client.file import Storage
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+#from googleapiclient.discovery import build
+#from google_auth_oauthlib.flow import InstalledAppFlow
+#from google.auth.transport.requests import Request
+import pygsheets
+from pygsheets.utils import format_addr
 
 DEFAULTMATCHER = 'GoogleSlide'
 TEMPLATENAME = "StatList Template"
@@ -26,21 +28,32 @@ SCOPES = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive')
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'HLRender'
-ROWS = 'ROWS'
-COLUMNS = 'COLUMNS'
-#KEYS_WITH_TEXT = (u'pageElements',u'elementGroup',u'shape',u'table',u'children',
-#                  u'text',u'textElements',u'textRun',u'content',u'tableRows',
-#                  u'tableCells')
-
+CREDENTIAL_DIR = os.path.join(os.path.expanduser('~'),'.credentials')
+if not os.path.exists(CREDENTIAL_DIR): os.makedirs(CREDENTIAL_DIR)
 
 
 class GoogleSheetRenderer(Renderer):
     """
     GoogleSheet Renderer takes a Portfolio, a GoogleSheet Template and a Range
     creates a new GoogleSheet where the Range is duplicated for each character
-    and calls the matcher to replace the text.  It is possible to list 
-    multiple ranges, but to prevent misaddressing as columns or rows are inserted
-    the ranges should be of different sheets within teh spreadsheet
+    and calls the matcher to replace the text.  
+    
+    It is possible to list multiple ranges, but to prevent misaddressing as 
+    columns or rows are inserted the ranges should be of different sheets 
+    within the spreadsheet.  
+    
+    Ranges are specified in A1 notation with only contiguous ranges and on 
+    only a single worksheet which can be named.  Thus valid ranges are:
+      Sheet1!A1:B2
+      Sheet1!A:A
+      Sheet1!1:2
+      Sheet1!A5:A
+      A1:B2
+    however, these are invalid:
+      Sheet1!A1:Sheet1!B2
+      Sheet1!A1:B2,Sheet1!D1:E2
+      Sheet1!A1:B2,Sheet2!D1:E2
+      A1:B2,D1:E2
 
     Methods:
       startPortfolio: issued after creating a Portfolio object to start rendering
@@ -55,53 +68,74 @@ class GoogleSheetRenderer(Renderer):
         super(GoogleSheetRenderer, self).__init__(portfolio,flags,matcherClass,*args,**kwargs)
         self.templateName = len(self.options) > 0 and self.options[0] or TEMPLATENAME
         self.rangeNames = len(self.options) > 1 and self.options[1:] or [RANGENAME]
-        self.credentials = self.get_credentials(flags=flags)
-        self.service = build('sheets', 'v4', credentials=self.credentials)
-        self.drive_service = build('drive', 'v3', credentials=self.credentials)
+        self.client = pygsheets.authorize(client_secret=CLIENT_SECRET_FILE,
+                                          credentials_directory=CREDENTIAL_DIR,
+                                          scopes=SCOPES,**kwargs)
+        response = self.client.drive.spreadsheet_metadata("name='%s'" % self.templateName)[0]
+        self.templateId = response.get('id')
+        self.templateFolder = response.get('parents')[0]
         
     def startPortfolio(self,*args,**kwargs):
-        """ locate Google Drive Spreadsheet and Sheet within it and create matcher instances"""
-        # find spreadsheet
-        self.spreadsheetId,self.templateId = self.copy_template(
-                self.drive_service,self.find_template(self.drive_service,self.templateName),self.portfolio.filecore)
-        #self.spreadsheet = self.service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
-        self.ranges = self.service.spreadsheets().values().batchGet(
-                       spreadsheetId=self.spreadsheetId,ranges=self.rangeNames).execute().get('valueRanges')
-        if self.verbosity >= 2: print('Created:"%s" "%s"' % (self.portfolio.filecore,self.spreadsheetId)):
-            
-    @staticmethod
-    def getGridRange(service,ssId,rngName):
-        sId=0
-        # first get the sheetID is there is a sheet listed in the rngNAme
+        """ copy the Google Sheet Template and identify the worksheets and ranges to duplicate and match """
+        response = self.client.drive.copy_file(self.templateId,self.portfolio.filecore,self.templateFolder)
+        self.spreadsheet = self.client.open_by_key(response.get('id'))
+        self.rangeWorksheets = []
+        self.inWorksheetRangeNames = []
+        self.rangeValues = []
+        for rangeName in self.rangeNames:
+            rng = rangeName.split('!')
+            ws = None
+            wsrn = None
+            if len(rng) == 2:
+                ws = self.spreadsheet.worksheet('title',rng[0])
+                wsrn = rng[1]
+            elif len(rng) == 1:
+                ws = self.spreadsheet.worksheet('index',0)          
+                wsrn = rng[0]
+            else:
+                raise Exception,"%s is not a valid range" % rangeName           
+            self.rangeWorksheets.append(ws)
+            self.inWorksheetRangeNames.append(wsrn)
+            start,end = wsrn.split(':')
+            rv = ws.get_values(start,end,returnas='matrix',value_render='FORMULA')
+            self.rangeValues.append(rv)
         
+        ## find spreadsheet
+        #self.spreadsheetId,self.templateId = self.copy_template(
+        #        self.drive_service,self.find_template(self.drive_service,self.templateName),self.portfolio.filecore)
+        ##self.spreadsheet = self.service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
+        #self.ranges = self.service.spreadsheets().values().batchGet(
+        #               spreadsheetId=self.spreadsheetId,ranges=self.rangeNames).execute().get('valueRanges')
+        #if self.verbosity >= 2: print('Created:"%s" "%s"' % (self.portfolio.filecore,self.spreadsheetId))
             
-    def dumpTemplateValueRanges(self,*args,**kwargs):
-        tId = hasattr(self,'templateId') and getattr(self,'templateId') or self.find_template(self.drive_service,self.templateName)
-        rngs = self.service.spreadsheets().values().batchGet(
-                     spreadsheetId=tId,ranges=self.rangeNames).execute()
-        print(rngs.viewkeys())
-        vRngs = rngs.get('valueRanges')
-        for rngIndex,rng in enumerate(vRngs):
-            print("Range Number %s",rngIndex)
-            json.dump(rng,sys.stdout)
+    def dumpTemplate(self,*args,**kwargs):
+        tss = self.client.open(self.templateName)
+        print(self.templateId)
+        return tss.to_json()
+        #if 'ranges' in kwargs:
+        #    
+        #tId = hasattr(self,'templateId') and getattr(self,'templateId') or self.find_template(self.drive_service,self.templateName)
+        #rngs = self.service.spreadsheets().values().batchGet(
+        #             spreadsheetId=tId,ranges=self.rangeNames).execute()
+        #print(rngs.viewkeys())
+        #vRngs = rngs.get('valueRanges')
+        #for rngIndex,rng in enumerate(vRngs):
+        #    print("Range Number %s",rngIndex)
+        #    json.dump(rng,sys.stdout)
         
     def eachCharacter(self,character,*args,**kwargs):
         requests = []        
         # loop through ranges to replace
-        for rngIndex,rng in enumerate(self.ranges):
+        for rvIndex,rv in enumerate(self.rangeValues):
             # determine if we are inserting rows or columns
-            shiftDim = rng.get('majorDimension')
-            if max([len(x) for x in rng]) > len(rng):
-                shiftDim = shiftDim == ROWS and COLUMNS or ROWS
-            # insert rows or columns
-            requests.append({
-              "insertRangeRequest": {
-                "range": {
-                },
-                "shiftDimension":shiftDim 
-              }
-            }) 
-            # replace all text in the values for the range
+            rowNum = len(rv)
+            colNum = max([len(x) for x in rv])
+            if rowNum > colNum:
+                col = format_addr(self.inWorksheetRangeNames[rvIndex].split(':')[0])[1]
+                self.rangeWorksheets[rvIndex].insert_cols(col,number=colNum,inherit=True)
+            else:
+                row = format_addr(self.inWorksheetRangeNames[rvIndex].split(':')[0])[0]
+                self.rangeWorksheets[rvIndex].insert_rows(row,number=rowNum,inherit=True)
             
             # write range with new values to sheet in the shifted locshiftDimation
             
@@ -185,10 +219,11 @@ class GoogleSheetRenderer(Renderer):
 #                if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
 
     def endPortfolio(self,*args,**kwargs):
-        body = { "requests": [] }
-        for slideId in self.slideIds:
-            body["requests"].append({ "deleteObject": { "objectId":slideId }})
-        response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body=body).execute()
+        pass
+        #body = { "requests": [] }
+        #for slideId in self.slideIds:
+        #    body["requests"].append({ "deleteObject": { "objectId":slideId }})
+        #response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body=body).execute()
 
     def contentDig(self,element,value=u'',**kwargs):
         if type(element) == list:
@@ -265,4 +300,4 @@ class GoogleSheetRenderer(Renderer):
 if __name__ == '__main__':
     #GoogleSheetRenderer.get_credentials()
     r = GoogleSheetRenderer('',{},DEFAULTMATCHER,TEMPLATENAME,RANGENAME)
-    r.dumpTemplateValueRanges()
+    print(r.dumpTemplate())
