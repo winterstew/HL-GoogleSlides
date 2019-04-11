@@ -52,10 +52,12 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
 2. under the "APIs & Services" -> "Dashboard" select "ENABLE APIS AND SERVICES" 
    - you need to enable "Google Drive API" 
    - and "Google Slides API"
+   - also "Google Sheets API" if you plan to use the GoogleSheet renderer
 3. under "API & Service" -> "Credentials" select the "OAuth consent screen" tab
    - Enter "HLRender" as the application name
    - Choose "Add scope" and select "../auth/drive" and "../auth/presentations" 
       - this is necessary as the GoogleSlide renderer copies your template to a new file and then duplicates the pages within it for each character in the portfolio
+   - If you also plan to you GoogleSheet renderer: "Add scope" and select "../auth/spreadsheets" as well
 4. under "API & Service" -> "Credentials" select "Create credentials" -> "OAuth Client ID"
    - Select "Other" radio box for "Application Type" and enter "Python Desktop Application" as its name
 5. back at "API & Service" -> "Credentials" click the download JSON button and save the file as client_secret.json in the HLRender directory
@@ -63,6 +65,7 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
    - from the command line
      ```
      python HeroLabStatRenderGoogleSlide.py
+     python HeroLabStatRenderGoogleSheet.py
      ```
    - from the GUI
      click "get Google credentials"
