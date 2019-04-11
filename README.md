@@ -33,6 +33,14 @@ This was written for Python 2.7
 - PIL
 - apiclient
 - oauth2client
+#### for GoogleSheet render
+- pickle
+- copy
+- google-api-python-client 
+- google-auth-httplib2 
+- google-auth-oauthlib
+- pygsheets
+
 
 ### edit HLRender.bat to call the GUI
 Currently it is set up to call the Anaconda activate script from the user's Anaconda2 directory and then start the GUI.  
@@ -61,7 +69,13 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
   
 ## Usage
 ### GoogleSlide
-  The GoogleSlide renderer can take two or more (comma separated) options.  This first is the name of the Google Slide presentation you want to use as the starting template.  The rest of the options are names of pages to duplicate and match-replace for each character.  This page name should be some text on the page, and must be unique whithin the presentation.  Typically I use a page name which is also a key in the matcher that maps to the name of the character.  That way it is replaced during the rendering.  A few examples which I have used are am using include [StatBlock Template](https://drive.google.com/open?id=1C5u4HXB_9jbBXUD6y8l37bxckqei6ipy5TCIRDgsZFw), [StatBlockVertical Template](https://drive.google.com/open?id=1TPJzOrotRVVM5X-tgJI6BCEtY23I_K6DweiOwooaSAE), and [StatBlockVerticalTwoPage Template](https://drive.google.com/open?id=19EYt8vSpSl6kR8-ImSKmekF4uTGCvL7_NrazZV34IWk).  For an explanation of how the keywords work, look in the docs string for [HeroLabStatMatch](HeroLabStatMatch.py)
+  The GoogleSlide renderer can take two or more (comma separated) options.  The first is the name of the Google Slide presentation you want to use as the starting template.  The rest of the options are names of pages to duplicate and match-replace for each character.  This page name should be some text on the page, and must be unique whithin the presentation.  Typically I use a page name which is also a key in the matcher that maps to the name of the character.  That way it is replaced during the rendering.  A few examples which I have used or am using include [StatBlock Template](https://drive.google.com/open?id=1C5u4HXB_9jbBXUD6y8l37bxckqei6ipy5TCIRDgsZFw), [StatBlockVertical Template](https://drive.google.com/open?id=1TPJzOrotRVVM5X-tgJI6BCEtY23I_K6DweiOwooaSAE), and [StatBlockVerticalTwoPage Template](https://drive.google.com/open?id=19EYt8vSpSl6kR8-ImSKmekF4uTGCvL7_NrazZV34IWk).  For an explanation of how the keywords work, look in the docs string for [HeroLabStatMatch](HeroLabStatMatch.py), for keyworks which are already defined by default look in the [HeroLabStatMatchGoogleSlide](HeroLabStatMatchGoogleSlide.py) code
+
+### GoogleSheet
+  The GoogleSheet renderer cat take two or more (comma separated) options.  The first is the name of the Google Sheet spreadsheet you
+  want to use as the starting template.  The rest of the options are names of ranges (in a1 notation) which will be duplicated within
+  the sheet and match-replace for each character.  Be aware if the range has more columns than rows, it will insert columns.  Otherwise
+  it will insert rows.  The GoogleSheetRenderer(HeroLabStatRenderGoogleSheet.py) uses the same [matcher](HeroLabStatMatchGoogleSlide.py) as GoogleSlideRenderer(HeroLabStatRenderGoogleSlide.py).  An example template can be found at [StatList Template](https://docs.google.com/spreadsheets/d/17gyE-L8508glDQtJGSYijMniYxOTFh3K-UmPNtXg0do/edit?usp=sharing)
 
 ### CSpdf
   The CSpdf renderer works with ``Character Sheet fillable.pdf`` which comes from [Paizo](https://www.paizo.com).  Unfortunately, while I have a list of all the fields, I have not yet matched them all up to HLRender values.  It is a very long list, and requires choosing what to include since there are not enough blanks.  This defeats the purpose of quick, easy, and complete transfer in information from Hero Lab, so I am less interested in finishing this.
