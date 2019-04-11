@@ -377,7 +377,7 @@ class GoogleSheetRenderer(Renderer):
         return newResponse.get('id')
 
 if __name__ == '__main__':
-    #GoogleSheetRenderer.get_credentials()
-    r = GoogleSheetRenderer('',{},DEFAULTMATCHER,TEMPLATENAME,RANGENAME)
-    r.dumpTemplateValueRanges()
+    GoogleSheetRenderer.get_credentials()
+    #r = GoogleSheetRenderer('',{},DEFAULTMATCHER,TEMPLATENAME,RANGENAME)
+    #r.dumpTemplateValueRanges()
     #r.dumpTemplate()

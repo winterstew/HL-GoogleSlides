@@ -141,6 +141,10 @@ while True:
         print('running:')
         print(" ".join(cmd))
         ExecuteCommandSubprocess(window,*cmd)
+        cmd = ['python',os.path.abspath('HeroLabStatRenderGoogleSheet.py')]
+        print('running:')
+        print(" ".join(cmd))
+        ExecuteCommandSubprocess(window,*cmd)
         window.Element('exit').Update('Exit',disabled=False)
         window.Element('render').Update('Render',disabled=False)
         window.Element('credentials').Update('authorized',disabled=True)
