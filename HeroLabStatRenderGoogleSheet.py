@@ -7,15 +7,11 @@ Created on Sat Jan 20 05:23:12 2018
 from __future__ import print_function
 from HeroLabStatBase import VERBOSITY
 from HeroLabStatRender import Renderer
-import sys,mimetypes,re,os,pickle,json
-from PIL import Image
-#from apiclient import discovery
-#from oauth2client import client
-#from oauth2client import tools
-#from oauth2client.file import Storage
+import re,os,pickle,copy
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from pygsheets.utils import format_addr
 
 DEFAULTMATCHER = 'GoogleSlide'
 TEMPLATENAME = "StatList Template"
@@ -25,12 +21,8 @@ RANGENAME = "Sheet1!B:C"
 SCOPES = ('https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive')
 CLIENT_SECRET_FILE = 'client_secret.json'
+CREDENTIAL_DIR = os.path.join(os.path.expanduser('~'),'.credentials')
 APPLICATION_NAME = 'HLRender'
-ROWS = 'ROWS'
-COLUMNS = 'COLUMNS'
-#KEYS_WITH_TEXT = (u'pageElements',u'elementGroup',u'shape',u'table',u'children',
-#                  u'text',u'textElements',u'textRun',u'content',u'tableRows',
-#                  u'tableCells')
 
 
 
@@ -38,9 +30,24 @@ class GoogleSheetRenderer(Renderer):
     """
     GoogleSheet Renderer takes a Portfolio, a GoogleSheet Template and a Range
     creates a new GoogleSheet where the Range is duplicated for each character
-    and calls the matcher to replace the text.  It is possible to list 
-    multiple ranges, but to prevent misaddressing as columns or rows are inserted
-    the ranges should be of different sheets within teh spreadsheet
+    and calls the matcher to replace the text.  
+    
+    It is possible to list multiple ranges, but to prevent misaddressing as 
+    columns or rows are inserted the ranges should be of different sheets 
+    within the spreadsheet.  
+    
+    Ranges are specified in A1 notation with only contiguous ranges and on 
+    only a single worksheet which can be named.  Thus valid ranges are:
+      Sheet1!A1:B2
+      Sheet1!A:A
+      Sheet1!1:2
+      Sheet1!A5:A
+      A1:B2
+    however, these are invalid:
+      Sheet1!A1:Sheet1!B2
+      Sheet1!A1:B2,Sheet1!D1:E2
+      Sheet1!A1:B2,Sheet2!D1:E2
+      A1:B2,D1:E2
 
     Methods:
       startPortfolio: issued after creating a Portfolio object to start rendering
@@ -58,150 +65,180 @@ class GoogleSheetRenderer(Renderer):
         self.credentials = self.get_credentials(flags=flags)
         self.service = build('sheets', 'v4', credentials=self.credentials)
         self.drive_service = build('drive', 'v3', credentials=self.credentials)
+        self.templateId,self.templateName,self.templateFolder = self.find_template(self.drive_service,self.templateName)
+        self.rangeSheetIds,self.rangeSheetNames,self.inSheetRangeNames = self.getRangeIds(self.service,self.templateId,self.rangeNames)
+            
         
     def startPortfolio(self,*args,**kwargs):
         """ locate Google Drive Spreadsheet and Sheet within it and create matcher instances"""
-        # find spreadsheet
-        self.spreadsheetId,self.templateId = self.copy_template(
-                self.drive_service,self.find_template(self.drive_service,self.templateName),self.portfolio.filecore)
-        #self.spreadsheet = self.service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
+        # copy the spreadsheet
+        self.spreadsheetId = self.copy_template(self.drive_service,self.templateId,self.portfolio.filecore)
+        if self.verbosity >= 2: print('Created:"%s" "%s"' % (self.portfolio.filecore,self.spreadsheetId))
+        # get the ValueRange for all the ranges
         self.ranges = self.service.spreadsheets().values().batchGet(
-                       spreadsheetId=self.spreadsheetId,ranges=self.rangeNames).execute().get('valueRanges')
-        if self.verbosity >= 2: print('Created:"%s" "%s"' % (self.portfolio.filecore,self.spreadsheetId)):
+                     spreadsheetId=self.templateId,
+                     ranges=self.rangeNames,
+                     majorDimension='ROWS',
+                     valueRenderOption='FORMATTED_VALUE').execute().get('valueRanges')
             
-    @staticmethod
-    def getGridRange(service,ssId,rngName):
-        sId=0
-        # first get the sheetID is there is a sheet listed in the rngNAme
-        
+    def dumpTemplate(self,*args,**kwargs):
+        ss = self.service.spreadsheets().get(
+                     spreadsheetId=self.templateId).execute()
+        print(ss)
             
     def dumpTemplateValueRanges(self,*args,**kwargs):
-        tId = hasattr(self,'templateId') and getattr(self,'templateId') or self.find_template(self.drive_service,self.templateName)
         rngs = self.service.spreadsheets().values().batchGet(
-                     spreadsheetId=tId,ranges=self.rangeNames).execute()
+                     spreadsheetId=self.templateId,
+                     ranges=self.rangeNames,
+                     majorDimension='ROWS',
+                     valueRenderOption='FORMATTED_VALUE').execute().get('valueRanges')
         print(rngs.viewkeys())
-        vRngs = rngs.get('valueRanges')
-        for rngIndex,rng in enumerate(vRngs):
-            print("Range Number %s",rngIndex)
-            json.dump(rng,sys.stdout)
-        
+        for ri,rng in enumerate(rngs):
+            print("Range Number %d from %s (id %d) cells %s" % (ri,self.rangeSheetNames[ri],self.rangeSheetIds[ri],self.inSheetRangeNames[ri]))
+            print(rng.get('values'))
+            print("Grid Range:")
+            print(self._getGridRange(ri))
+
     def eachCharacter(self,character,*args,**kwargs):
         requests = []        
+        valueData = []
+        # create text matcher instance
+        textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
         # loop through ranges to replace
-        for rngIndex,rng in enumerate(self.ranges):
+        for ri,rng in enumerate(self.ranges):
             # determine if we are inserting rows or columns
-            shiftDim = rng.get('majorDimension')
-            if max([len(x) for x in rng]) > len(rng):
-                shiftDim = shiftDim == ROWS and COLUMNS or ROWS
-            # insert rows or columns
-            requests.append({
-              "insertRangeRequest": {
-                "range": {
-                },
-                "shiftDimension":shiftDim 
-              }
-            }) 
-            # replace all text in the values for the range
-            
-            # write range with new values to sheet in the shifted locshiftDimation
-            
-#            body = { "requests":  [ {
-#              "duplicateObject": {
-#                "objectId":  slideId
-#              }
-#            } ] }
-#            response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body=body).execute()
-#            newSlideId = response.get('replies')[0]['duplicateObject']['objectId']
-#            newSlide = self.service.spreadsheets().pages().get(spreadsheetId=self.spreadsheetId,pageObjectId=newSlideId).execute()
-#            # create image matcher instance
-#            imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image',verbosity=self.verbosity)
-#            # create text matcher instance
-#            textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
-#            body = { "requests": [ {
-#                       "updateSlidesPosition": {
-#                         "slideObjectIds": [ newSlideId ],
-#                         "insertionIndex": self.characterIndex
-#                       }
-#                     } ] }
-#            # run through all the flag text from the template and replace from the matched
-#            for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
-#                body['requests'].append({
-#                  "replaceAllText": {
-#                    "replaceText":  textMatcher.getMatch(replaceKey),
-#                    "pageObjectIds": [newSlideId],
-#                    "containsText": {
-#                      "text": replaceKey,
-#                      "matchCase": True
-#                    }
-#                  }
-#                })
-#            # run through all the flags with an image matcher and
-#            # upload images keeping a keyed list on URLs
-#            imageDict = {}
-#            for replaceKey in re.findall(r'(\{\{.*?\}\})',self.contentDig(newSlide,u'',textKeys=KEYS_WITH_TEXT)):
-#                images = imageMatcher.getMatch(replaceKey)
-#                # with GoogleSheets images need to have their keyword text within a shape,
-#                # and are replaced with a batchUpdate request of replaceAllShapesWithImage
-#                # this means that inserting a list of images will not work
-#                imageFile = type(images) == list and images[0] or images
-#                if imageFile and type(imageFile) == tuple:
-#                    # create an empth image if none exists
-#                    if not imageFile[1] or not os.path.exists(imageFile[1]):
-#                        imageFile = ('empty.png',os.path.join(character.tempDir,'empty.png'))
-#                        if not os.path.exists(imageFile[1]):
-#                            emptyImage = Image.new('RGBA',(50,50),color=(255,255,255,0))
-#                            emptyImage.save(imageFile[1])
-#                            emptyImage.close()
-#                    # upload the image
-#                    upload = self.drive_service.files().create(
-#                        body={'name': imageFile[0],
-#                              'mimeType': mimetypes.guess_type(imageFile[1])[0]},
-#                        media_body=imageFile[1]).execute()
-#                    # get its ID
-#                    file_id = upload.get('id')
-#                    # get its URL
-#                    image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
-#                    imageDict[replaceKey] = (file_id,image_url)
-#            # run through all the tags again this time
-#            # appending to the requests to replace with images
-#            for replaceKey in imageDict.keys():
-#                image_url = imageDict[replaceKey][1]
-#                body['requests'].append({
-#                  'replaceAllShapesWithImage': {
-#                    'imageUrl': image_url,
-#                    'replaceMethod': 'CENTER_INSIDE',
-#                    "pageObjectIds": [newSlideId],
-#                    'containsText': {
-#                      'text': replaceKey,
-#                      'matchCase': True
-#                    }
-#                  }
-#                })
-#            # Finally execute the big request
-#            response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body=body).execute()
-#            self.characterIndex += 1
-#            # Remove the temporary image file from Drive.
-#            for file_id in [image[0] for image in imageDict.values()]:
-#                if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
+            rowNum = len(rng.get('values'))
+            colNum = max([len(x) for x in rng.get('values')])
+            gr = self._getGridRange(ri)
+            newgr = self._getGridRange(ri)
+            start,end = map(lambda x:self.format_addr(x,'tuple'),self.inSheetRangeNames[ri].split(':'))
+            # insert columns if there are more rows than columns
+            if rowNum > colNum:
+                requests.append({"insertRange":{"range":gr,"shiftDimension":'COLUMNS'}})
+                newgr['startColumnIndex'] += colNum
+                newgr['endColumnIndex'] += colNum
+                start = (start[0],start[1]+colNum)
+                end = (end[0],end[1]+colNum)
+            # otherwise insert rows
+            else:
+                requests.append({"insertRange":{"range":self._getGridRange(ri),"shiftDimension":'ROWS'}})  
+                newgr['startRowIndex'] += rowNum
+                newgr['endRowIndex'] += rowNum
+                start = (start[0]+rowNum,start[1])
+                end = (end[0]+rowNum,end[1])
+            # copy the format over so the new values look the same
+            requests.append({"copyPaste":{"source":newgr,"destination":gr,"pasteType":'PASTE_FORMAT'}})
+            # fill in the values
+            myValues = copy.deepcopy(rng.get('values'))
+            for oi,outer in enumerate(myValues):
+                for ci,cell in enumerate(outer):
+                    myValues[oi][ci] = cell
+                    for replaceKey in re.findall(r'(\{\{.*?\}\})',cell):
+                        myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,textMatcher.getMatch(replaceKey))
+            valueData.append({"range":self.rangeNames[ri],
+                              "majorDimension": 'ROWS',
+                              "values": myValues })
+            # create new rangeNames
+            self.inSheetRangeNames[ri] = "%s:%s" % tuple(map(lambda x:self.format_addr(x,'label'),[start,end]))
+            self.rangeNames[ri] = "%s!%s" % (self.rangeSheetNames[ri],self.inSheetRangeNames[ri])
+        # actually carry out the batchUpdate request to insert rows or columns
+        response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body={"requests":requests}).execute()
+        # now carry out the value replacement
+        response = self.service.spreadsheets().values().batchUpdate(
+                              spreadsheetId=self.spreadsheetId,
+                              body={
+                                  "valueInputOption":'RAW',
+                                  "data":valueData}).execute()       
 
     def endPortfolio(self,*args,**kwargs):
-        body = { "requests": [] }
-        for slideId in self.slideIds:
-            body["requests"].append({ "deleteObject": { "objectId":slideId }})
-        response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body=body).execute()
+        requests = []
+        # loop through ranges to delete
+        for ri,rng in enumerate(self.ranges):
+            # determine if we are deleting rows or columns
+            rowNum = len(rng.get('values'))
+            colNum = max([len(x) for x in rng.get('values')])
+            gr = self._getGridRange(ri)
+            # delete columns if there are more rows than columns
+            if rowNum > colNum:
+                requests.append({"deleteRange":{"range":gr,"shiftDimension":'COLUMNS'}})
+            # otherwise delete rows
+            else:
+                requests.append({"deleteRange":{"range":self._getGridRange(ri),"shiftDimension":'ROWS'}})  
+        # do the batch update
+        response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body={"requests":requests}).execute()
 
-    def contentDig(self,element,value=u'',**kwargs):
-        if type(element) == list:
-            for e in element:
-                value = self.contentDig(e,value,**kwargs)
-        if type(element) == dict:
-            for k in element.keys():
-                if kwargs.has_key('textKeys') and k in kwargs['textKeys']:
-                    value = self.contentDig(element.get(k),value,**kwargs)
-        if type(element) == unicode or type(element) == str:
-            value += element
-        return value
-
+    def _getGridRange(self,rangeIndex):
+        gridRange = {}
+        gridRange['sheetId'] = self.rangeSheetIds[rangeIndex]
+        cells = self.inSheetRangeNames[rangeIndex].split(':')
+        if len(cells) != 2: raise Exception,"bad A1 notation address %s in range %d" % (self.inSheetRangeNames[rangeIndex],rangeIndex)
+        cellIndex = []
+        # figure out the index number for the cell
+        for c in cells:
+            cellIndex.append(self.format_addr(c,'tuple'))
+        if cellIndex[0][0]: gridRange['startRowIndex'] = cellIndex[0][0] - 1
+        if cellIndex[1][0]: gridRange['endRowIndex'] = cellIndex[1][0] 
+        if cellIndex[0][1]: gridRange['startColumnIndex'] = cellIndex[0][1] - 1
+        if cellIndex[1][1]: gridRange['endColumnIndex'] = cellIndex[1][1] 
+        return gridRange    
+        
+    @staticmethod
+    def format_addr(addr,outType):
+        if outType == 'tuple':
+            if type(addr) == type(()):
+                return addr
+            else:
+                row,col = None,None
+                if re.match(r'[A-Za-z]+[0-9]+$',addr):
+                    row,col = format_addr(addr,'tuple')
+                elif re.match(r'[A-Za-z]+$',addr):
+                    col = format_addr('%s1' % addr,'tuple')[1]
+                elif re.match(r'[0-9]+$',addr):
+                    row = format_addr('A%s' % addr,'tuple')[0]
+                else:
+                    raise Exception,"bad A1 notation address %s" % addr
+                return (row,col)
+        elif outType == 'label':
+            if type(addr) == type(''):
+                return addr
+            else:
+                return format_addr(addr,'label')
+        
+    @staticmethod
+    def getRangeIds(service,ssId,rngNames):
+        """ return a tuple containing a list of Sheet ids, a list of Sheet 
+            names, and a list of simplified rangeNames (whithout the sheet name) """
+        rsid = []
+        isrn = []
+        rsname = []
+        idDict = {}
+        firstSheetName = ''
+        ss = service.spreadsheets().get(spreadsheetId=ssId).execute()
+        # make a dictionary maping sheet titles to ids
+        for ws in ss.get('sheets'):
+            idDict[ws.get('properties').get('title')] = ws.get('properties').get('sheetId')            
+            if ws.get('properties').get('sheetId') == 0: firstSheetName = ws.get('properties').get('title')
+        # loop trough range names and extract the sheet name
+        #  appending to and id list and a in-sheet range name list for each
+        for rn in rngNames:
+            rng = rn.split('!')
+            # if no sheet name was included in the A1 notation
+            # assume the sheet id is 0
+            if len(rng) == 1:
+                rsid.append(0)
+                isrn.append(rng[0])
+                rsname.append(firstSheetName)
+            # if a sheet name was included in the A1 notation
+            #  figure out its sheet id and extract its in sheet range name
+            elif len(rng) == 2 and rng[0] in idDict:
+                rsid.append(idDict[rng[0]])
+                isrn.append(rng[1])
+                rsname.append(rng[0])
+            else:
+                raise Exception,"%s is not a valid range" % rn  
+        return (rsid,rsname,isrn)
+            
+            
     @staticmethod
     def get_credentials(*args,**kwargs):
         """Gets valid user credentials from storage.
@@ -212,11 +249,9 @@ class GoogleSheetRenderer(Renderer):
         Returns:
             Credentials, the obtained credential.
         """
-        home_dir = os.path.expanduser('~')
-        credential_dir = os.path.join(home_dir, '.credentials')
-        if not os.path.exists(credential_dir):
-            os.makedirs(credential_dir)
-        credential_path = os.path.join(credential_dir,
+        if not os.path.exists(CREDENTIAL_DIR):
+            os.makedirs(CREDENTIAL_DIR)
+        credential_path = os.path.join(CREDENTIAL_DIR,
                                        'spreadsheets.googleapis.com-python-HLRender.pickle')
         credentials = None
         if os.path.isfile(credential_path):
@@ -236,24 +271,25 @@ class GoogleSheetRenderer(Renderer):
         return credentials
 
     @staticmethod
-    def find_template(service,templateName,*args,**kwargs):
+    def find_template(service,tName,*args,**kwargs):
         """Returns spreadsheetId of the template"""
-        templateId = None
+        tId = None
         page_token=None
         #print(templateIds.keys())
         while True:
             response = service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet'",
                                  spaces='drive',
-                                 fields='nextPageToken, files(id,name,mimeType)',
+                                 fields='nextPageToken, files(id,name,mimeType,parents)',
                                  pageToken=page_token).execute()
             for spreadsheet in response.get('files', []):
-                if spreadsheet.get('name') == templateName:
-                    templateId = spreadsheet.get('id')
-                    
+                if spreadsheet.get('name') == tName:
+                    tId = spreadsheet.get('id')
+                    tName = spreadsheet.get('name')
+                    tFolder =  spreadsheet.get('parents')[0]                    
             page_token = response.get('nextPageToken',None)
             if page_token is None:
                 break
-        return templateId
+        return (tId,tName,tFolder)
         
     @staticmethod
     def copy_template(service,templateId,newName,*args,**kwargs):
@@ -266,3 +302,4 @@ if __name__ == '__main__':
     #GoogleSheetRenderer.get_credentials()
     r = GoogleSheetRenderer('',{},DEFAULTMATCHER,TEMPLATENAME,RANGENAME)
     r.dumpTemplateValueRanges()
+    #r.dumpTemplate()
