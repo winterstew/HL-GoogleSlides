@@ -69,6 +69,9 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
      ```
    - from the GUI
      click "get Google credentials"
+     
+### Icons
+  This is totally optional, but if you want to actual Paizo icons to match those in the Bestiary, you will have to extract them from a PDF which you own.  Save a PNG of each one in the icons/images folder.  Name the PNGs according to names given in the [icons/index.xml](icons/index.xml) file, then create a zip file of the whole icons directory.  If you name the file ```iconsPaizo.zip```, HLRender will use it instead of the empty icons.zip
   
 ## Usage
 ### GoogleSlide
