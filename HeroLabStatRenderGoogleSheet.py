@@ -24,6 +24,7 @@ SCOPES = ('https://www.googleapis.com/auth/spreadsheets',
 CLIENT_SECRET_FILE = 'client_secret.json'
 CREDENTIAL_DIR = os.path.join(os.path.expanduser('~'),'.credentials')
 APPLICATION_NAME = 'HLRender'
+RRR = ' rrr ' # flag used in values to flag that each item show get a new range
 
 
 
@@ -49,6 +50,13 @@ class GoogleSheetRenderer(Renderer):
       Sheet1!A1:B2,Sheet1!D1:E2
       Sheet1!A1:B2,Sheet2!D1:E2
       A1:B2,D1:E2
+      
+    Note: These is a special render flag for lists, if you want a new range
+     for every item in a matcher list (i.e. with the '..' flag) use the repeat
+     flag ' rrr ' for render repeating row.  This will cause the matcher to 
+     return a string where each item is seprated by ' rrr ' and 
+     GoogleSheetRenderer will split the list and add a row (or column) for each
+     item in the list
 
     Methods:
       startPortfolio: issued after creating a Portfolio object to start rendering
@@ -113,75 +121,91 @@ class GoogleSheetRenderer(Renderer):
         booleanMatcher = self.matcherClass(character,self.matcherClass.BOOLEANMATCH,'boolean',verbosity=self.verbosity)
         # loop through ranges to replace
         for ri,rng in enumerate(self.ranges):
-            # determine if we are inserting rows or columns
-            rowNum = len(rng.get('values'))
-            colNum = max([len(x) for x in rng.get('values')])
-            gr = self._getGridRange(ri)
-            newgr = self._getGridRange(ri)
-            start,end = map(lambda x:self.format_addr(x,'tuple'),self.inSheetRangeNames[ri].split(':'))
-            # insert columns if there are more rows than columns
-            if rowNum > colNum:
-                requests.append({"insertRange":{"range":gr,"shiftDimension":'COLUMNS'}})
-                newgr['startColumnIndex'] += colNum
-                newgr['endColumnIndex'] += colNum
-                start = (start[0],start[1]+colNum)
-                end = (end[0],end[1]+colNum)
-            # otherwise insert rows
-            else:
-                requests.append({"insertRange":{"range":self._getGridRange(ri),"shiftDimension":'ROWS'}})  
-                newgr['startRowIndex'] += rowNum
-                newgr['endRowIndex'] += rowNum
-                start = (start[0]+rowNum,start[1])
-                end = (end[0]+rowNum,end[1])
-            # copy the format over so the new values look the same
-            requests.append({"copyPaste":{"source":newgr,"destination":gr,"pasteType":'PASTE_FORMAT'}})
-            # NOTE The width update below coule be taken out ot the rowNum > colNum
-            #  contitional is I want full control of the sizes, but I wanted
-            #  to allow the cells to expand if text had to wrap or was too long.
-            # if we are inserting columns lets copy the column widths
-            if rowNum > colNum:
-                # update the column sizes to match
-                if 'startColumnIndex' in gr and 'endColumnIndex' in gr:
-                    loopList = range(gr['startColumnIndex'],gr['endColumnIndex'])
+            # flag if repeated rows need to be rendered (i.e. the values have " rrr " in them())
+            rrrFlag = True
+            rrrMaxIndex = 0
+            rrrIndex = 0
+            while rrrFlag:
+                rrrFlag = False
+                # determine if we are inserting rows or columns
+                rowNum = len(rng.get('values'))
+                colNum = max([len(x) for x in rng.get('values')])
+                gr = self._getGridRange(ri)
+                newgr = self._getGridRange(ri)
+                start,end = map(lambda x:self.format_addr(x,'tuple'),self.inSheetRangeNames[ri].split(':'))
+                # insert columns if there are more rows than columns
+                if rowNum > colNum:
+                    requests.append({"insertRange":{"range":gr,"shiftDimension":'COLUMNS'}})
+                    newgr['startColumnIndex'] += colNum
+                    newgr['endColumnIndex'] += colNum
+                    start = (start[0],start[1]+colNum)
+                    end = (end[0],end[1]+colNum)
+                # otherwise insert rows
                 else:
-                    loopList = range(len(self.rangeColumnMetadata[ri]))
-                for colCnt,colInd in enumerate(loopList):
-                    requests.append({"updateDimensionProperties":{
-                                         "range":{"sheetId": self.rangeSheetIds[ri],
-                                                  "dimension":'COLUMNS',
-                                                  "startIndex":colInd,
-                                                  "endIndex":colInd + 1},
-                                         "properties":{"pixelSize":self.rangeColumnMetadata[ri][colCnt][u'pixelSize']},
-                                         "fields":'pixelSize'}})
-            # otherwise lest coppy the row widths
-            else:
-                # update the row sizes to match
-                if 'startRowIndex' in gr and 'endRowIndex' in gr:
-                    loopList = range(gr['startRowIndex'],gr['endRowIndex'])
+                    requests.append({"insertRange":{"range":self._getGridRange(ri),"shiftDimension":'ROWS'}})  
+                    newgr['startRowIndex'] += rowNum
+                    newgr['endRowIndex'] += rowNum
+                    start = (start[0]+rowNum,start[1])
+                    end = (end[0]+rowNum,end[1])
+                # copy the format over so the new values look the same
+                requests.append({"copyPaste":{"source":newgr,"destination":gr,"pasteType":'PASTE_FORMAT'}})
+                # NOTE The width update below coule be taken out ot the rowNum > colNum
+                #  contitional is I want full control of the sizes, but I wanted
+                #  to allow the cells to expand if text had to wrap or was too long.
+                # if we are inserting columns lets copy the column widths
+                if rowNum > colNum:
+                    # update the column sizes to match
+                    if 'startColumnIndex' in gr and 'endColumnIndex' in gr:
+                        loopList = range(gr['startColumnIndex'],gr['endColumnIndex'])
+                    else:
+                        loopList = range(len(self.rangeColumnMetadata[ri]))
+                    for colCnt,colInd in enumerate(loopList):
+                        requests.append({"updateDimensionProperties":{
+                                             "range":{"sheetId": self.rangeSheetIds[ri],
+                                                      "dimension":'COLUMNS',
+                                                      "startIndex":colInd,
+                                                      "endIndex":colInd + 1},
+                                             "properties":{"pixelSize":self.rangeColumnMetadata[ri][colCnt][u'pixelSize']},
+                                             "fields":'pixelSize'}})
+                # otherwise lest coppy the row widths
                 else:
-                    loopList = range(len(self.rangeRowMetadata[ri]))
-                for colCnt,colInd in enumerate(loopList):
-                    requests.append({"updateDimensionProperties":{
-                                         "range":{"sheetId": self.rangeSheetIds[ri],
-                                                  "dimension":'ROWS',
-                                                  "startIndex":colInd,
-                                                  "endIndex":colInd + 1},
-                                         "properties":{"pixelSize":self.rangeRowMetadata[ri][colCnt][u'pixelSize']},
-                                         "fields":'pixelSize'}})
-            # fill in the values
-            myValues = copy.deepcopy(rng.get('values'))
-            for oi,outer in enumerate(myValues):
-                for ci,cell in enumerate(outer):
-                    myValues[oi][ci] = cell
-                    for replaceKey in re.findall(r'(\{\{.*?\}\})',cell):
-                        myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,textMatcher.getMatch(replaceKey))
-                        myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,booleanMatcher.getMatch(replaceKey))
-            valueData.append({"range":self.rangeNames[ri],
-                              "majorDimension": 'ROWS',
-                              "values": myValues })
-            # create new rangeNames
-            self.inSheetRangeNames[ri] = "%s:%s" % tuple(map(lambda x:self.format_addr(x,'label'),[start,end]))
-            self.rangeNames[ri] = "%s!%s" % (self.rangeSheetNames[ri],self.inSheetRangeNames[ri])
+                    # update the row sizes to match
+                    if 'startRowIndex' in gr and 'endRowIndex' in gr:
+                        loopList = range(gr['startRowIndex'],gr['endRowIndex'])
+                    else:
+                        loopList = range(len(self.rangeRowMetadata[ri]))
+                    for colCnt,colInd in enumerate(loopList):
+                        requests.append({"updateDimensionProperties":{
+                                             "range":{"sheetId": self.rangeSheetIds[ri],
+                                                      "dimension":'ROWS',
+                                                      "startIndex":colInd,
+                                                      "endIndex":colInd + 1},
+                                             "properties":{"pixelSize":self.rangeRowMetadata[ri][colCnt][u'pixelSize']},
+                                             "fields":'pixelSize'}})
+                # fill in the values
+                myValues = copy.deepcopy(rng.get('values'))
+                for oi,outer in enumerate(myValues):
+                    for ci,cell in enumerate(outer):
+                        myValues[oi][ci] = cell
+                        for replaceKey in re.findall(r'(\{\{.*?\}\})',cell):
+                            myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,textMatcher.getMatch(replaceKey))
+                            myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,booleanMatcher.getMatch(replaceKey))
+                            if RRR in myValues[oi][ci]:
+                                rrrSplit = myValues[oi][ci].split(RRR)
+                                rrrMaxIndex = max(rrrMaxIndex,len(rrrSplit)-1)
+                                if rrrIndex < len(rrrSplit):
+                                    myValues[oi][ci] = rrrSplit[rrrIndex]
+                                else:
+                                    myValues[oi][ci] = ''
+                if rrrIndex < rrrMaxIndex:
+                    rrrFlag = True
+                    rrrIndex+=1
+                valueData.append({"range":self.rangeNames[ri],
+                                  "majorDimension": 'ROWS',
+                                  "values": myValues })
+                # create new rangeNames
+                self.inSheetRangeNames[ri] = "%s:%s" % tuple(map(lambda x:self.format_addr(x,'label'),[start,end]))
+                self.rangeNames[ri] = "%s!%s" % (self.rangeSheetNames[ri],self.inSheetRangeNames[ri])
         # actually carry out the batchUpdate request to insert rows or columns
         #pprint(requests)
         response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body={"requests":requests}).execute()

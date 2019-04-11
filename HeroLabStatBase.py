@@ -346,6 +346,12 @@ def _addMeleeAttributes(oldElement,*args,**kwargs):
             newDict['summary'] = "%(name)s(%(typetext)s)" % newDict
             if 'equipped' in newDict: newDict['summary'] += " %s" % newDict['equipped']
             newDict['summary'] += " %(attack)s (%(damage)s %(crit)s)" % newDict
+        if 'namequant' not in newDict:
+            newDict['namequant'] = _getNameQuant(newDict)
+        if 'weightLbs' not in newDict:
+            newDict['weightLbs'] = _getWeightLbs(elem)
+        if 'costGp' not in newDict:
+            newDict['costGp'] = _getCostGp(elem)
         # reset the current element with new attributes
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
@@ -371,6 +377,12 @@ def _addRangedAttributes(oldElement,*args,**kwargs):
             else:
                 newDict['summary'] += " %(attack)s" % newDict
             newDict['summary'] += " (%(damage)s %(crit)s)" % newDict
+        if 'namequant' not in newDict:
+            newDict['namequant'] = _getNameQuant(newDict)
+        if 'weightLbs' not in newDict:
+            newDict['weightLbs'] = _getWeightLbs(elem)
+        if 'costGp' not in newDict:
+            newDict['costGp'] = _getCostGp(elem)
         # reset the current element with new attributes
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
@@ -379,6 +391,33 @@ def _addRangedAttributes(oldElement,*args,**kwargs):
         elem.extend(newSubs)
     return oldElement
 
+def _getNameQuant(newDict):
+    q = 1
+    nq = ''
+    if 'left' in newDict and newDict['left']:
+        q = int(newDict['left'])
+    elif 'quantity' in newDict and newDict['quantity']:
+        q = int(newDict['quantity'])
+    if q == 0:
+        if re.search(r'(?i)at will',newDict['name']): nq = newDict['name']
+    elif q > 1:
+        nq = "%s [%d]" % (newDict['name'],q)
+    else:
+        nq = newDict['name']
+    return nq
+    
+def _getWeightLbs(elem):
+    if elem.findall('weight'):
+        return elem.findall('weight')[0].get('value')
+    else:
+        return ''
+
+def _getCostGp(elem):
+    if elem.findall('cost'):
+        return elem.findall('cost')[0].get('value')
+    else:
+        return ''
+        
 def _addNameQuantAttribute(oldElement,*args,**kwargs):
     # find and append elements
     for elem in list(oldElement):
@@ -387,18 +426,11 @@ def _addNameQuantAttribute(oldElement,*args,**kwargs):
         newTail = elem.tail
         newSubs = list(elem)
         if 'namequant' not in newDict:
-            q = 1
-            if 'left' in newDict and newDict['left']:
-                q = int(newDict['left'])
-            elif 'quantity' in newDict and newDict['quantity']:
-                q = int(newDict['quantity'])
-            if q == 0:
-                newDict['namequant'] = ""
-                if re.search(r'(?i)at will',newDict['name']): newDict['namequant'] = newDict['name']
-            elif q > 1:
-                newDict['namequant'] = "%s [%d]" % (newDict['name'],q)
-            else:
-                newDict['namequant'] = newDict['name']
+            newDict['namequant'] = _getNameQuant(newDict)
+        if 'weightLbs' not in newDict:
+            newDict['weightLbs'] = _getWeightLbs(elem)
+        if 'costGp' not in newDict:
+            newDict['costGp'] = _getCostGp(elem)
         # reset the current element with new attributes
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
