@@ -108,8 +108,9 @@ class GoogleSheetRenderer(Renderer):
     def eachCharacter(self,character,*args,**kwargs):
         requests = []        
         valueData = []
-        # create text matcher instance
+        # create matcher instances
         textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
+        booleanMatcher = self.matcherClass(character,self.matcherClass.BOOLEANMATCH,'boolean',verbosity=self.verbosity)
         # loop through ranges to replace
         for ri,rng in enumerate(self.ranges):
             # determine if we are inserting rows or columns
@@ -174,6 +175,7 @@ class GoogleSheetRenderer(Renderer):
                     myValues[oi][ci] = cell
                     for replaceKey in re.findall(r'(\{\{.*?\}\})',cell):
                         myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,textMatcher.getMatch(replaceKey))
+                        myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,booleanMatcher.getMatch(replaceKey))
             valueData.append({"range":self.rangeNames[ri],
                               "majorDimension": 'ROWS',
                               "values": myValues })
