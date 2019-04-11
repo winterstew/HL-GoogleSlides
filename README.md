@@ -52,10 +52,12 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
 2. under the "APIs & Services" -> "Dashboard" select "ENABLE APIS AND SERVICES" 
    - you need to enable "Google Drive API" 
    - and "Google Slides API"
+   - also "Google Sheets API" if you plan to use the GoogleSheet renderer
 3. under "API & Service" -> "Credentials" select the "OAuth consent screen" tab
    - Enter "HLRender" as the application name
    - Choose "Add scope" and select "../auth/drive" and "../auth/presentations" 
       - this is necessary as the GoogleSlide renderer copies your template to a new file and then duplicates the pages within it for each character in the portfolio
+   - If you also plan to you GoogleSheet renderer: "Add scope" and select "../auth/spreadsheets" as well
 4. under "API & Service" -> "Credentials" select "Create credentials" -> "OAuth Client ID"
    - Select "Other" radio box for "Application Type" and enter "Python Desktop Application" as its name
 5. back at "API & Service" -> "Credentials" click the download JSON button and save the file as client_secret.json in the HLRender directory
@@ -63,6 +65,7 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
    - from the command line
      ```
      python HeroLabStatRenderGoogleSlide.py
+     python HeroLabStatRenderGoogleSheet.py
      ```
    - from the GUI
      click "get Google credentials"
@@ -75,7 +78,7 @@ To use the GoogleSlide renderer, you will have to create an OAuth client ID for 
   The GoogleSheet renderer cat take two or more (comma separated) options.  The first is the name of the Google Sheet spreadsheet you
   want to use as the starting template.  The rest of the options are names of ranges (in a1 notation) which will be duplicated within
   the sheet and match-replace for each character.  Be aware if the range has more columns than rows, it will insert columns.  Otherwise
-  it will insert rows.  The GoogleSheetRenderer(HeroLabStatRenderGoogleSheet.py) uses the same [matcher](HeroLabStatMatchGoogleSlide.py) as GoogleSlideRenderer(HeroLabStatRenderGoogleSlide.py).  An example template can be found at [StatList Template](https://docs.google.com/spreadsheets/d/17gyE-L8508glDQtJGSYijMniYxOTFh3K-UmPNtXg0do/edit?usp=sharing)
+  it will insert rows.  The GoogleSheetRenderer(HeroLabStatRenderGoogleSheet.py) uses the same [matcher](HeroLabStatMatchGoogleSlide.py) as GoogleSlideRenderer(HeroLabStatRenderGoogleSlide.py).  An example template can be found at [StatList Template](https://docs.google.com/spreadsheets/d/17gyE-L8508glDQtJGSYijMniYxOTFh3K-UmPNtXg0do/edit?usp=sharing).  Also if the string '``` rrr ```' is used as a separater in list keyword, the renderer will recongnize it and add extra ranges for each item in the list.  This is useful if you want to render an equipment list for the whole portfolio.  This use can be seen in the [GearList Template](https://docs.google.com/spreadsheets/d/1Zw0BHrzt_u9emLCK9Gpwn9y89T-lE9FJ3rsVX8v1gWM/edit?usp=sharing)
 
 ### CSpdf
   The CSpdf renderer works with ``Character Sheet fillable.pdf`` which comes from [Paizo](https://www.paizo.com).  Unfortunately, while I have a list of all the fields, I have not yet matched them all up to HLRender values.  It is a very long list, and requires choosing what to include since there are not enough blanks.  This defeats the purpose of quick, easy, and complete transfer in information from Hero Lab, so I am less interested in finishing this.
