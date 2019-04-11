@@ -5,6 +5,7 @@ Created on Sat Jan 20 05:23:12 2018
 @author: steve
 """
 from __future__ import print_function
+from pprint import pprint
 from HeroLabStatBase import VERBOSITY
 from HeroLabStatRender import Renderer
 import re,os,pickle,copy
@@ -62,11 +63,16 @@ class GoogleSheetRenderer(Renderer):
         super(GoogleSheetRenderer, self).__init__(portfolio,flags,matcherClass,*args,**kwargs)
         self.templateName = len(self.options) > 0 and self.options[0] or TEMPLATENAME
         self.rangeNames = len(self.options) > 1 and self.options[1:] or [RANGENAME]
+        #self.rangeNames = len(self.options) > 1 and self.options[1:] or ['Sheet1!A:B','Sheet1!B5:D6','Sheet2!A1:B2']
         self.credentials = self.get_credentials(flags=flags)
         self.service = build('sheets', 'v4', credentials=self.credentials)
         self.drive_service = build('drive', 'v3', credentials=self.credentials)
         self.templateId,self.templateName,self.templateFolder = self.find_template(self.drive_service,self.templateName)
-        self.rangeSheetIds,self.rangeSheetNames,self.inSheetRangeNames = self.getRangeIds(self.service,self.templateId,self.rangeNames)
+        self.rangeSheetIds,self.rangeSheetNames,self.inSheetRangeNames,self.rangeRowMetadata,self.rangeColumnMetadata = \
+            self.getRangeIds(self.service,self.templateId,self.rangeNames)
+        #pprint(self.rangeRowMetadata)
+        #pprint(self.rangeColumnMetadata)
+        #pprint([self._getGridRange(ri) for ri,rng in enumerate(self.rangeNames)])
             
         
     def startPortfolio(self,*args,**kwargs):
@@ -92,12 +98,12 @@ class GoogleSheetRenderer(Renderer):
                      ranges=self.rangeNames,
                      majorDimension='ROWS',
                      valueRenderOption='FORMATTED_VALUE').execute().get('valueRanges')
-        print(rngs.viewkeys())
+        #print(rngs.viewkeys())
         for ri,rng in enumerate(rngs):
             print("Range Number %d from %s (id %d) cells %s" % (ri,self.rangeSheetNames[ri],self.rangeSheetIds[ri],self.inSheetRangeNames[ri]))
-            print(rng.get('values'))
+            pprint(rng.get('values'))
             print("Grid Range:")
-            print(self._getGridRange(ri))
+            pprint(self._getGridRange(ri))
 
     def eachCharacter(self,character,*args,**kwargs):
         requests = []        
@@ -128,6 +134,39 @@ class GoogleSheetRenderer(Renderer):
                 end = (end[0]+rowNum,end[1])
             # copy the format over so the new values look the same
             requests.append({"copyPaste":{"source":newgr,"destination":gr,"pasteType":'PASTE_FORMAT'}})
+            # NOTE The width update below coule be taken out ot the rowNum > colNum
+            #  contitional is I want full control of the sizes, but I wanted
+            #  to allow the cells to expand if text had to wrap or was too long.
+            # if we are inserting columns lets copy the column widths
+            if rowNum > colNum:
+                # update the column sizes to match
+                if 'startColumnIndex' in gr and 'endColumnIndex' in gr:
+                    loopList = range(gr['startColumnIndex'],gr['endColumnIndex'])
+                else:
+                    loopList = range(len(self.rangeColumnMetadata[ri]))
+                for colCnt,colInd in enumerate(loopList):
+                    requests.append({"updateDimensionProperties":{
+                                         "range":{"sheetId": self.rangeSheetIds[ri],
+                                                  "dimension":'COLUMNS',
+                                                  "startIndex":colInd,
+                                                  "endIndex":colInd + 1},
+                                         "properties":{"pixelSize":self.rangeColumnMetadata[ri][colCnt][u'pixelSize']},
+                                         "fields":'pixelSize'}})
+            # otherwise lest coppy the row widths
+            else:
+                # update the row sizes to match
+                if 'startRowIndex' in gr and 'endRowIndex' in gr:
+                    loopList = range(gr['startRowIndex'],gr['endRowIndex'])
+                else:
+                    loopList = range(len(self.rangeRowMetadata[ri]))
+                for colCnt,colInd in enumerate(loopList):
+                    requests.append({"updateDimensionProperties":{
+                                         "range":{"sheetId": self.rangeSheetIds[ri],
+                                                  "dimension":'ROWS',
+                                                  "startIndex":colInd,
+                                                  "endIndex":colInd + 1},
+                                         "properties":{"pixelSize":self.rangeRowMetadata[ri][colCnt][u'pixelSize']},
+                                         "fields":'pixelSize'}})
             # fill in the values
             myValues = copy.deepcopy(rng.get('values'))
             for oi,outer in enumerate(myValues):
@@ -142,6 +181,7 @@ class GoogleSheetRenderer(Renderer):
             self.inSheetRangeNames[ri] = "%s:%s" % tuple(map(lambda x:self.format_addr(x,'label'),[start,end]))
             self.rangeNames[ri] = "%s!%s" % (self.rangeSheetNames[ri],self.inSheetRangeNames[ri])
         # actually carry out the batchUpdate request to insert rows or columns
+        #pprint(requests)
         response = self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId,body={"requests":requests}).execute()
         # now carry out the value replacement
         response = self.service.spreadsheets().values().batchUpdate(
@@ -184,6 +224,8 @@ class GoogleSheetRenderer(Renderer):
         
     @staticmethod
     def format_addr(addr,outType):
+        """ pygsheets format_addr did not work for returning tuples for 
+            A1 noted unbounded rows or columns, this wrapper fixes that """
         if outType == 'tuple':
             if type(addr) == type(()):
                 return addr
@@ -203,6 +245,8 @@ class GoogleSheetRenderer(Renderer):
                 return addr
             else:
                 return format_addr(addr,'label')
+        else:
+            return format_addr(addr,outType)
         
     @staticmethod
     def getRangeIds(service,ssId,rngNames):
@@ -211,11 +255,19 @@ class GoogleSheetRenderer(Renderer):
         rsid = []
         isrn = []
         rsname = []
+        rcolmeta = []
+        rrowmeta = []
         idDict = {}
         firstSheetName = ''
-        ss = service.spreadsheets().get(spreadsheetId=ssId).execute()
-        # make a dictionary maping sheet titles to ids
+        # get the spreadsheet data, but only for the given ranges
+        ss = service.spreadsheets().get(spreadsheetId=ssId,ranges=rngNames,includeGridData=True).execute()
+        # loop through each sheet getting info
         for ws in ss.get('sheets'):
+            #create a list of rowMetadata for each of the ranges
+            map(lambda y:rrowmeta.append(y),map(lambda x:x.get('rowMetadata'),ws.get('data')))
+            #create a list of columnMetadata for each of the ranges
+            map(lambda y:rcolmeta.append(y),map(lambda x:x.get('columnMetadata'),ws.get('data')))
+            # make a dictionary maping sheet titles to ids
             idDict[ws.get('properties').get('title')] = ws.get('properties').get('sheetId')            
             if ws.get('properties').get('sheetId') == 0: firstSheetName = ws.get('properties').get('title')
         # loop trough range names and extract the sheet name
@@ -236,7 +288,7 @@ class GoogleSheetRenderer(Renderer):
                 rsname.append(rng[0])
             else:
                 raise Exception,"%s is not a valid range" % rn  
-        return (rsid,rsname,isrn)
+        return (rsid,rsname,isrn,rrowmeta,rcolmeta)
             
             
     @staticmethod
