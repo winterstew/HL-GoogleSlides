@@ -222,23 +222,34 @@ class GoogleSheetRenderer(Renderer):
         """replace all A1 notations within the value which
            are within sRange.  Replace these with a new A1 notation
            that is offset by the difference betwen sRange and tRange"""
-        if re.search(r'\b[A-Za-z]+[0-9]+\b',value):
+        if re.search(r'\b\$?[A-Za-z]+\$?[0-9]+\b',value):
             s = [self.format_addr(x,'tuple') for x in sRange.split(':')]
             t = [self.format_addr(x,'tuple') for x in tRange.split(':')]
             d = [[0,0],[0,0]]
             for i in range(2):
                 d[i][0] = type(t[i][0]) != type(None) and type(s[i][0]) != type(None) and t[i][0] - s[i][0]
                 d[i][1] = type(t[i][1]) != type(None) and type(s[i][1]) != type(None) and t[i][1] - s[i][1]
-            #print(sRange,tRange,s,t,d)
             if d[0][0] != d[1][0] or d[0][1] != d[1][1]:
                 raise Exception,"the source range %s and target range %s are not the same size" % (sRange,tRange)
-            #print(s)
             for at in [(x, y) for x in range(s[0][0],s[1][0]+1) for y in range(s[0][1],s[1][1]+1)]:
                 al = self.format_addr(at,'label')
                 rl = self.format_addr((at[0]+d[0][0],at[1]+d[0][1]),'label')
-                #print(al,rl,value)
-                value = re.sub(r'(?i)\b%s\b' % al,rl,value)
-                #print(value)
+                while True:
+                    newvalue = value
+                    # check if either the row or column in the A1 notation is locked
+                    # making new rows
+                    if d[0][0] > 0:
+                        newvalue = re.sub(r'(?i)\b%s\b' % al,rl,value)
+                    # making new columns
+                    if d[0][1] > 0:
+                        newvalue = re.sub(r'(?i)(^%s\b)|((?<=[^$A-z])%s\b)' % (al,al),rl,value)
+                        dal = "\$".join(re.split(r'\b([A-z]+)([0-9]+)\b',al)[1:3])
+                        drl = "$".join(re.split(r'\b([A-z]+)([0-9]+)\b',rl)[1:3])
+                        newvalue = re.sub(r'(?i)(^%s\b)|((?<=[^$A-z])%s\b)' % (dal,dal),drl,value)
+                    if newvalue == value: 
+                        break
+                    else:
+                        value = newvalue
         return value
 
     def endPortfolio(self,*args,**kwargs):
