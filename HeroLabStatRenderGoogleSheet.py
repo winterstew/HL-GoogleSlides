@@ -93,7 +93,7 @@ class GoogleSheetRenderer(Renderer):
                      spreadsheetId=self.templateId,
                      ranges=self.rangeNames,
                      majorDimension='ROWS',
-                     valueRenderOption='FORMATTED_VALUE').execute().get('valueRanges')
+                     valueRenderOption='FORMULA').execute().get('valueRanges')
             
     def dumpTemplate(self,*args,**kwargs):
         ss = self.service.spreadsheets().get(
@@ -167,7 +167,7 @@ class GoogleSheetRenderer(Renderer):
                                                       "endIndex":colInd + 1},
                                              "properties":{"pixelSize":self.rangeColumnMetadata[ri][colCnt][u'pixelSize']},
                                              "fields":'pixelSize'}})
-                # otherwise lest coppy the row widths
+                # otherwise lets copy the row widths
                 else:
                     # update the row sizes to match
                     if 'startRowIndex' in gr and 'endRowIndex' in gr:
@@ -184,6 +184,7 @@ class GoogleSheetRenderer(Renderer):
                                              "fields":'pixelSize'}})
                 # fill in the values
                 myValues = copy.deepcopy(rng.get('values'))
+                origRange = rng.get('range').split('!')[-1]
                 for oi,outer in enumerate(myValues):
                     for ci,cell in enumerate(outer):
                         myValues[oi][ci] = cell
@@ -197,6 +198,7 @@ class GoogleSheetRenderer(Renderer):
                                     myValues[oi][ci] = rrrSplit[rrrIndex]
                                 else:
                                     myValues[oi][ci] = ''
+                        myValues[oi][ci] = self._replaceA1notationByDiff(origRange,self.inSheetRangeNames[ri],myValues[oi][ci])
                 if rrrIndex < rrrMaxIndex:
                     rrrFlag = True
                     rrrIndex+=1
@@ -213,8 +215,31 @@ class GoogleSheetRenderer(Renderer):
         response = self.service.spreadsheets().values().batchUpdate(
                               spreadsheetId=self.spreadsheetId,
                               body={
-                                  "valueInputOption":'RAW',
+                                  "valueInputOption":'USER_ENTERED',
                                   "data":valueData}).execute()       
+
+    def _replaceA1notationByDiff(self,sRange,tRange,value):
+        """replace all A1 notations within the value which
+           are within sRange.  Replace these with a new A1 notation
+           that is offset by the difference betwen sRange and tRange"""
+        if re.search(r'\b[A-Za-z]+[0-9]+\b',value):
+            s = [self.format_addr(x,'tuple') for x in sRange.split(':')]
+            t = [self.format_addr(x,'tuple') for x in tRange.split(':')]
+            d = [[0,0],[0,0]]
+            for i in range(2):
+                d[i][0] = type(t[i][0]) != type(None) and type(s[i][0]) != type(None) and t[i][0] - s[i][0]
+                d[i][1] = type(t[i][1]) != type(None) and type(s[i][1]) != type(None) and t[i][1] - s[i][1]
+            #print(sRange,tRange,s,t,d)
+            if d[0][0] != d[1][0] or d[0][1] != d[1][1]:
+                raise Exception,"the source range %s and target range %s are not the same size" % (sRange,tRange)
+            #print(s)
+            for at in [(x, y) for x in range(s[0][0],s[1][0]+1) for y in range(s[0][1],s[1][1]+1)]:
+                al = self.format_addr(at,'label')
+                rl = self.format_addr((at[0]+d[0][0],at[1]+d[0][1]),'label')
+                #print(al,rl,value)
+                value = re.sub(r'(?i)\b%s\b' % al,rl,value)
+                #print(value)
+        return value
 
     def endPortfolio(self,*args,**kwargs):
         requests = []
@@ -258,17 +283,17 @@ class GoogleSheetRenderer(Renderer):
             else:
                 row,col = None,None
                 if re.match(r'[A-Za-z]+[0-9]+$',addr):
-                    row,col = format_addr(addr,'tuple')
+                    row,col = format_addr(str(addr),'tuple')
                 elif re.match(r'[A-Za-z]+$',addr):
-                    col = format_addr('%s1' % addr,'tuple')[1]
+                    col = format_addr(str('%s1' % addr),'tuple')[1]
                 elif re.match(r'[0-9]+$',addr):
-                    row = format_addr('A%s' % addr,'tuple')[0]
+                    row = format_addr(str('A%s' % addr),'tuple')[0]
                 else:
                     raise Exception,"bad A1 notation address %s" % addr
                 return (row,col)
         elif outType == 'label':
-            if type(addr) == type(''):
-                return addr
+            if type(addr) == type('') or type(addr) == type(u''):
+                return str("%s" % addr)
             else:
                 return format_addr(addr,'label')
         else:
