@@ -20,27 +20,36 @@ This was written for Python 2.7
 - xml.etree.cElementTree
 - argparse
 #### for GUI
-- PySimpleGUI27,
+- [PySimpleGUI27](https://opensource.com/article/18/8/pysimplegui)
+  . ```pip install PySimpleGUI27```
 - subprocess,
 - threading,
 - Queue
 - json
 #### for CSpdf render
-- pypdftk
+- [pypdftk](https://github.com/revolunet/pypdftk)
+  . Library to run the [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/) binary (i.e. install this first)
+  . ```pip install pypdftk```
 #### for GoogleSlide render
 - httplib2
+  . ```pip install httplib2```
 - mimetypes
 - PIL
 - apiclient
+  . ```pip install apiclient```
 - oauth2client
+  . ```pip install oauth2client```
 #### for GoogleSheet render
 - pickle
 - copy
 - google-api-python-client 
+  . ```pip install google-api-client```
 - google-auth-httplib2 
+  . ```pip install google-auth-httplib2```
 - google-auth-oauthlib
+  . ```pip install google-auth-oauthlib```
 - pygsheets
-
+  . ```pip install pygsheets```
 
 ### edit HLRender.bat to call the GUI
 Currently it is set up to call the Anaconda activate script from the user's Anaconda2 directory and then start the GUI.  
