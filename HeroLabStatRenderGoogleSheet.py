@@ -78,6 +78,7 @@ class GoogleSheetRenderer(Renderer):
         self.templateId,self.templateName,self.templateFolder = self.find_template(self.drive_service,self.templateName)
         self.rangeSheetIds,self.rangeSheetNames,self.inSheetRangeNames,self.rangeRowMetadata,self.rangeColumnMetadata = \
             self.getRangeIds(self.service,self.templateId,self.rangeNames)
+        self.portfolio.keepTemp = True
         #pprint(self.rangeRowMetadata)
         #pprint(self.rangeColumnMetadata)
         #pprint([self._getGridRange(ri) for ri,rng in enumerate(self.rangeNames)])
@@ -119,6 +120,7 @@ class GoogleSheetRenderer(Renderer):
         # create matcher instances
         textMatcher = self.matcherClass(character,self.matcherClass.TEXTMATCH,'text',verbosity=self.verbosity)
         booleanMatcher = self.matcherClass(character,self.matcherClass.BOOLEANMATCH,'boolean',verbosity=self.verbosity)
+        imageMatcher = self.matcherClass(character,self.matcherClass.IMAGEMATCH,'image',verbosity=self.verbosity)
         # loop through ranges to replace
         for ri,rng in enumerate(self.ranges):
             # flag if repeated rows need to be rendered (i.e. the values have " rrr " in them())
@@ -191,6 +193,8 @@ class GoogleSheetRenderer(Renderer):
                         for replaceKey in re.findall(r'(\{\{.*?\}\})',cell):
                             myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,textMatcher.getMatch(replaceKey))
                             myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,booleanMatcher.getMatch(replaceKey))
+                            myValues[oi][ci] = myValues[oi][ci].replace(replaceKey,imageMatcher.getMatch(replaceKey)[1])
+                            #print(replaceKey,textMatcher.getMatch(replaceKey),imageMatcher.getMatch(replaceKey))
                             if RRR in myValues[oi][ci]:
                                 rrrSplit = myValues[oi][ci].split(RRR)
                                 rrrMaxIndex = max(rrrMaxIndex,len(rrrSplit)-1)

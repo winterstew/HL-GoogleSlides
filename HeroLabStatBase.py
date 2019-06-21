@@ -12,6 +12,18 @@ import xml.etree.cElementTree as et
 
 VERBOSITY = 0
 PRINTOMIT = ['fTag','fParent','fCharacter','fPortfolio','statText','statHtml','statXml','fAttr','fSub','_fAbbreviate','minions','minionsList']
+SIZEDICT = {
+      'F':'Fine',
+      'D':'Diminutive',
+      'T':'Tiny',
+      'S':'Small',
+      'M':'Medium',
+      'L':'Large',
+      'H':'Huge',
+      'G':'Gargantuan',
+      'C':'Colossal',
+      None:''
+}
 
 def printFeatureList(myList,name='',**kwargs):
     """recursive function to print out feature list"""
@@ -132,7 +144,7 @@ def _setTrueSpellclass(oldElement,spellText,*args,**kwargs):
         if clName in ['Alchemist','Magus','Witch','Wizard']: clType = "Spellbook"
         # if there is a spellclass subelement for this class lets use its type instead
         clMax = None
-        if oldElement.find("spellclass[@name='%s'] % clName"):
+        if oldElement.find("spellclass[@name='%s'] % clName") != None:
             clType = oldElement.find("spellclass[@name='%s']" % clName).get('spells') or clType
             clMax = oldElement.find("spellclass[@name='%s']" % clName).get('maxspelllevel') or None
         # figure out the subelement spelllevel
@@ -371,9 +383,9 @@ def _addRangedAttributes(oldElement,*args,**kwargs):
         if 'summary' not in newDict:
             newDict['summary'] = "%(name)s(%(typetext)s)" % newDict
             if 'equipped' in newDict: newDict['summary'] += " %s" % newDict['equipped']
-            if elem.find('rangedattack'):
-                newDict['summary'] += " %(attack)s %(range)s" % {'attack':elem.find('rangedattack').get('attack',default=newDict['attack']),
-                                                                     'range':elem.find('rangedattack').get('rangeinctext',default='')}
+            if elem.find('rangedattack') != None:
+                newDict['summary'] += " %(attack)s %(range)s" % {'attack':elem.find('rangedattack').get('attack',newDict['attack']),
+                                                                     'range':elem.find('rangedattack').get('rangeinctext','')}
             else:
                 newDict['summary'] += " %(attack)s" % newDict
             newDict['summary'] += " (%(damage)s %(crit)s)" % newDict
@@ -432,6 +444,57 @@ def _addNameQuantAttribute(oldElement,*args,**kwargs):
         if 'costGp' not in newDict:
             newDict['costGp'] = _getCostGp(elem)
         # reset the current element with new attributes
+        elem.clear()
+        [elem.set(*a) for a in newDict.items()]
+        elem.text = newText
+        elem.tail = newTail
+        elem.extend(newSubs)
+    return oldElement
+
+def _addItemAttributes(oldElement,*args,**kwargs):
+    # find and append elements
+    for elem in list(oldElement):
+        newDict = dict(elem.items())
+        newText = elem.text
+        newTail = elem.tail
+        newSubs = list(elem) 
+        if elem.tag == "weapon" or 'realmworkscategory' in newDict and re.search(r'(?i)weapon',newDict['realmworkscategory']):
+            if 'summary' not in newDict:
+                newDict['summary'] = 'size' in newDict and SIZEDICT[newDict['size'][1]] + " " or ""
+                newDict['summary'] += "%(name)s(%(typetext)s)" % newDict
+                if 'equipped' in newDict: newDict['summary'] += " %s" % newDict['equipped']
+                if elem.find('rangedattack') != None:
+                    newDict['summary'] += " %(attack)s %(range)s" % {'attack':elem.find('rangedattack').get('attack',newDict['attack']),
+                                                                         'range':elem.find('rangedattack').get('rangeinctext','')}
+                else:
+                    newDict['summary'] += " %(attack)s" % newDict
+                newDict['summary'] += " (%(damage)s %(crit)s)" % newDict
+            if elem.find('rangedattack') != None:
+                newDict['rangeattack'] = elem.find('rangedattack').get('attack',newDict['attack'])
+                newDict['rangeinc'] = elem.find('rangedattack').get('rangeinctext','')
+            if elem.find('situationalmodifiers') != None:
+                newDict['situational'] = elem.find('situationalmodifiers').get('text','')
+        if elem.find('itemslot') != None:
+            newDict['itemslottext'] = elem.find('itemslot').text
+        if 'namequant' not in newDict:
+            newDict['namequant'] = _getNameQuant(newDict)
+        if 'weightLbs' not in newDict:
+            newDict['weightLbs'] = _getWeightLbs(elem)
+            #if newDict['weightLbs'] == '': del newDict['weightLbs']
+        if 'costGp' not in newDict:
+            newDict['costGp'] = _getCostGp(elem)
+            #if newDict['costGp'] == '': del newDict['costGp']
+        #if 'size' not in newDict:
+        newDict['size'] = 'size' in newDict and SIZEDICT[newDict['size'][1]] or " "
+        #if newDict['size'] == '': del newDict['size']
+        # reset the current element with new attributes
+
+        for k in ['summary','quantity','weightLbs','costGp','name','categorytext',
+              'typetext','attack','crit','damage','rangeattack','rangeinc',
+              'ac','itemslottext','size','situational','realmworkscategory']:
+            if k not in newDict:
+                newDict[k] = ' ';
+
         elem.clear()
         [elem.set(*a) for a in newDict.items()]
         elem.text = newText
@@ -894,6 +957,7 @@ class Character(object):
       (r'(?i)Lawful Neutral','LN'),
       (r'(?i)Lawful Evil','LE'),
       (r'(?i)Neutral Good','NG'),
+      (r'(?i)Neutral','N'),
       (r'(?i)True Neutral','N'),
       (r'(?i)Neutral Evil','NE'),
       (r'(?i)Chaotic Good','CG'),
@@ -1027,6 +1091,7 @@ class Character(object):
       'CN':'Chaotic Neutral',
       'CE':'Chaotic Evil',
     }
+    sizes = SIZEDICT
 
     # the swapOuts dictionary has element tags as the keys, and a two item
     # tuple for each value.  The first item is a regular expression string
@@ -1047,13 +1112,14 @@ class Character(object):
      'attributes': (r'(?m)^(.*)$',_addBetterNamedElements),
      'saves': (r'(?m)^(.*)$',_addBetterNamedElements),
      'maneuvers': (r'(?m)^(.*)$',_addBetterNamedElements),
-     'melee': (r'(?m)^(.*)$',_addMeleeAttributes),
-     'ranged': (r'(?m)^(.*)$',_addRangedAttributes),
-     'defenses': (r'(?m)^(.*)$',_addNameQuantAttribute),
-     'magicitems': (r'(?m)^(.*)$',_addNameQuantAttribute),
-     'spelllike': (r'(?m)^(.*)$',_addNameQuantAttribute),
-     'gear': (r'(?m)^(.*)$',_addNameQuantAttribute),
-     'trackedresources': (r'(?m)^(.*)$',_addNameQuantAttribute),
+     'melee': (r'(?m)^(.*)$',_addItemAttributes),
+     'ranged': (r'(?m)^(.*)$',_addItemAttributes),
+     'defenses': (r'(?m)^(.*)$',_addItemAttributes),
+     'magicitems': (r'(?m)^(.*)$',_addItemAttributes),
+     'spelllike': (r'(?m)^(.*)$',_addItemAttributes),
+     'gear': (r'(?m)^(.*)$',_addItemAttributes),
+     'allitems': (r'(?m)^(.*)$',_addItemAttributes),
+     'trackedresources': (r'(?m)^(.*)$',_addItemAttributes),
      'resistances': (r'(?m)^(.*)$',_addTypeAndValueAttribute),
     }
     #htmlTypeSearch = r'(?m)<br/>\s*%s %s ([A-Za-z ]+)\b\s+(\(.*\))?<br/>' # % (align,size)
@@ -1082,6 +1148,17 @@ class Character(object):
      'type':(('type',),'name'),
      'terrain':(('npcinfo',{'name':'Ecology - Environment'}),'fText'),
      'climate':(('npcinfo',{'name':'Ecology - Environment'}),'fText'),
+    }
+    
+    # I want to be able to import the comma sepatated item lists into Realm Works
+    # using the Realm Works importer.  So I want to match inventory items to
+    # Realm Works categories.  This is a terrible way to do this, but oh well
+    realmWorksCategoryName = {
+      'melee/weapon':'Mundane Weapon',
+      'ranged/weapon':'Mundane Weapon',
+      'defenses/armor':'Mundane Armor/Shield',
+      'magicitems/item':'Magic Item',
+      'gear/item':'Mundane Item'
     }
 
     def __init__(self,porFile,indexCharacterElement,*args,**kwargs):
@@ -1145,6 +1222,18 @@ class Character(object):
                 # extract the xml statblock Element for the character
                 self.statXml = xml.find("./*/character")
             xmlFile.close()
+        # create a spetial allitems element which has all unique items from 
+        allitems = et.SubElement(self.statXml,'allitems')
+        # melee/weapons, ranged/weapon, defenses/armor, magicitems/item, and gear/item
+        for itemStore in ["melee/weapon","ranged/weapon","defenses/armor","magicitems/item","gear/item"]:
+            for item in self.statXml.findall(itemStore):
+                if allitems.find("item") == None or not item.get('name') in [i.get('name') for i in list(allitems)]:
+                    if 'useradded' in item.keys() and item.get('useradded') == 'no': break
+                    newItem = et.SubElement(allitems,'item',dict(item.items()))
+                    newItem.set('realmworkscategory',self.realmWorksCategoryName[itemStore])
+                    newItem.text = item.text
+                    newItem.tail = item.tail
+                    newItem.extend(list(item))
         # extract the image files and copy them to a temporary directory
         if 'tempDir' in kwargs and os.path.isdir(kwargs['tempDir']):
             self.tempDir = kwargs['tempDir']
@@ -1205,7 +1294,7 @@ class Portfolio(object):
        filename: (str) pathless filename of the protfolio file
        filepath: (str) absolute path of the portfolio file directory location
        filecore: (str) pathless,extentionless name of the portfolio file
-       game: (str) game for which this porfolio file was created
+       game: (str) game for which this portfolio file was created
        gameVersion: (str) vertion of the HeroLab data file for the game
        tempDir: (str) absolute path of temporary directory for image extraction
        characters: (list) list of Character instances from the portfolio
@@ -1228,6 +1317,7 @@ class Portfolio(object):
         if self.verbosity >= 2: print("filename: %s" % porFile.filename)
         self.porFile = porFile
         self.filename = porFile.filename
+        self.keepTemp = False
         self.filepath = os.path.split(porFile.filename)[0]
         self.filecore = os.path.splitext(os.path.basename(porFile.filename))[0]
         if self.verbosity >= 2: print("filecore: %s" % self.filecore)
@@ -1246,7 +1336,7 @@ class Portfolio(object):
         if self.game != "Pathfinder Roleplaying Game" or self.gameVersion < 14.1:
             print("WARNING: HL-GoogleSlides has only been tested to work with HeroLab's Pathfinder ruleset version 14.1")
         # create a temporary directory for Character images
-        self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Porfolio-')
+        self.tempDir = tempfile.mkdtemp(prefix='HL-GoogleSlides-Portfolio-')
         if self.verbosity >= 2: print("Temp Image Directory: %s" % self.tempDir)
         # build up the character list creating Character instances for each
         self.characters = []
@@ -1279,5 +1369,6 @@ class Portfolio(object):
         """
         clean up temporary files and directories
         """
-        shutil.rmtree(self.tempDir)
+        if not self.keepTemp:
+            shutil.rmtree(self.tempDir)
 

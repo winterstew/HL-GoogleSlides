@@ -437,7 +437,8 @@ class Matcher(object):
                         else:
                             myVal = getattr(f,attr)
                         if describe:
-                            myVal = f.describe(attr,myVal)
+                            #myVal = f.describe(attr,myVal)
+                            myVal = f.describe(attr)
                         valueList[valCount] += [myVal]
                 # keep track of max values per valCount
                 maxCount = len(valueList[valCount]) > maxCount and len(valueList[valCount]) or maxCount
