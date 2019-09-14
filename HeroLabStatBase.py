@@ -1223,14 +1223,40 @@ class Character(object):
                 self.statXml = xml.find("./*/character")
             xmlFile.close()
         # create a spetial allitems element which has all unique items from 
-        allitems = et.SubElement(self.statXml,'allitems')
         # melee/weapons, ranged/weapon, defenses/armor, magicitems/item, and gear/item
+        allitems = et.SubElement(self.statXml,'allitems')
+        ## This version commented out here greated a list of all unique items, but items
+        ## with the same name (like daggers of different sizes) were considered repeated entries and left out
+        #for itemStore in ["melee/weapon","ranged/weapon","defenses/armor","magicitems/item","gear/item"]:
+        #    for item in self.statXml.findall(itemStore):
+        #        if allitems.find("item") == None or not item.get('name') in [i.get('name') for i in list(allitems)]:
+        #            if 'useradded' in item.keys() and item.get('useradded') == 'no': break
+        #            newItem = et.SubElement(allitems,'item',dict(item.items()))
+        #            newItem.set('realmworkscategory',self.realmWorksCategoryName[itemStore])
+        #            newItem.text = item.text
+        #            newItem.tail = item.tail
+        #            newItem.extend(list(item))
         for itemStore in ["melee/weapon","ranged/weapon","defenses/armor","magicitems/item","gear/item"]:
             for item in self.statXml.findall(itemStore):
-                if allitems.find("item") == None or not item.get('name') in [i.get('name') for i in list(allitems)]:
+                addItem = False                
+                # if we have no items yet add the first
+                if allitems.find("item") == None:
+                    addItem = True
+                # check for duplicates
+                if not addItem:
+                    addItem = True
+                    for checkItem in list(allitems):
+                        # is there an item with the same name
+                        if item.get('name') == checkItem.get('name'):
+                            # if it is from the same itemStore it means there are in fact duplicates
+                            # however if it was added from a previous itemStore it is proably a repeated listing
+                            if itemStore != checkItem.get('copiedFrom'):
+                                addItem = False
+                if addItem:
                     if 'useradded' in item.keys() and item.get('useradded') == 'no': break
                     newItem = et.SubElement(allitems,'item',dict(item.items()))
                     newItem.set('realmworkscategory',self.realmWorksCategoryName[itemStore])
+                    newItem.set('copiedFrom',itemStore)
                     newItem.text = item.text
                     newItem.tail = item.tail
                     newItem.extend(list(item))

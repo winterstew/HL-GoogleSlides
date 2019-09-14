@@ -89,19 +89,19 @@ layout = [
     toprow,
     [sg.Output(size=(88, 20))],
     [sg.Text('Icon file'),sg.InputText(default_text='iconFile' in defaults and defaults['iconFile'] or getIconFile(),
-                                       key='iconFile'), sg.FileBrowse()],
+                                       key='iconFile'), sg.FileBrowse(file_types=(("Zip Files", "*.zip"),),initial_folder='iconFolder' in defaults and defaults['iconFolder'] or None)],
     [sg.Text('Renderer'),sg.InputCombo(getRenderers(),
                                        default_value='renderer' in defaults and defaults['renderer'] or '',
-                                       key='renderer'),
-     sg.Text('renderer options'),sg.InputText(default_text='renderer_options' in defaults and defaults['renderer_options'] or '',
+                                       key='renderer',enable_events=True),
+     sg.Text('renderer options',key='rendOpt'),sg.InputText(default_text='renderer_options' in defaults and defaults['renderer_options'] or '',
                                               key='renderer_options')],
     [sg.Text('Matcher'),sg.InputCombo(getMatchers(),
                                       default_value='matcher' in defaults and defaults['matcher'] or '',
-                                      key='matcher'),
-     sg.Text('matcher options'),sg.InputText(default_text='matcher_options' in defaults and defaults['matcher_options'] or '',
+                                      key='matcher',enable_events=True),
+     sg.Text('matcher options',key='matchOpt'),sg.InputText(default_text='matcher_options' in defaults and defaults['matcher_options'] or '',
                                              key='matcher_options')],
     [sg.Text('Portfolio file'),sg.InputText(default_text='portFile' in defaults and defaults['portFile'] or '',
-                                            key='portFile'), sg.FileBrowse()], 
+                                            key='portFile'), sg.FileBrowse(file_types=(("Portfolio Files", "*.por"),),initial_folder='portFolder' in defaults and defaults['portFolder'] or None)], 
     [sg.Button('Render',key='render'),sg.Button('Exit',key='exit')]
         ]
         
@@ -132,6 +132,10 @@ while True:
         window.Element('exit').Update('Exit',disabled=False)
         window.Element('render').Update('Render',disabled=False)        
         value['authorized'] = 'authorized' in defaults and defaults['authorized'] or False
+        value['renderer_options'+value['renderer']] = value['renderer_options']
+        value['matcher_options'+value['matcher']] = value['matcher_options']
+        value['portFolder'] = os.path.dirname(value['portFile'])
+        value['iconFolder'] = os.path.dirname(value['iconFile'])
         saveDefaults(defaults_path,value)
     elif event == 'credentials':
         window.Element('render').Update('Working',disabled=True)
@@ -150,5 +154,14 @@ while True:
         window.Element('credentials').Update('authorized',disabled=True)
         value['authorized'] = True
         saveDefaults(defaults_path,value)
+    elif event == 'renderer':
+        default='renderer_options'+value['renderer'] in defaults and defaults['renderer_options'+value['renderer']] or ''
+        value['renderer_options'] = default
+        window.Element('renderer_options').Update(default)
+    elif event == 'matcher':
+        default='matcher_options'+value['matcher'] in defaults and defaults['matcher_options'+value['matcher']] or ''
+        value['matcher_options'] = default        
+        window.Element('matcher_options').Update(default)
+                                       
 
     

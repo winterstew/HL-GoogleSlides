@@ -46,6 +46,7 @@ class Matcher(object):
     {{head|.c.keyword}}
     {{(head|_keyword..)}}
     {{head|_keyword_..}}
+    {{head|_keyword__..}}
 
       ``keyword``
         must have a match in the dictionary to give a value which will be
@@ -69,6 +70,8 @@ class Matcher(object):
         final attribute as the argument.  
         If it is used after the keyword, the parent Feature's describe method
         is called and the result returned. 
+        If two underscores follow the keyword, the name is prepended colon
+        separeted from the description.
         
       ``.c.``
         This before the keyword is used for tracking item lists.  The value
@@ -328,8 +331,9 @@ class Matcher(object):
         # strip off repeat, resolution, and abbreviate flags down to the key
         myKey = re.sub(r'\.\..*$','',re.sub(r'^(h_|l_|_)','',myKey))
         # match for the description option and strip the flag
+        nameDescribe = re.search(r'__$',myKey)
         describe = re.search(r'_$',myKey)
-        myKey = re.sub(r'_$','',myKey)
+        myKey = re.sub(r'__?$','',myKey)
         # some matchers use the striped key, some use the full key
         keyWord = myKey in self.matcherDictionary and myKey or keyText
         if keyWord not in self.matcherDictionary:
@@ -437,8 +441,10 @@ class Matcher(object):
                         else:
                             myVal = getattr(f,attr)
                         if describe:
-                            #myVal = f.describe(attr,myVal)
-                            myVal = f.describe(attr)
+                            if nameDescribe:
+                                myVal = f.describe(attr,myVal)
+                            else:
+                                myVal = f.describe(attr)
                         valueList[valCount] += [myVal]
                 # keep track of max values per valCount
                 maxCount = len(valueList[valCount]) > maxCount and len(valueList[valCount]) or maxCount
@@ -446,7 +452,10 @@ class Matcher(object):
                 if conditional:
                     # use the cntr to find the relavant conditional or if they are mismatched
                     # just use the last conditional
-                    idx = cntr >= len(conditionalResult) and len(conditionalResult)-1 or cntr
+                    if (cntr >= len(conditionalResult)):
+                        idx = len(conditionalResult)-1
+                    else:
+                        idx = cntr
                     if not conditionalResult[idx]:
                         continue
 

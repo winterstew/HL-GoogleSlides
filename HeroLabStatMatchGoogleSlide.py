@@ -139,6 +139,7 @@ class GoogleSlideMatcher(Matcher):
     'senses': "feature.senses.specialList[0].shortname", # Scent, Low-light, etc
     'auras': "feature.auras.specialList[0].name", # Good, Evil, Fear, etc
     'favoredclasses': "feature.favoredclasses.favoredclassList[0].name", # favored classes for level bonus
+    'health special': "feature.health.special.name", # special health abilities
     'HP': "feature.health.hitpoints", # total hit points
     'HD': "feature.health.hitdice", # number and type of hit dice
     'xp': "feature.xp.total", # total experience points earned
