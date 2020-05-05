@@ -56,7 +56,7 @@ class GoogleSlideRenderer(Renderer):
     def startPortfolio(self,*args,**kwargs):
         """ locate Google Drive Presentation and Slides within it and create matcher instances"""
         # find presentation
-        self.presentationId = self.copy_template(self.drive_service,self.templateName,self.portfolio.filecore)
+        (self.presentationId,self.parents) = self.copy_template(self.drive_service,self.templateName,self.portfolio.filecore)
         self.presentation = self.service.presentations().get(presentationId=self.presentationId).execute()
         if self.verbosity >= 2: print('Created:"%s" "%s"' % (self.portfolio.filecore,self.presentationId))
         # generate slide list and slideId list
@@ -149,13 +149,23 @@ class GoogleSlideRenderer(Renderer):
                     # upload the image
                     upload = self.drive_service.files().create(
                         body={'name': imageFile[0],
+                              'parents': self.parents,
                               'mimeType': mimetypes.guess_type(imageFile[1])[0]},
+                        fields='id, owners, permissions, webContentLink, mimeType, name',
                         media_body=imageFile[1]).execute()
                     # get its ID
                     file_id = upload.get('id')
-                    # get its URL
-                    image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
-                    imageDict[replaceKey] = (file_id,image_url)
+                    
+                    ## get its URL
+                    ## access_token in query no longer supported
+                    #image_url = '%s&access_token=%s' % (self.drive_service.files().get_media(fileId=file_id).uri, self.credentials.access_token)
+
+                    # open up sharing for image
+                    permission = self.drive_service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
+                    permission_id = permission.get('id')
+                    # get URL
+                    image_url = upload.get('webContentLink')
+                    imageDict[replaceKey] = (file_id,image_url,permission_id)
             # run through all the tags again this time
             # appending to the requests to replace with images
             for replaceKey in imageDict.keys():
@@ -163,7 +173,7 @@ class GoogleSlideRenderer(Renderer):
                 body['requests'].append({
                   'replaceAllShapesWithImage': {
                     'imageUrl': image_url,
-                    'replaceMethod': 'CENTER_INSIDE',
+                    'imageReplaceMethod': 'CENTER_INSIDE',
                     "pageObjectIds": [newSlideId],
                     'containsText': {
                       'text': replaceKey,
@@ -175,8 +185,11 @@ class GoogleSlideRenderer(Renderer):
             response = self.service.presentations().batchUpdate(presentationId=self.presentationId,body=body).execute()
             self.characterIndex += 1
             # Remove the temporary image file from Drive.
-            for file_id in [image[0] for image in imageDict.values()]:
-                if file_id != '': self.drive_service.files().delete(fileId=file_id).execute()
+            for file_id,permission_id in [(image[0],image[2]) for image in imageDict.values()]:
+                if file_id != '': 
+                    pass
+                    self.drive_service.permissions().delete(fileId=file_id, permissionId=permission_id).execute()
+                    self.drive_service.files().delete(fileId=file_id).execute()
 
     def endPortfolio(self,*args,**kwargs):
         body = { "requests": [] }
@@ -241,26 +254,28 @@ class GoogleSlideRenderer(Renderer):
 
     @staticmethod
     def copy_template(service,templateName,newName,*args,**kwargs):
-        """Returns presentationId of newly copied template"""
+        """Returns presentationId and parents of newly copied template"""
         newId = None
         page_token=None
+        parents = []
         #print(templateIds.keys())
         while True:
             response = service.files().list(q="mimeType='application/vnd.google-apps.presentation'",
                                  spaces='drive',
-                                 fields='nextPageToken, files(id,name,mimeType)',
+                                 fields='nextPageToken, files(id,name,mimeType,parents)',
                                  pageToken=page_token).execute()
             for presentation in response.get('files', []):
                 if presentation.get('name') == templateName:
                     newResponse = service.files().copy(fileId=presentation.get('id'),
                                  body={ 'name': newName }).execute()
                     newId = newResponse.get('id')
+                    parents = presentation.get('parents')
                     #if self.verbosity >= 2: print('"%s" copied to "%s"' % (presentation.get('name'),newresponse.get('name')))
 
             page_token = response.get('nextPageToken',None)
             if page_token is None:
                 break
-        return newId
+        return (newId,parents)
             
 if __name__ == '__main__':
     GoogleSlideRenderer.get_credentials()
