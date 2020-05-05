@@ -69,8 +69,10 @@ def loadDefaults(dp):
     return defaults
 
 def saveDefaults(dp,v):
+    d = loadDefaults(dp)
+    d.update(v)
     f = open(dp,'w')
-    json.dump(v,f)
+    json.dump(d,f)
     f.close()
     return
 
@@ -137,6 +139,7 @@ while True:
         value['portFolder'] = os.path.dirname(value['portFile'])
         value['iconFolder'] = os.path.dirname(value['iconFile'])
         saveDefaults(defaults_path,value)
+        defaults = loadDefaults(defaults_path)
     elif event == 'credentials':
         window.Element('render').Update('Working',disabled=True)
         window.Element('exit').Update('Exit',disabled=True)
@@ -154,6 +157,7 @@ while True:
         window.Element('credentials').Update('authorized',disabled=True)
         value['authorized'] = True
         saveDefaults(defaults_path,value)
+        defaults = loadDefaults(defaults_path)
     elif event == 'renderer':
         default='renderer_options'+value['renderer'] in defaults and defaults['renderer_options'+value['renderer']] or ''
         value['renderer_options'] = default
